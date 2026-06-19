@@ -14,9 +14,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_session
 from app.core.settings import Settings
+
 from app.models.user import User
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='auth/login', refreshUrl='auth/refresh')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login", refreshUrl="auth/refresh")
 
 settings = Settings()
 pwd_context = PasswordHash.recommended()
@@ -33,11 +34,11 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
 
-    expire = datetime.now(tz=ZoneInfo('UTC')) + timedelta(
+    expire = datetime.now(tz=ZoneInfo("UTC")) + timedelta(
         minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
     )
 
-    to_encode.update({'exp': expire})
+    to_encode.update({"exp": expire})
     encoded_jwt = encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
@@ -48,13 +49,12 @@ async def get_current_user(
 ) -> User:
     credentials_exception = HTTPException(
         status_code=HTTPStatus.UNAUTHORIZED,
-        detail='Could not validate credentials',
-        headers={'WWW-Authenticate': 'Bearer'},
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
     )
-
     try:
         payload = decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        subject: str | None = payload.get('sub')
+        subject: str | None = payload.get("sub")
 
         if not subject:
             raise credentials_exception
@@ -64,10 +64,8 @@ async def get_current_user(
     except (DecodeError, ExpiredSignatureError, ValueError):
         raise credentials_exception
 
-    user = await session.scalar(
-        select(User)        
-        .where(User.id == user_id)
-    )
+    query = select(User).where(User.id == user_id)
+    user = await session.scalar(query)
 
     if not user:
         raise credentials_exception

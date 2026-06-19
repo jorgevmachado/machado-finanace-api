@@ -9,7 +9,7 @@ services:
     environment:
       POSTGRES_USER: machado
       POSTGRES_PASSWORD: machado
-      POSTGRES_DB: machado
+      POSTGRES_DB: machadoFinanceDB
     volumes:
       - postgres_data:/var/lib/postgresql/data      
     restart: unless-stopped

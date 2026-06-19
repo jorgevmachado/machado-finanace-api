@@ -29,17 +29,14 @@ def is_paginate(page_filter: Annotated[FilterPage, Query()] = None) -> bool:
 def exception_pagination(page_filter: Annotated[FilterPage, Query()] = None):
     try:
         if is_paginate(page_filter):
-            params = LimitOffsetParams(
-                limit=limit_paginate(page_filter.limit),
-                offset=page_filter.offset,
-            )
+            params = get_limit_offset_params(page_filter)
             return CustomLimitOffsetPage.create([], total=0, params=params)
     except Exception as exception:
         handle_service_exception(
             logger=logger,
             exception=exception,
-            service='exception_pagination',
-            operation='exception_pagination',
+            service="exception_pagination",
+            operation="exception_pagination",
             raise_exception=False,
         )
         return []

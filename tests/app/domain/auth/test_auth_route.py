@@ -10,17 +10,15 @@ import pytest
 from app.domain.auth.route import get_auth_service, login, me, register
 from app.domain.auth.schema import LoginSchema, RegisterSchema
 from app.domain.auth.service import AuthService
-from app.models.enums import GenderEnum, StatusEnum, RoleEnum
+from app.models.enums import StatusEnum, RoleEnum
 
 
 def build_register_schema() -> RegisterSchema:
     return RegisterSchema(
-        name='Ash Ketchum',
-        email='ash@example.com',
-        username='ash',
-        gender=GenderEnum.MALE,
-        date_of_birth=datetime(1990, 1, 1, tzinfo=timezone.utc),
-        password='pikachu123',
+        name="Ash Ketchum",
+        email="ash@example.com",
+        username="ash",
+        password="pikachu123",
     )
 
 
@@ -46,31 +44,32 @@ class TestAuthRoutes:
     @pytest.mark.asyncio
     async def test_login_route_returns_token_payload():
         service = AsyncMock()
-        service.login.return_value = SimpleNamespace(access_token='token', token_type='bearer')
+        service.login.return_value = SimpleNamespace(
+            access_token="token", token_type="bearer"
+        )
 
-        result = await login(LoginSchema(credential='ash', password='pikachu123'), service=service)
+        result = await login(
+            LoginSchema(credential="ash", password="pikachu123"), service=service
+        )
 
-        assert result.access_token == 'token'
+        assert result.access_token == "token"
 
     @staticmethod
     @pytest.mark.asyncio
     async def test_me_route_delegates_to_service():
+        user_id = uuid4()
         current_user = SimpleNamespace(
-            id=uuid4(),
-            name='Ash',
-            email='ash@example.com',
-            username='ash',
+            id=user_id,
+            name="Ash",
+            email="ash@example.com",
+            username="ash",
             role=RoleEnum.USER,
             status=StatusEnum.ACTIVE,
-            gender=GenderEnum.MALE,
-            trainer=None,
             created_at=datetime.now(timezone.utc),
         )
-        expected = SimpleNamespace(id=current_user.id)
         service = AsyncMock()
-        service.me.return_value = expected
-
+        service.me.return_value = current_user
         result = await me(current_user=current_user, service=service)
 
-        assert result is expected
+        assert result is current_user
         service.me.assert_awaited_once_with(current_user)
