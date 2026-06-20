@@ -24,7 +24,7 @@ test:
 	make test-coverage
 
 test-file:
-	@if [ -z "$(file)"]; then \
+	@if [ -z "$(file)" ]; then \
   		echo "Error: file variable is required. Usage: make test-file file=tests/app/domain/pokemon/test_service.py"; \
 		exit 1; \
 	fi
@@ -37,7 +37,7 @@ run:
 	make dev
 
 create-migration:
-	@if [ -z "$(message)"]; then \
+	@if [ -z "$(message)" ]; then \
   		echo "Error: message variable is required. Usage: make create-migration message='Your migration message'"; \
 		exit 1; \
 	fi
@@ -48,4 +48,3 @@ rollback-migration:
 
 migrate:
 	poetry run alembic upgrade head
-

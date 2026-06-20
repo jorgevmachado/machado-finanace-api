@@ -3,6 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
 
+from app.domain.finance.schema import FinanceSchema
 from app.models.enums import StatusEnum
 
 
@@ -49,6 +50,7 @@ class AuthResponseSchema(BaseModel):
     email: str
     status: StatusEnum
     username: str
+    finance: FinanceSchema | None = None
     created_at: datetime
     updated_at: datetime | None = None
     deleted_at: datetime | None = None

@@ -1,17 +1,18 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime
+from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from sqlalchemy import DateTime, Enum as SAEnum, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.core.database.base import table_registry
+from app.core.database.base import table_registry, default_lazy
+from app.models import utcnow
 from app.models.enums import StatusEnum, RoleEnum
 
-
-def _utcnow() -> datetime:
-    return datetime.now(timezone.utc)
+if TYPE_CHECKING:
+    from app.models.finance import Finance
 
 
 @table_registry.mapped_as_dataclass
@@ -41,11 +42,18 @@ class User:
         primary_key=True, default_factory=uuid4, init=False
     )
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False, default_factory=_utcnow, init=False
+        DateTime(timezone=True), nullable=False, default_factory=utcnow, init=False
     )
     updated_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True, default=None, init=False
     )
     deleted_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True, default=None, init=False
+    )
+
+    finance: Mapped["Finance | None"] = relationship(
+        init=False,
+        lazy=default_lazy,
+        default=None,
+        back_populates="user",
     )

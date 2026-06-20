@@ -8,7 +8,6 @@ from fastapi import HTTPException
 from app.core.exceptions import handle_service_exception
 from app.core.security import create_access_token, get_password_hash, verify_password
 from app.domain.auth.schema import (
-    AuthResponseSchema,
     LoginResponseSchema,
     LoginSchema,
     RegisterSchema,
@@ -69,7 +68,6 @@ class AuthService:
                 )
 
             if not verify_password(data.password, user.password):
-                await self.repository.update_auth_failure(user.id)
                 raise HTTPException(
                     status_code=HTTPStatus.UNAUTHORIZED,
                     detail="Invalid credentials",
@@ -87,15 +85,3 @@ class AuthService:
                 operation="login",
                 raise_exception=True,
             )
-
-    async def me(self, current_user: User) -> AuthResponseSchema:
-        return AuthResponseSchema(
-            id=current_user.id,
-            name=current_user.name,
-            email=current_user.email,
-            status=current_user.status,
-            username=current_user.username,
-            created_at=current_user.created_at,
-            updated_at=current_user.updated_at,
-            deleted_at=current_user.deleted_at,
-        )

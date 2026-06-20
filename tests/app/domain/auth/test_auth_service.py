@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from http import HTTPStatus
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
@@ -98,7 +97,6 @@ class TestAuthService:
             await service.login(LoginSchema(credential="ash", password="bad-password"))
 
         assert exc_info.value.status_code == HTTPStatus.UNAUTHORIZED
-        repository.update_auth_failure.assert_awaited_once_with(user.id)
 
     @staticmethod
     @pytest.mark.asyncio
@@ -120,24 +118,3 @@ class TestAuthService:
         assert result.access_token == f"token-{user.id}"
         assert result.token_type == "bearer"
         repository.update_auth_success.assert_not_awaited()
-
-    @staticmethod
-    @pytest.mark.asyncio
-    async def test_me_returns_auth_response_schema():
-        user = SimpleNamespace(
-            id=uuid4(),
-            name="Ash",
-            email="ash@example.com",
-            status=StatusEnum.ACTIVE,
-            username="ash",
-            created_at=datetime.now(timezone.utc),
-            updated_at=None,
-            deleted_at=None,
-        )
-        service = AuthService(repository=AsyncMock())
-
-        result = await service.me(user)
-
-        assert result.id == user.id
-        assert result.name == "Ash"
-        assert result.email == "ash@example.com"

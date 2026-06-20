@@ -41,9 +41,7 @@ class PokemonTypeTest:
     __tablename__ = "pokemon_types"
 
     name: Mapped[str] = mapped_column(String, nullable=False)
-    pokemon_id: Mapped[str] = mapped_column(
-        ForeignKey("pokemons.id"), nullable=False
-    )
+    pokemon_id: Mapped[str] = mapped_column(ForeignKey("pokemons.id"), nullable=False)
 
     id: Mapped[str] = mapped_column(
         String, primary_key=True, default_factory=lambda: str(uuid4()), init=False
@@ -57,9 +55,7 @@ class PokedexTest:
     __tablename__ = "pokedex_test"
 
     trainer_id: Mapped[str] = mapped_column(String, nullable=False)
-    pokemon_id: Mapped[str] = mapped_column(
-        ForeignKey("pokemons.id"), nullable=False
-    )
+    pokemon_id: Mapped[str] = mapped_column(ForeignKey("pokemons.id"), nullable=False)
 
     id: Mapped[str] = mapped_column(
         String, primary_key=True, default_factory=lambda: str(uuid4()), init=False

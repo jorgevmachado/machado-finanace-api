@@ -67,9 +67,6 @@ class TestAuthRoutes:
             status=StatusEnum.ACTIVE,
             created_at=datetime.now(timezone.utc),
         )
-        service = AsyncMock()
-        service.me.return_value = current_user
-        result = await me(current_user=current_user, service=service)
+        result = await me(current_user=current_user)
 
         assert result is current_user
-        service.me.assert_awaited_once_with(current_user)
