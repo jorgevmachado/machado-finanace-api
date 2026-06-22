@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from types import SimpleNamespace
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
@@ -7,6 +8,7 @@ from fastapi import HTTPException
 from jwt import decode
 
 from app.core.security import create_access_token, get_current_user
+from app.core.security.security import validate_finance
 from app.core.settings import Settings
 
 
@@ -54,3 +56,15 @@ async def test_get_current_user_does_not_exists():
 
     assert exc_info.value.status_code == HTTPStatus.UNAUTHORIZED
     assert exc_info.value.detail == "Could not validate credentials"
+
+
+def test_validate_finance_does_not_exists():
+    with pytest.raises(HTTPException) as exc_info:
+        validate_finance(finance=None)
+    assert exc_info.value.status_code == HTTPStatus.UNAUTHORIZED
+    assert exc_info.value.detail == "User must be onboarded first"
+
+def test_validate_finance_successfully():
+    finance = SimpleNamespace(id=uuid4())
+    result = validate_finance(finance=finance)
+    assert result == finance

@@ -15,6 +15,7 @@ from sqlalchemy.orm import selectinload
 
 from app.core.database import get_session
 from app.core.settings import Settings
+from app.models import Finance
 
 from app.models.user import User
 
@@ -73,3 +74,12 @@ async def get_current_user(
         raise credentials_exception
 
     return user
+
+
+def validate_finance(finance: Finance | None = None) -> Finance:
+    if not finance:
+        raise HTTPException(
+            status_code=HTTPStatus.UNAUTHORIZED,
+            detail="User must be onboarded first",
+        )
+    return finance

@@ -13,8 +13,11 @@ from app.domain.finance.repository import FinanceRepository
 from app.domain.finance.schema import FinanceSchema
 from app.domain.finance.service import FinanceService
 from app.models import User
+from app.domain.finance.account.route import router as account_router
 
 router = APIRouter()
+
+router.include_router(account_router, prefix="/account", tags=["FinanceAccount"])
 
 Session = Annotated[AsyncSession, Depends(get_session)]
 

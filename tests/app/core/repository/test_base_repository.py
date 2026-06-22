@@ -1,10 +1,11 @@
 import types
+from datetime import datetime
 from uuid import uuid4
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 from fastapi_pagination import LimitOffsetPage, LimitOffsetParams
-from sqlalchemy import ForeignKey, Integer, String, select
+from sqlalchemy import DateTime, ForeignKey, Integer, String, select
 from sqlalchemy.orm import Mapped, mapped_column, relationship, selectinload
 
 from app.core.database.base import table_registry
@@ -22,6 +23,9 @@ class PokemonTest:
 
     id: Mapped[str] = mapped_column(
         String, primary_key=True, default_factory=lambda: str(uuid4()), init=False
+    )
+    deleted_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True, default=None
     )
 
     types: Mapped[list["PokemonTypeTest"]] = relationship(
@@ -59,6 +63,9 @@ class PokedexTest:
 
     id: Mapped[str] = mapped_column(
         String, primary_key=True, default_factory=lambda: str(uuid4()), init=False
+    )
+    deleted_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True, default=None
     )
 
     pokemon: Mapped[PokemonTest] = relationship(init=False)
@@ -476,6 +483,18 @@ class TestBaseRepositoryRelationHelpers:
         assert result_query is not query
         assert ".name" in str(result_query)
 
+    @staticmethod
+    def test_apply_main_filters_returns_same_query_when_with_deleted_true_and_no_valid_filters():
+        repository = PokemonBaseRepository(session=AsyncMock())
+        query = select(PokemonTest)
+
+        result_query = repository._apply_main_filters(
+            query,
+            raw_filters={"with_deleted": True, "not_a_column": "ignored"},
+        )
+
+        assert result_query is query
+
 
 class TestBaseRepositoryTotal:
     @staticmethod
@@ -522,8 +541,8 @@ class TestBaseRepositoryPersist:
     @staticmethod
     @pytest.mark.asyncio
     async def test_update_merges_commits_and_refreshes_entity():
-        entity = object()
-        merged_entity = object()
+        entity = types.SimpleNamespace(id="entity-id")
+        merged_entity = types.SimpleNamespace(id="merged-id")
         mock_session = AsyncMock()
         mock_session.merge = AsyncMock(return_value=merged_entity)
 

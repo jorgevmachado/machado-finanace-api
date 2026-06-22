@@ -12,6 +12,7 @@ from app.models import utcnow
 
 if TYPE_CHECKING:
     from app.models.user import User
+    from app.models.account import Account
 
 
 @table_registry.mapped_as_dataclass
@@ -23,6 +24,14 @@ class Finance:
     user: Mapped["User"] = relationship(
         init=False,
         lazy=default_lazy,
+        back_populates="finance",
+    )
+
+    accounts: Mapped[list["Account"]] = relationship(
+        lazy=default_lazy,
+        default_factory=list,
+        init=False,
+        repr=False,
         back_populates="finance",
     )
 

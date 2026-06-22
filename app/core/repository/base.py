@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_session
 from app.core.pagination import CustomLimitOffsetPage, is_paginate
 from app.core.pagination.pagination import get_limit_offset_params
+from app.models import utcnow
 from app.shared.schemas import FilterPage
 
 Session = Annotated[AsyncSession, Depends(get_session)]
@@ -260,6 +261,7 @@ class BaseRepository[ModelT]:
         return entity
 
     async def update(self, entity: ModelT) -> ModelT:
+        entity.updated_at = utcnow()
         entity = await self.session.merge(entity)
         await self.session.commit()
         await self.session.refresh(entity)
@@ -321,6 +323,9 @@ class BaseRepository[ModelT]:
 
     @staticmethod
     def _prepare_raw_filters(page_filter: FilterPage) -> dict[str, Any]:
+        if page_filter.with_deleted is None:
+            page_filter.with_deleted = False
+
         raw_filters = page_filter.model_dump(exclude_none=True)
         raw_filters.pop("offset", None)
         raw_filters.pop("limit", None)
@@ -329,12 +334,16 @@ class BaseRepository[ModelT]:
         return raw_filters
 
     def _apply_main_filters(self, query, raw_filters: dict[str, Any]):
+        with_deleted = raw_filters.get("with_deleted") if raw_filters else False
         valid_columns = set(self.model.__mapper__.columns.keys())
         filters = {
             key: value
             for key, value in raw_filters.items()
             if key in valid_columns and value is not None
         }
+
+        if not with_deleted:
+            filters["deleted_at"] = None
 
         if not filters:
             return query
@@ -346,6 +355,8 @@ class BaseRepository[ModelT]:
 
     async def find_by(self, **kwargs) -> ModelT | None:
         query = select(self.model)
+
+        with_deleted = kwargs.pop("with_deleted", None)
 
         has_special_filter = False
         pokemon_name = kwargs.pop("pokemon_name", None)
@@ -359,6 +370,7 @@ class BaseRepository[ModelT]:
 
         valid_columns = set(self.model.__mapper__.columns.keys())
         original_kwargs = kwargs.copy()
+
         filters = {
             k: v for k, v in kwargs.items() if k in valid_columns and v is not None
         }
@@ -378,6 +390,9 @@ class BaseRepository[ModelT]:
             query = query.options(option)
 
         if filters:
+            if not with_deleted or with_deleted is None:
+                filters["deleted_at"] = None
+
             query = query.filter_by(**filters)
 
         return await self.session.scalar(query)
