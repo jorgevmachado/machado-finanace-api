@@ -14,6 +14,7 @@ from app.models import utcnow, AccountTypeEnum
 if TYPE_CHECKING:
     from app.models.finance import Finance
     from app.models.income import Income
+    from app.models.allocation_contribution import AllocationContribution
 
 
 @table_registry.mapped_as_dataclass
@@ -53,6 +54,14 @@ class Account:
     )
 
     incomes: Mapped[list["Income"]] = relationship(
+        lazy=default_lazy,
+        default_factory=list,
+        init=False,
+        repr=False,
+        back_populates="account",
+    )
+
+    allocation_contributions: Mapped[list["AllocationContribution"]] = relationship(
         lazy=default_lazy,
         default_factory=list,
         init=False,

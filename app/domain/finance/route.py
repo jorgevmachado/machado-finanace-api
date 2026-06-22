@@ -16,12 +16,17 @@ from app.models import User
 from app.domain.finance.account.route import router as account_router
 from app.domain.finance.allocation.route import router as allocation_route
 from app.domain.finance.income.route import router as income_route
+from app.domain.finance.allocation_contribution.route import router as allocation_contribution_route
 
 router = APIRouter()
 
 router.include_router(account_router, prefix="/account", tags=["FinanceAccount"])
+
 router.include_router(allocation_route, prefix="/allocation", tags=["FinanceAllocation"])
+
 router.include_router(income_route, prefix="/income", tags=["FinanceIncome"])
+
+router.include_router(allocation_contribution_route, prefix="/allocation-contribuition", tags=["FinanceAllocationContribution"])
 
 Session = Annotated[AsyncSession, Depends(get_session)]
 

@@ -9,39 +9,41 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.logging import LoggingParams
 from app.core.service import BaseService
 from app.domain.finance.account.service import AccountService
+from app.domain.finance.allocation.service import AllocationService
 from app.shared.utils.validator import validate_year, validate_month
-from app.domain.finance.income.repository import IncomeRepository
-from app.domain.finance.income.schema import PayloadIncomeCreateSchema, IncomeSchema
+from app.domain.finance.allocation_contribution.repository import AllocationContributionRepository
+from app.domain.finance.allocation_contribution.schema import PayloadAllocationContributionCreateSchema, AllocationContributionSchema
 
-from app.models import User, Income
-from app.shared.utils.string import to_snake_case
+from app.models import User, AllocationContribution
 
 logger = logging.getLogger(__name__)
 
 
-class IncomeService(BaseService[IncomeRepository, Income]):
+class AllocationContributionService(BaseService[AllocationContributionRepository, AllocationContribution]):
     def __init__(
         self,
-        repository: IncomeRepository,
+        repository: AllocationContributionRepository,
         account_service: AccountService | None = None,
+        allocation_service: AllocationService | None = None,
     ) -> None:
         super().__init__(
-            alias="Income",
+            alias="AllocationContribution",
             repository=repository,
             logger_params=LoggingParams(
-                logger=logger, service="IncomeService", operation="income"
+                logger=logger, service="AllocationContributionService", operation="allocation-contribution"
             ),
-            schema_class=IncomeSchema,
-            cache_prefix="income",
+            schema_class=AllocationContributionSchema,
+            cache_prefix="allocation-contribution",
         )
         session = repository.session
         self.account_service = account_service or AccountService.from_session(session)
+        self.allocation_service = allocation_service or AllocationService.from_session(session)
 
     @classmethod
     def from_session(cls, session: AsyncSession):
-        return cls(IncomeRepository(session))
+        return cls(AllocationContributionRepository(session))
 
-    async def create(self, current_user: User, payload: PayloadIncomeCreateSchema) -> Income:
+    async def create(self, current_user: User, payload: PayloadAllocationContributionCreateSchema) -> AllocationContribution:
         if not current_user.finance:
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
@@ -51,18 +53,17 @@ class IncomeService(BaseService[IncomeRepository, Income]):
         reference_year = validate_year(payload.reference_year)
         reference_month = validate_month(payload.reference_month)
 
-        source_code = to_snake_case(payload.source)
-        income = await self.find_by(
+        allocation_contribution = await self.find_by(
             finance_id=current_user.finance.id,
-            source_code=source_code,
+            contributor_name=payload.contributor_name,
             reference_year=reference_year,
             reference_month=reference_month,
             without_throw=True
         )
-        if income:
+        if allocation_contribution:
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
-                detail=f"Income with this year {reference_year}, month {reference_month} and source {payload.source} already exists",
+                detail=f"Allocation Contribution with this year {reference_year}, month {reference_month} and name {payload.contributor_name} already exists",
             )
 
         account = await self.account_service.find_by(id=payload.account_id, without_throw=True)
@@ -71,16 +72,24 @@ class IncomeService(BaseService[IncomeRepository, Income]):
                 status_code=HTTPStatus.BAD_REQUEST,
                 detail=f"Account with this id {payload.account_id} does not exist",
             )
+
+        allocation = await self.allocation_service.find_by(
+            id=payload.allocation_id, without_throw=True
+        )
+        if not allocation:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail=f"Allocation with this id {payload.allocation_id} does not exist",
+            )
         return await self.repository.save(
-            entity=Income(
-                source=payload.source,
+            entity=AllocationContribution(
                 amount=payload.amount,
                 finance_id=current_user.finance.id,
                 account_id=account.id,
-                source_code=source_code,
-                received_at=payload.received_at,
                 description=payload.description,
+                allocation_id=allocation.id,
                 reference_year=reference_year,
                 reference_month=reference_month,
+                contributor_name=payload.contributor_name
             )
         )    

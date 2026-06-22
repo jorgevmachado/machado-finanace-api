@@ -5,6 +5,7 @@ from app.models.finance import Finance
 from app.models.account import Account
 from app.models.allocation import Allocation
 from app.models.income import Income
+from app.models.allocation_contribution import AllocationContribution
 
 __all__ = [
     "User",
@@ -12,6 +13,7 @@ __all__ = [
     "Account",
     "Allocation",
     "Income",
+    "AllocationContribution",
     "RoleEnum",
     "StatusEnum",
     "AccountTypeEnum",
