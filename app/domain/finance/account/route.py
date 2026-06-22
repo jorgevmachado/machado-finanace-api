@@ -33,6 +33,7 @@ def account_service(session: Session) -> AccountService:
 Service = Annotated[AccountService, Depends(account_service)]
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
+
 def account_filter(
     page: int | None = None,
     name: str | None = None,
@@ -56,6 +57,7 @@ def account_filter(
         with_deleted=with_deleted,
     )
 
+
 @router.get(
     "",
     response_model=CustomLimitOffsetPage[AccountSchema] | list[AccountSchema],
@@ -68,9 +70,12 @@ async def list_all(
 ):
     finance = validate_finance(current_user.finance)
     return await service.list_all_cached(
-        page_filter=FilterPage.build(page_filter=page_filter, finance_id=str(finance.id)),
+        page_filter=FilterPage.build(
+            page_filter=page_filter, finance_id=str(finance.id)
+        ),
         user_request=current_user.username,
     )
+
 
 @router.get("/{param}", response_model=AccountSchema, status_code=HTTPStatus.OK)
 async def find_one(
@@ -89,33 +94,34 @@ async def find_one(
         finance_id=str(finance.id),
     )
 
+
 @router.post("", response_model=AccountSchema, status_code=HTTPStatus.CREATED)
-async def create(service: Service, current_user: CurrentUser, payload: PayloadAccountCreateSchema):
+async def create(
+    service: Service, current_user: CurrentUser, payload: PayloadAccountCreateSchema
+):
     return await service.create(current_user=current_user, payload=payload)
+
 
 @router.put("/{param}", response_model=AccountSchema, status_code=HTTPStatus.CREATED)
 async def update(
-        param: str,
-        service: Service,
-        current_user: CurrentUser,
-        payload: PayloadAccountUpdateSchema
+    param: str,
+    service: Service,
+    current_user: CurrentUser,
+    payload: PayloadAccountUpdateSchema,
 ):
     validate_finance(current_user.finance)
     return await service.update(
-        param=param,
-        user_request=current_user.username,
-        update_schema=payload
+        param=param, user_request=current_user.username, update_schema=payload
     )
+
 
 @router.delete("/{param}", response_model=Message, status_code=HTTPStatus.OK)
 async def delete(
-        param: str,
-        service: Service,
-        current_user: CurrentUser,
+    param: str,
+    service: Service,
+    current_user: CurrentUser,
 ):
     finance = validate_finance(current_user.finance)
     return await service.soft_delete(
-        param=param,
-        user_request=current_user.username,
-        finance_id=str(finance.id)
+        param=param, user_request=current_user.username, finance_id=str(finance.id)
     )

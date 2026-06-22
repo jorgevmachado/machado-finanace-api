@@ -99,9 +99,13 @@ class BaseService[
                 {"finance_id": finance_id} if finance_id else {}
             )
             if is_valid_uuid(param):
-                result = await self.repository.find_by(id=param, with_deleted=with_deleted, **find_by_filters)
+                result = await self.repository.find_by(
+                    id=param, with_deleted=with_deleted, **find_by_filters
+                )
             else:
-                result = await self.repository.find_by(name=param, with_deleted=with_deleted, **find_by_filters)
+                result = await self.repository.find_by(
+                    name=param, with_deleted=with_deleted, **find_by_filters
+                )
 
             if result is None:
                 raise HTTPException(
@@ -187,10 +191,7 @@ class BaseService[
             )
 
     async def update(
-        self,
-        param: str,
-        update_schema: UpdateSchemaT,
-        **kwargs
+        self, param: str, update_schema: UpdateSchemaT, **kwargs
     ) -> ModelT:
         user_request = kwargs.get("user_request", None)
         finance_id = kwargs.get("finance_id") if kwargs else None
@@ -278,11 +279,7 @@ class BaseService[
                 user_request=user_request,
             )
 
-    async def soft_delete(
-            self,
-            param: str,
-            **kwargs
-    ) -> Message:
+    async def soft_delete(self, param: str, **kwargs) -> Message:
         user_request = kwargs.get("user_request") if kwargs else None
         finance_id = kwargs.get("finance_id") if kwargs else None
         finance_id = cast(str, finance_id) if finance_id else None

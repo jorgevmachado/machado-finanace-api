@@ -55,6 +55,7 @@ class TestTextStrip:
         result = text_strip(text)
         assert result == expected_text
 
+
 class TestToSnakeCase:
     @staticmethod
     def test_to_snake_case():

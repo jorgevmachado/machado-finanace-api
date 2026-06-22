@@ -8,61 +8,61 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import LoggingParams
 from app.core.service import BaseService
-from app.domain.finance.allocation.repository import AllocationRepository
-from app.domain.finance.allocation.schema import (
-    PayloadAllocationCreateSchema,
-    AllocationSchema,
+from app.domain.finance.category.repository import CategoryRepository
+from app.domain.finance.category.schema import (
+    PayloadCategoryCreateSchema,
+    CategorySchema,
 )
-
-from app.models import User, Allocation
 from app.shared.utils.string import to_snake_case
+
+from app.models import User, Category
 
 logger = logging.getLogger(__name__)
 
 
-class AllocationService(BaseService[AllocationRepository, Allocation]):
+class CategoryService(BaseService[CategoryRepository, Category]):
     def __init__(
         self,
-        repository: AllocationRepository,
+        repository: CategoryRepository,
     ) -> None:
         super().__init__(
-            alias="Allocation",
+            alias="Category",
             repository=repository,
             logger_params=LoggingParams(
-                logger=logger, service="AllocationService", operation="allocation"
+                logger=logger, service="CategoryService", operation="category"
             ),
-            schema_class=AllocationSchema,
-            cache_prefix="allocation",
+            schema_class=CategorySchema,
+            cache_prefix="category",
         )
 
     @classmethod
     def from_session(cls, session: AsyncSession):
-        return cls(AllocationRepository(session))
+        return cls(CategoryRepository(session))
 
     async def create(
-        self, current_user: User, payload: PayloadAllocationCreateSchema
-    ) -> Allocation:
+        self, current_user: User, payload: PayloadCategoryCreateSchema
+    ) -> Category:
         if not current_user.finance:
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
                 detail="User must be onboarded first",
             )
-        allocation = await self.find_by(
-            finance_id=current_user.finance.id, name=payload.name, without_throw=True
+        name_code = to_snake_case(payload.name)
+        category = await self.find_by(
+            finance_id=current_user.finance.id, name_code=name_code, without_throw=True
         )
-        if allocation:
+        if category:
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
-                detail="Allocation with this name already exists",
+                detail=f"Category with this name {payload.name} already exists",
             )
-        name_code = to_snake_case(payload.name)
+
         return await self.repository.save(
-            entity=Allocation(
+            entity=Category(
                 finance_id=current_user.finance.id,
                 name=payload.name,
                 name_code=name_code,
                 type=payload.type,
-                is_active=True,
                 description=payload.description,
             )
         )

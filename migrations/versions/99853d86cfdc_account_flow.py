@@ -45,7 +45,7 @@ def upgrade() -> None:
                 "CREDIT_CARD",
                 "ACCOUNT_DEBIT",
                 name="accounttypeenum",
-                create_type=False
+                create_type=False,
             ),
             nullable=False,
         ),

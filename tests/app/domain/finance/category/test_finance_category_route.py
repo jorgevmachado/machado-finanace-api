@@ -6,65 +6,64 @@ from uuid import uuid4
 
 import pytest
 
-from app.domain.finance.allocation.route import (
+from app.domain.finance.category.route import (
     create,
-    allocation_service,
-    allocation_filter,
+    category_service,
+    category_filter,
     list_all,
     find_one,
     update,
     delete,
 )
-from app.domain.finance.allocation.schema import (
-    PayloadAllocationCreateSchema,
-    PayloadAllocationUpdateSchema,
+from app.domain.finance.category.schema import (
+    PayloadCategoryCreateSchema,
+    PayloadCategoryUpdateSchema,
 )
-from app.domain.finance.allocation.service import AllocationService
-from app.models import AllocationTypeEnum
+from app.domain.finance.category.service import CategoryService
+from app.models import CategoryTypeEnum
 from app.shared.schemas import FilterPage
+from app.shared.utils.string import to_snake_case
 
 
-def test_allocation_builds_service() -> None:
-    service = allocation_service(AsyncMock())
-    assert isinstance(service, AllocationService)
+def test_category_builds_service() -> None:
+    service = category_service(AsyncMock())
+    assert isinstance(service, CategoryService)
 
 
-def test_allocation_builds_dynamic_filter():
+def test_get_category_filter_builds_dynamic_filter():
     finance_id = uuid4()
-    page_filter = allocation_filter(
+    page_filter = category_filter(
         page=1,
-        name="home",
-        type=AllocationTypeEnum.OTHER,
+        name="Category Name",
+        type=CategoryTypeEnum.OTHER,
         limit=12,
-        is_active=True,
         finance_id=str(finance_id),
         clean_cache=True,
-        with_deleted=False,
     )
 
     assert page_filter.page == 1
-    assert page_filter.name == "home"
+    assert page_filter.name == "Category Name"
     assert page_filter.type == "OTHER"
     assert page_filter.limit == 12
-    assert page_filter.is_active
     assert page_filter.finance_id == str(finance_id)
     assert page_filter.clean_cache
 
 
 @pytest.mark.asyncio
-async def test_finance_allocation_route_create() -> None:
+async def test_finance_category_route_create() -> None:
     service = AsyncMock()
-    payload = PayloadAllocationCreateSchema(
-        name="Test Allocation",
-        type=AllocationTypeEnum.OTHER,
+    finance_id = uuid4()
+    payload = PayloadCategoryCreateSchema(
+        name="Test Category",
+        type=CategoryTypeEnum.OTHER,
         description="Some Description",
     )
     expected = SimpleNamespace(
-        id="allocation-id",
-        name=payload.name,
-        name_code="test_allocation",
+        id=uuid4(),
         type=payload.type,
-        is_active=True,
+        name=payload.name,
+        name_code=to_snake_case(payload.name),
+        finance_id=finance_id,
         description=payload.description,
     )
     service.create.return_value = expected
@@ -77,9 +76,9 @@ async def test_finance_allocation_route_create() -> None:
 
 
 @pytest.mark.asyncio
-async def test_finance_allocation_route_list_all_paginate_and_filter() -> None:
+async def test_finance_category_route_list_all_paginate_and_filter() -> None:
     service = AsyncMock()
-    page_filter = allocation_filter(page=1, limit=12)
+    page_filter = category_filter(page=1, limit=12)
     expected = SimpleNamespace(items=[])
     service.list_all_cached.return_value = expected
     current_user = SimpleNamespace(
@@ -106,13 +105,14 @@ async def test_finance_allocation_route_list_all_paginate_and_filter() -> None:
 
 
 @pytest.mark.asyncio
-async def test_finance_allocation_route_find_one() -> None:
+async def test_finance_category_route_find_one() -> None:
     service = AsyncMock()
     expected = SimpleNamespace(
-        id="allocation-id",
-        name="Test Allocation",
-        type=AllocationTypeEnum.OTHER,
-        is_active=True,
+        id="category-id",
+        name="Test Category",
+        type=CategoryTypeEnum.OTHER,
+        name_code="test_category",
+        finance_id=uuid4(),
         description="Some Description",
     )
     service.find_one_cached.return_value = expected
@@ -121,14 +121,14 @@ async def test_finance_allocation_route_find_one() -> None:
     )
 
     result = await find_one(
-        param="allocation-id",
+        param="category-id",
         current_user=current_user,
         service=service,
     )
 
     assert result is expected
     service.find_one_cached.assert_awaited_once_with(
-        param="allocation-id",
+        param="category-id",
         user_request="Finance User",
         clean_cache=False,
         with_deleted=False,
@@ -137,51 +137,49 @@ async def test_finance_allocation_route_find_one() -> None:
 
 
 @pytest.mark.asyncio
-async def test_finance_allocation_route_update() -> None:
+async def test_finance_category_route_update() -> None:
     service = AsyncMock()
     expected = SimpleNamespace(
-        id="allocation-id",
-        name="Test Allocation",
-        type=AllocationTypeEnum.OTHER,
-        is_active=True,
+        id="category-id",
+        name="Test Category",
+        type=CategoryTypeEnum.OTHER,
+        name_code="test_category",
+        finance_id=uuid4(),
         description="Some Description",
     )
     service.update.return_value = expected
     current_user = SimpleNamespace(
         id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
     )
-    payload = PayloadAllocationUpdateSchema(name="Test Allocation")
+    payload = PayloadCategoryUpdateSchema(name="Test Category")
     result = await update(
-        param="allocation-id",
-        current_user=current_user,
-        service=service,
-        payload=payload,
+        param="category-id", current_user=current_user, service=service, payload=payload
     )
 
     assert result is expected
     service.update.assert_awaited_once_with(
-        param="allocation-id",
+        param="category-id",
         user_request="Finance User",
         update_schema=payload,
     )
 
 
 @pytest.mark.asyncio
-async def test_finance_allocation_route_delete() -> None:
+async def test_finance_category_route_delete() -> None:
     service = AsyncMock()
-    expected = SimpleNamespace(message="Deleted Allocation successfully")
+    expected = SimpleNamespace(message="Deleted Account successfully")
     service.soft_delete.return_value = expected
     current_user = SimpleNamespace(
         id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
     )
 
     result = await delete(
-        param="allocation-id", current_user=current_user, service=service
+        param="category-id", current_user=current_user, service=service
     )
 
     assert result is expected
     service.soft_delete.assert_awaited_once_with(
-        param="allocation-id",
+        param="category-id",
         user_request="Finance User",
         finance_id="finance-id",
     )

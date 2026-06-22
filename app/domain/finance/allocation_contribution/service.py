@@ -11,15 +11,22 @@ from app.core.service import BaseService
 from app.domain.finance.account.service import AccountService
 from app.domain.finance.allocation.service import AllocationService
 from app.shared.utils.validator import validate_year, validate_month
-from app.domain.finance.allocation_contribution.repository import AllocationContributionRepository
-from app.domain.finance.allocation_contribution.schema import PayloadAllocationContributionCreateSchema, AllocationContributionSchema
+from app.domain.finance.allocation_contribution.repository import (
+    AllocationContributionRepository,
+)
+from app.domain.finance.allocation_contribution.schema import (
+    PayloadAllocationContributionCreateSchema,
+    AllocationContributionSchema,
+)
 
 from app.models import User, AllocationContribution
 
 logger = logging.getLogger(__name__)
 
 
-class AllocationContributionService(BaseService[AllocationContributionRepository, AllocationContribution]):
+class AllocationContributionService(
+    BaseService[AllocationContributionRepository, AllocationContribution]
+):
     def __init__(
         self,
         repository: AllocationContributionRepository,
@@ -30,20 +37,26 @@ class AllocationContributionService(BaseService[AllocationContributionRepository
             alias="AllocationContribution",
             repository=repository,
             logger_params=LoggingParams(
-                logger=logger, service="AllocationContributionService", operation="allocation-contribution"
+                logger=logger,
+                service="AllocationContributionService",
+                operation="allocation-contribution",
             ),
             schema_class=AllocationContributionSchema,
             cache_prefix="allocation-contribution",
         )
         session = repository.session
         self.account_service = account_service or AccountService.from_session(session)
-        self.allocation_service = allocation_service or AllocationService.from_session(session)
+        self.allocation_service = allocation_service or AllocationService.from_session(
+            session
+        )
 
     @classmethod
     def from_session(cls, session: AsyncSession):
         return cls(AllocationContributionRepository(session))
 
-    async def create(self, current_user: User, payload: PayloadAllocationContributionCreateSchema) -> AllocationContribution:
+    async def create(
+        self, current_user: User, payload: PayloadAllocationContributionCreateSchema
+    ) -> AllocationContribution:
         if not current_user.finance:
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
@@ -58,7 +71,7 @@ class AllocationContributionService(BaseService[AllocationContributionRepository
             contributor_name=payload.contributor_name,
             reference_year=reference_year,
             reference_month=reference_month,
-            without_throw=True
+            without_throw=True,
         )
         if allocation_contribution:
             raise HTTPException(
@@ -66,7 +79,9 @@ class AllocationContributionService(BaseService[AllocationContributionRepository
                 detail=f"Allocation Contribution with this year {reference_year}, month {reference_month} and name {payload.contributor_name} already exists",
             )
 
-        account = await self.account_service.find_by(id=payload.account_id, without_throw=True)
+        account = await self.account_service.find_by(
+            id=payload.account_id, without_throw=True
+        )
         if not account:
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
@@ -90,6 +105,6 @@ class AllocationContributionService(BaseService[AllocationContributionRepository
                 allocation_id=allocation.id,
                 reference_year=reference_year,
                 reference_month=reference_month,
-                contributor_name=payload.contributor_name
+                contributor_name=payload.contributor_name,
             )
-        )    
+        )

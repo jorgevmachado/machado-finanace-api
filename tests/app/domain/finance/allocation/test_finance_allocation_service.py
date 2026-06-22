@@ -36,7 +36,7 @@ class TestFinanceAllocationCreateService:
         payload = PayloadAllocationCreateSchema(
             name="Test Allocation",
             type=AllocationTypeEnum.OTHER,
-            description="Some Description"
+            description="Some Description",
         )
         current_user = SimpleNamespace(
             id=uuid4(), username="Finance User", finance=None
@@ -48,9 +48,7 @@ class TestFinanceAllocationCreateService:
             await service.create(current_user=current_user, payload=payload)
 
         assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
-        assert (
-            exc_info.value.detail == "User must be onboarded first"
-        )
+        assert exc_info.value.detail == "User must be onboarded first"
 
     @staticmethod
     @pytest.mark.asyncio
@@ -58,7 +56,9 @@ class TestFinanceAllocationCreateService:
         allocation_repository_mock: AsyncMock,
     ):
         payload = PayloadAllocationCreateSchema(
-            name="Test Allocation", type=AllocationTypeEnum.OTHER, description="Some Description"
+            name="Test Allocation",
+            type=AllocationTypeEnum.OTHER,
+            description="Some Description",
         )
         current_user = SimpleNamespace(
             id=uuid4(), username="Finance User", finance=SimpleNamespace(id=uuid4())
@@ -79,7 +79,9 @@ class TestFinanceAllocationCreateService:
         allocation_repository_mock: AsyncMock,
     ):
         payload = PayloadAllocationCreateSchema(
-            name="Test Allocation", type=AllocationTypeEnum.OTHER, description="Some Description"
+            name="Test Allocation",
+            type=AllocationTypeEnum.OTHER,
+            description="Some Description",
         )
         finance_id = uuid4()
         current_user = SimpleNamespace(
@@ -89,7 +91,7 @@ class TestFinanceAllocationCreateService:
 
         service = AllocationService(repository=allocation_repository_mock)
         service.find_by = AsyncMock(return_value=None)
-        
+
         allocation_repository_mock.save.return_value = allocation
 
         result = await service.create(current_user=current_user, payload=payload)

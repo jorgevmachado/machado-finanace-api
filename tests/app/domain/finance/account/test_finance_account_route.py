@@ -28,6 +28,7 @@ def test_account_builds_service() -> None:
     service = account_service(AsyncMock())
     assert isinstance(service, AccountService)
 
+
 def test_get_account_filter_builds_dynamic_filter():
     finance_id = uuid4()
     page_filter = account_filter(
@@ -61,7 +62,7 @@ async def test_finance_account_route_create() -> None:
         type=payload.type,
         is_active=True,
         initial_balance=payload.initial_balance,
-        current_balance=payload.initial_balance
+        current_balance=payload.initial_balance,
     )
     service.create.return_value = expected
     current_user = SimpleNamespace(id="user-id", username="Finance User")
@@ -71,13 +72,16 @@ async def test_finance_account_route_create() -> None:
     assert result is expected
     service.create.assert_awaited_once_with(current_user=current_user, payload=payload)
 
+
 @pytest.mark.asyncio
 async def test_finance_account_route_list_all_paginate_and_filter() -> None:
     service = AsyncMock()
     page_filter = account_filter(page=1, limit=12)
     expected = SimpleNamespace(items=[])
     service.list_all_cached.return_value = expected
-    current_user = SimpleNamespace(id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id"))
+    current_user = SimpleNamespace(
+        id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
+    )
 
     result = await list_all(
         current_user=current_user,
@@ -89,10 +93,14 @@ async def test_finance_account_route_list_all_paginate_and_filter() -> None:
     service.list_all_cached.assert_awaited_once()
     called_page_filter = service.list_all_cached.await_args.kwargs["page_filter"]
 
-    assert called_page_filter.model_dump() == FilterPage.build(
-        page_filter=page_filter, finance_id="finance-id"
-    ).model_dump()
+    assert (
+        called_page_filter.model_dump()
+        == FilterPage.build(
+            page_filter=page_filter, finance_id="finance-id"
+        ).model_dump()
+    )
     assert service.list_all_cached.await_args.kwargs["user_request"] == "Finance User"
+
 
 @pytest.mark.asyncio
 async def test_finance_account_route_find_one() -> None:
@@ -103,7 +111,7 @@ async def test_finance_account_route_find_one() -> None:
         type=AccountTypeEnum.BANK,
         is_active=True,
         initial_balance=100.00,
-        current_balance=100.00
+        current_balance=100.00,
     )
     service.find_one_cached.return_value = expected
     current_user = SimpleNamespace(
@@ -111,20 +119,21 @@ async def test_finance_account_route_find_one() -> None:
     )
 
     result = await find_one(
-            param="account-id",
-            current_user=current_user,
-            service=service,
-        )
+        param="account-id",
+        current_user=current_user,
+        service=service,
+    )
 
     assert result is expected
     service.find_one_cached.assert_awaited_once_with(
-            param="account-id",
-            user_request="Finance User",
-            clean_cache=False,
-            with_deleted=False,
-            finance_id="finance-id",
-        )
-    
+        param="account-id",
+        user_request="Finance User",
+        clean_cache=False,
+        with_deleted=False,
+        finance_id="finance-id",
+    )
+
+
 @pytest.mark.asyncio
 async def test_finance_account_route_update() -> None:
     service = AsyncMock()
@@ -134,7 +143,7 @@ async def test_finance_account_route_update() -> None:
         type=AccountTypeEnum.BANK,
         is_active=True,
         initial_balance=100.00,
-        current_balance=100.00
+        current_balance=100.00,
     )
     service.update.return_value = expected
     current_user = SimpleNamespace(
@@ -142,18 +151,15 @@ async def test_finance_account_route_update() -> None:
     )
     payload = PayloadAccountUpdateSchema(name="Test Account")
     result = await update(
-            param="account-id",
-            current_user=current_user,
-            service=service,
-            payload=payload
-        )
+        param="account-id", current_user=current_user, service=service, payload=payload
+    )
 
     assert result is expected
     service.update.assert_awaited_once_with(
-            param="account-id",
-            user_request="Finance User",
-            update_schema=payload,
-        )
+        param="account-id",
+        user_request="Finance User",
+        update_schema=payload,
+    )
 
 
 @pytest.mark.asyncio
@@ -165,7 +171,9 @@ async def test_finance_account_route_delete() -> None:
         id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
     )
 
-    result = await delete(param="account-id", current_user=current_user, service=service)
+    result = await delete(
+        param="account-id", current_user=current_user, service=service
+    )
 
     assert result is expected
     service.soft_delete.assert_awaited_once_with(
@@ -173,4 +181,3 @@ async def test_finance_account_route_delete() -> None:
         user_request="Finance User",
         finance_id="finance-id",
     )
-    

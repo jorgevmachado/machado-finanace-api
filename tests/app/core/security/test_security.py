@@ -64,6 +64,7 @@ def test_validate_finance_does_not_exists():
     assert exc_info.value.status_code == HTTPStatus.UNAUTHORIZED
     assert exc_info.value.detail == "User must be onboarded first"
 
+
 def test_validate_finance_successfully():
     finance = SimpleNamespace(id=uuid4())
     result = validate_finance(finance=finance)

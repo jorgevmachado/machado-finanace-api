@@ -11,17 +11,13 @@ from app.core.pagination import CustomLimitOffsetPage
 from app.core.security import get_current_user
 from app.core.security.security import validate_finance
 
-from app.domain.finance.allocation_contribution.repository import (
-    AllocationContributionRepository,
+from app.domain.finance.category.repository import CategoryRepository
+from app.domain.finance.category.schema import (
+    CategorySchema,
+    PayloadCategoryCreateSchema,
+    PayloadCategoryUpdateSchema,
 )
-from app.domain.finance.allocation_contribution.schema import (
-    AllocationContributionSchema,
-    PayloadAllocationContributionCreateSchema,
-    PayloadAllocationContributionUpdateSchema,
-)
-from app.domain.finance.allocation_contribution.service import (
-    AllocationContributionService,
-)
+from app.domain.finance.category.service import CategoryService
 from app.models import User
 from app.shared.schemas import FilterPage, Message
 
@@ -30,56 +26,45 @@ router = APIRouter()
 Session = Annotated[AsyncSession, Depends(get_session)]
 
 
-def allocation_contribution_service(session: Session) -> AllocationContributionService:
-    return AllocationContributionService(AllocationContributionRepository(session))
+def category_service(session: Session) -> CategoryService:
+    return CategoryService(CategoryRepository(session))
 
 
-Service = Annotated[
-    AllocationContributionService, Depends(allocation_contribution_service)
-]
+Service = Annotated[CategoryService, Depends(category_service)]
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
-def allocation_contribution_filter(
+def category_filter(
     page: int | None = None,
-    source: str | None = None,
+    name: str | None = None,
+    type: str | None = None,
     limit: int | None = 12,
     offset: int | None = None,
     finance_id: str | None = None,
-    account_id: str | None = None,
     clean_cache: bool = False,
     with_deleted: bool = False,
-    allocation_id: str | None = None,
-    reference_year: int | None = None,
-    reference_month: int | None = None,
-    contributor_name: str | None = None,
 ) -> FilterPage:
     return FilterPage.build(
         page=page,
-        source=source,
+        name=name,
+        type=type,
         limit=limit,
         offset=offset,
         finance_id=finance_id,
-        account_id=account_id,
         clean_cache=clean_cache,
         with_deleted=with_deleted,
-        allocation_id=allocation_id,
-        reference_year=reference_year,
-        reference_month=reference_month,
-        contributor_name=contributor_name,
     )
 
 
 @router.get(
     "",
-    response_model=CustomLimitOffsetPage[AllocationContributionSchema]
-    | list[AllocationContributionSchema],
+    response_model=CustomLimitOffsetPage[CategorySchema] | list[CategorySchema],
     status_code=HTTPStatus.OK,
 )
 async def list_all(
     service: Service,
     current_user: CurrentUser,
-    page_filter: Annotated[FilterPage, Depends(allocation_contribution_filter)] = None,
+    page_filter: Annotated[FilterPage, Depends(category_filter)] = None,
 ):
     finance = validate_finance(current_user.finance)
     return await service.list_all_cached(
@@ -90,9 +75,7 @@ async def list_all(
     )
 
 
-@router.get(
-    "/{param}", response_model=AllocationContributionSchema, status_code=HTTPStatus.OK
-)
+@router.get("/{param}", response_model=CategorySchema, status_code=HTTPStatus.OK)
 async def find_one(
     param: str,
     service: Service,
@@ -110,27 +93,19 @@ async def find_one(
     )
 
 
-@router.post(
-    "", response_model=AllocationContributionSchema, status_code=HTTPStatus.CREATED
-)
+@router.post("", response_model=CategorySchema, status_code=HTTPStatus.CREATED)
 async def create(
-    service: Service,
-    current_user: CurrentUser,
-    payload: PayloadAllocationContributionCreateSchema,
+    service: Service, current_user: CurrentUser, payload: PayloadCategoryCreateSchema
 ):
     return await service.create(current_user=current_user, payload=payload)
 
 
-@router.put(
-    "/{param}",
-    response_model=AllocationContributionSchema,
-    status_code=HTTPStatus.CREATED,
-)
+@router.put("/{param}", response_model=CategorySchema, status_code=HTTPStatus.CREATED)
 async def update(
     param: str,
     service: Service,
     current_user: CurrentUser,
-    payload: PayloadAllocationContributionUpdateSchema,
+    payload: PayloadCategoryUpdateSchema,
 ):
     validate_finance(current_user.finance)
     return await service.update(

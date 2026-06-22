@@ -2,32 +2,30 @@ from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from datetime import datetime
 
-from app.models import AllocationTypeEnum
+from app.models import CategoryTypeEnum
 
 
-class PayloadAllocationCreateSchema(BaseModel):
+class PayloadCategoryCreateSchema(BaseModel):
     name: str
-    type: AllocationTypeEnum
+    type: CategoryTypeEnum
     description: str
 
 
-class PayloadAllocationUpdateSchema(BaseModel):
+class PayloadCategoryUpdateSchema(BaseModel):
     name: str | None = None
-    type: AllocationTypeEnum | None = None
-    is_active: bool | None = None
+    type: CategoryTypeEnum | None = None
     description: str | None = None
 
 
-class AllocationSchema(BaseModel):
+class CategorySchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
     name: str
-    type: AllocationTypeEnum
+    type: CategoryTypeEnum
     name_code: str
-    is_active: bool
     finance_id: UUID
-    description: str | None = None
+    description: str
     created_at: datetime
     updated_at: datetime | None = None
     deleted_at: datetime | None = None

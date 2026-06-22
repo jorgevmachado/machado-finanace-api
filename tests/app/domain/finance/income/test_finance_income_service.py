@@ -27,6 +27,7 @@ class TestFinanceIncomeServiceFromSession:
         service = IncomeService.from_session(AsyncMock())
         assert isinstance(service, IncomeService)
 
+
 class TestFinanceAccountCreateService:
     @staticmethod
     @pytest.mark.asyncio
@@ -59,7 +60,7 @@ class TestFinanceAccountCreateService:
     @pytest.mark.asyncio
     async def test_finance_income_service_create_invalid_year(
         income_repository_mock: AsyncMock,
-    ):        
+    ):
         current_year = utcnow().year
         year = current_year + 1
         payload = PayloadIncomeCreateSchema(
@@ -81,7 +82,10 @@ class TestFinanceAccountCreateService:
             await service.create(current_user=current_user, payload=payload)
 
         assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
-        assert exc_info.value.detail == f"Reference year {year} must be less than or equal to the current year {current_year}"
+        assert (
+            exc_info.value.detail
+            == f"Reference year {year} must be less than or equal to the current year {current_year}"
+        )
 
     @staticmethod
     @pytest.mark.asyncio
@@ -95,7 +99,7 @@ class TestFinanceAccountCreateService:
             account_id=uuid4(),
             received_at=date(2023, 1, 1),
             description="Some Description",
-            reference_year=utcnow().year ,
+            reference_year=utcnow().year,
             reference_month=month,
         )
         current_user = SimpleNamespace(
@@ -109,8 +113,7 @@ class TestFinanceAccountCreateService:
 
         assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
         assert (
-            exc_info.value.detail
-            == f"Reference month {month} must be between 1 and 12"
+            exc_info.value.detail == f"Reference month {month} must be between 1 and 12"
         )
 
     @staticmethod
@@ -167,7 +170,8 @@ class TestFinanceAccountCreateService:
 
         assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
         assert (
-            exc_info.value.detail == f"Income with this year {payload.reference_year}, month {payload.reference_month} and source {payload.source} already exists"
+            exc_info.value.detail
+            == f"Income with this year {payload.reference_year}, month {payload.reference_month} and source {payload.source} already exists"
         )
 
     @staticmethod
@@ -234,10 +238,11 @@ class TestFinanceAccountCreateService:
 
         service = IncomeService(repository=income_repository_mock)
         service.find_by = AsyncMock(return_value=None)
-        service.account_service.find_by = AsyncMock(return_value=SimpleNamespace(id=account_id))
+        service.account_service.find_by = AsyncMock(
+            return_value=SimpleNamespace(id=account_id)
+        )
         income_repository_mock.save.return_value = expected
 
         result = await service.create(current_user=current_user, payload=payload)
 
         assert result == expected
-        

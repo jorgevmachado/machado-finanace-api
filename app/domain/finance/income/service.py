@@ -41,7 +41,9 @@ class IncomeService(BaseService[IncomeRepository, Income]):
     def from_session(cls, session: AsyncSession):
         return cls(IncomeRepository(session))
 
-    async def create(self, current_user: User, payload: PayloadIncomeCreateSchema) -> Income:
+    async def create(
+        self, current_user: User, payload: PayloadIncomeCreateSchema
+    ) -> Income:
         if not current_user.finance:
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
@@ -57,7 +59,7 @@ class IncomeService(BaseService[IncomeRepository, Income]):
             source_code=source_code,
             reference_year=reference_year,
             reference_month=reference_month,
-            without_throw=True
+            without_throw=True,
         )
         if income:
             raise HTTPException(
@@ -65,7 +67,9 @@ class IncomeService(BaseService[IncomeRepository, Income]):
                 detail=f"Income with this year {reference_year}, month {reference_month} and source {payload.source} already exists",
             )
 
-        account = await self.account_service.find_by(id=payload.account_id, without_throw=True)
+        account = await self.account_service.find_by(
+            id=payload.account_id, without_throw=True
+        )
         if not account:
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
@@ -83,4 +87,4 @@ class IncomeService(BaseService[IncomeRepository, Income]):
                 reference_year=reference_year,
                 reference_month=reference_month,
             )
-        )    
+        )

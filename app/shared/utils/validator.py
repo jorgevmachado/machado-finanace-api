@@ -14,6 +14,7 @@ def validate_year(year: int) -> int:
         )
     return year
 
+
 def validate_month(month: int) -> int:
     if month <= 0 or month > 12:
         raise HTTPException(

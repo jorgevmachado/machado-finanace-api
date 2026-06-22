@@ -338,7 +338,9 @@ class TestBaseServiceUpdate:
 
     @staticmethod
     @pytest.mark.asyncio
-    async def test_update_syncs_name_code_when_name_changes(base_service, mock_repository):
+    async def test_update_syncs_name_code_when_name_changes(
+        base_service, mock_repository
+    ):
         entity = {
             "id": "123",
             "name": "old name",
@@ -360,7 +362,9 @@ class TestBaseServiceUpdate:
 
     @staticmethod
     @pytest.mark.asyncio
-    async def test_update_syncs_source_code_when_source_changes(base_service, mock_repository):
+    async def test_update_syncs_source_code_when_source_changes(
+        base_service, mock_repository
+    ):
         entity = SourceBaseModelSchema(
             id="1",
             source="Old Source",

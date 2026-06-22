@@ -10,12 +10,14 @@ class PayloadAccountCreateSchema(BaseModel):
     type: AccountTypeEnum
     initial_balance: float
 
+
 class PayloadAccountUpdateSchema(BaseModel):
     name: str | None = None
     type: AccountTypeEnum | None = None
     is_active: bool | None = None
     initial_balance: float | None = None
     current_balance: float | None = None
+
 
 class AccountSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -30,4 +32,3 @@ class AccountSchema(BaseModel):
     created_at: datetime
     updated_at: datetime | None = None
     deleted_at: datetime | None = None
-

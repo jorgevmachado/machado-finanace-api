@@ -16,12 +16,14 @@ from app.domain.finance.service import FinanceService
 def finance_repository_mock() -> AsyncMock:
     return AsyncMock()
 
+
 class TestFinanceServiceFromSession:
     @staticmethod
     @pytest.mark.asyncio
     async def test_from_session_builds_service() -> None:
         service = FinanceService.from_session(AsyncMock())
         assert isinstance(service, FinanceService)
+
 
 class TestFinanceOnboardingService:
     @staticmethod
@@ -40,7 +42,9 @@ class TestFinanceOnboardingService:
             await service.onboard(current_user=current_user)
 
         assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
-        assert exc_info.value.detail == f"User {current_user.username} already onboarded"
+        assert (
+            exc_info.value.detail == f"User {current_user.username} already onboarded"
+        )
 
     @staticmethod
     @pytest.mark.asyncio
@@ -59,5 +63,3 @@ class TestFinanceOnboardingService:
         service = FinanceService(repository=finance_repository_mock)
         result = await service.onboard(current_user=current_user)
         assert result == finance
-
-        

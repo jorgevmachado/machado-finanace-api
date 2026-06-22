@@ -1,64 +1,41 @@
 from __future__ import annotations
 
 from datetime import datetime
-from decimal import Decimal
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
-from sqlalchemy import DateTime, ForeignKey, String, Integer, Text, Numeric
+from sqlalchemy import DateTime, ForeignKey, String, Enum as SAEnum, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import default_lazy, table_registry
-from app.models import utcnow
+from app.models import utcnow, CategoryTypeEnum
 
 if TYPE_CHECKING:
     from app.models.finance import Finance
-    from app.models.account import Account
-    from app.models.allocation import Allocation
 
 
 @table_registry.mapped_as_dataclass
-class AllocationContribution:
-    __tablename__ = "allocation_contributions"
+class Category:
+    __tablename__ = "categories"
 
     finance_id: Mapped[UUID] = mapped_column(ForeignKey("finances.id"), nullable=False)
 
     finance: Mapped["Finance"] = relationship(
         init=False,
         lazy=default_lazy,
-        back_populates="allocation_contributions",
+        back_populates="categories",
     )
 
-    account_id: Mapped[UUID] = mapped_column(ForeignKey("accounts.id"), nullable=False)
+    name: Mapped[str] = mapped_column(String, nullable=False)
 
-    account: Mapped["Account"] = relationship(
-        init=False,
-        lazy=default_lazy,
-        back_populates="allocation_contributions",
-    )
-
-    allocation_id: Mapped[UUID] = mapped_column(
-        ForeignKey("allocations.id"), nullable=False
-    )
-
-    allocation: Mapped["Allocation"] = relationship(
-        init=False,
-        lazy=default_lazy,
-        back_populates="allocation_contributions",
-    )
-
-    contributor_name: Mapped[str] = mapped_column(String, nullable=False)
+    name_code: Mapped[str] = mapped_column(String, unique=True, nullable=False)
 
     description: Mapped[str] = mapped_column(Text, nullable=False)
 
-    reference_year: Mapped[int] = mapped_column(Integer, nullable=False)
-
-    reference_month: Mapped[int] = mapped_column(Integer, nullable=False)
-
-    amount: Mapped[Decimal] = mapped_column(
-        Numeric(12, 2),
+    type: Mapped[CategoryTypeEnum] = mapped_column(
+        SAEnum(CategoryTypeEnum, name="categorytypeenum"),
         nullable=False,
-        default=Decimal("0.00"),
+        default=CategoryTypeEnum.OTHER,
     )
 
     # Auto-generated / server-managed — excluded from __init__

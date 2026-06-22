@@ -27,6 +27,7 @@ def _normalize_entry(entry: Any) -> dict:
 def text_strip(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
+
 def to_snake_case(text: str) -> str:
     text = text_strip(text)
     text = unicodedata.normalize("NFKD", text)

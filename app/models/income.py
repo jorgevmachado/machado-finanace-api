@@ -27,7 +27,7 @@ class Income:
         lazy=default_lazy,
         back_populates="incomes",
     )
-    
+
     account_id: Mapped[UUID] = mapped_column(ForeignKey("accounts.id"), nullable=False)
 
     account: Mapped["Account"] = relationship(
@@ -35,7 +35,7 @@ class Income:
         lazy=default_lazy,
         back_populates="incomes",
     )
-    
+
     source: Mapped[str] = mapped_column(String, nullable=False)
 
     source_code: Mapped[str] = mapped_column(String, nullable=False)
@@ -43,7 +43,7 @@ class Income:
     description: Mapped[str] = mapped_column(Text, nullable=False)
 
     reference_month: Mapped[int] = mapped_column(Integer, nullable=False)
-    
+
     reference_year: Mapped[int] = mapped_column(Integer, nullable=False)
 
     received_at: Mapped[date] = mapped_column(Date, nullable=False)

@@ -10,6 +10,7 @@ class RoleEnum(str, Enum):
     USER = "USER"
     ADMIN = "ADMIN"
 
+
 class AccountTypeEnum(str, Enum):
     PIX = "PIX"
     BANK = "BANK"
@@ -19,8 +20,19 @@ class AccountTypeEnum(str, Enum):
     CREDIT_CARD = "CREDIT_CARD"
     ACCOUNT_DEBIT = "ACCOUNT_DEBIT"
 
+
 class AllocationTypeEnum(str, Enum):
-    OTHER = "OTHER",
+    OTHER = "OTHER"
     HOUSE = "HOUSE"
     FAMILY = "FAMILY"
     PERSONAL = "PERSONAL"
+
+
+class CategoryTypeEnum(str, Enum):
+    FOOD = "FOOD"
+    OTHER = "OTHER"
+    UTILITY = "UTILITY"
+    HEALTH = "HEALTH"
+    PERSONAL = "PERSONAL"
+    TRANSPORT = "TRANSPORT"
+    ENTERTAINMENT = "ENTERTAINMENT"

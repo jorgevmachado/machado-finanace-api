@@ -9,9 +9,14 @@ from uuid import uuid4
 import pytest
 from fastapi import HTTPException
 
-from app.domain.finance.allocation_contribution.schema import PayloadAllocationContributionCreateSchema
-from app.domain.finance.allocation_contribution.service import AllocationContributionService
+from app.domain.finance.allocation_contribution.schema import (
+    PayloadAllocationContributionCreateSchema,
+)
+from app.domain.finance.allocation_contribution.service import (
+    AllocationContributionService,
+)
 from app.models import utcnow
+
 
 @pytest.fixture
 def allocation_contribution_repository_mock() -> AsyncMock:
@@ -25,6 +30,7 @@ class TestFinanceIncomeServiceFromSession:
         service = AllocationContributionService.from_session(AsyncMock())
         assert isinstance(service, AllocationContributionService)
 
+
 class TestFinanceAllocationContributionCreateService:
     @staticmethod
     @pytest.mark.asyncio
@@ -37,7 +43,7 @@ class TestFinanceAllocationContributionCreateService:
             contributor_name="Contributor Name",
             amount=100.0,
             account_id=uuid4(),
-            allocation_id=uuid4(),            
+            allocation_id=uuid4(),
             description="Some Description",
             reference_year=current_year,
             reference_month=1,
@@ -46,7 +52,9 @@ class TestFinanceAllocationContributionCreateService:
             id=uuid4(), username="Finance User", finance=None
         )
 
-        service = AllocationContributionService(repository=allocation_contribution_repository_mock)
+        service = AllocationContributionService(
+            repository=allocation_contribution_repository_mock
+        )
 
         with pytest.raises(HTTPException) as exc_info:
             await service.create(current_user=current_user, payload=payload)
@@ -61,7 +69,7 @@ class TestFinanceAllocationContributionCreateService:
     ):
         current_year = utcnow().year
         year = current_year + 1
-        payload = PayloadAllocationContributionCreateSchema(            
+        payload = PayloadAllocationContributionCreateSchema(
             contributor_name="Contributor Name",
             amount=100.0,
             account_id=uuid4(),
@@ -74,7 +82,9 @@ class TestFinanceAllocationContributionCreateService:
             id=uuid4(), username="Finance User", finance=SimpleNamespace(id=uuid4())
         )
 
-        service = AllocationContributionService(repository=allocation_contribution_repository_mock)
+        service = AllocationContributionService(
+            repository=allocation_contribution_repository_mock
+        )
 
         with pytest.raises(HTTPException) as exc_info:
             await service.create(current_user=current_user, payload=payload)
@@ -91,7 +101,7 @@ class TestFinanceAllocationContributionCreateService:
         allocation_contribution_repository_mock: AsyncMock,
     ):
         month = 0
-        payload = PayloadAllocationContributionCreateSchema(            
+        payload = PayloadAllocationContributionCreateSchema(
             contributor_name="Contributor Name",
             amount=100.0,
             account_id=uuid4(),
@@ -104,7 +114,9 @@ class TestFinanceAllocationContributionCreateService:
             id=uuid4(), username="Finance User", finance=SimpleNamespace(id=uuid4())
         )
 
-        service = AllocationContributionService(repository=allocation_contribution_repository_mock)
+        service = AllocationContributionService(
+            repository=allocation_contribution_repository_mock
+        )
 
         with pytest.raises(HTTPException) as exc_info:
             await service.create(current_user=current_user, payload=payload)
@@ -133,7 +145,9 @@ class TestFinanceAllocationContributionCreateService:
             id=uuid4(), username="Finance User", finance=SimpleNamespace(id=uuid4())
         )
 
-        service = AllocationContributionService(repository=allocation_contribution_repository_mock)
+        service = AllocationContributionService(
+            repository=allocation_contribution_repository_mock
+        )
 
         with pytest.raises(HTTPException) as exc_info:
             await service.create(current_user=current_user, payload=payload)
@@ -161,7 +175,9 @@ class TestFinanceAllocationContributionCreateService:
             id=uuid4(), username="Finance User", finance=SimpleNamespace(id=uuid4())
         )
 
-        service = AllocationContributionService(repository=allocation_contribution_repository_mock)
+        service = AllocationContributionService(
+            repository=allocation_contribution_repository_mock
+        )
         service.find_by = AsyncMock(return_value=SimpleNamespace(id=uuid4()))
         with pytest.raises(HTTPException) as exc_info:
             await service.create(current_user=current_user, payload=payload)
@@ -190,7 +206,9 @@ class TestFinanceAllocationContributionCreateService:
             id=uuid4(), username="Finance User", finance=SimpleNamespace(id=uuid4())
         )
 
-        service = AllocationContributionService(repository=allocation_contribution_repository_mock)
+        service = AllocationContributionService(
+            repository=allocation_contribution_repository_mock
+        )
         service.find_by = AsyncMock(return_value=None)
         service.account_service.find_by = AsyncMock(return_value=None)
         with pytest.raises(HTTPException) as exc_info:
@@ -224,7 +242,9 @@ class TestFinanceAllocationContributionCreateService:
             repository=allocation_contribution_repository_mock
         )
         service.find_by = AsyncMock(return_value=None)
-        service.account_service.find_by = AsyncMock(return_value=SimpleNamespace(id=payload.account_id))
+        service.account_service.find_by = AsyncMock(
+            return_value=SimpleNamespace(id=payload.account_id)
+        )
         service.allocation_service.find_by = AsyncMock(return_value=None)
         with pytest.raises(HTTPException) as exc_info:
             await service.create(current_user=current_user, payload=payload)
