@@ -4,12 +4,14 @@ from app.models.user import User
 from app.models.finance import Finance
 from app.models.account import Account
 from app.models.allocation import Allocation
+from app.models.income import Income
 
 __all__ = [
     "User",
     "Finance",
     "Account",
     "Allocation",
+    "Income",
     "RoleEnum",
     "StatusEnum",
     "AccountTypeEnum",

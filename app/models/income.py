@@ -1,44 +1,58 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
+from decimal import Decimal
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
-from sqlalchemy import DateTime, ForeignKey, String, Boolean, Enum as SAEnum, Text
+from sqlalchemy import Date, DateTime, ForeignKey, String, Integer, Text, Numeric
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import default_lazy, table_registry
-from app.models import utcnow, AllocationTypeEnum
+from app.models import utcnow
 
 if TYPE_CHECKING:
     from app.models.finance import Finance
+    from app.models.account import Account
 
 
 @table_registry.mapped_as_dataclass
-class Allocation:
-    __tablename__ = "allocations"
+class Income:
+    __tablename__ = "incomes"
 
     finance_id: Mapped[UUID] = mapped_column(ForeignKey("finances.id"), nullable=False)
 
     finance: Mapped["Finance"] = relationship(
         init=False,
         lazy=default_lazy,
-        back_populates="allocations",
+        back_populates="incomes",
     )
+    
+    account_id: Mapped[UUID] = mapped_column(ForeignKey("accounts.id"), nullable=False)
 
-    name: Mapped[str] = mapped_column(String, nullable=False)
+    account: Mapped["Account"] = relationship(
+        init=False,
+        lazy=default_lazy,
+        back_populates="incomes",
+    )
+    
+    source: Mapped[str] = mapped_column(String, nullable=False)
 
-    name_code: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    source_code: Mapped[str] = mapped_column(String, nullable=False)
 
     description: Mapped[str] = mapped_column(Text, nullable=False)
 
-    type: Mapped[AllocationTypeEnum] = mapped_column(
-        SAEnum(AllocationTypeEnum, name="allocationtypeenum"),
-        nullable=False,
-        default=AllocationTypeEnum.OTHER,
-    )
+    reference_month: Mapped[int] = mapped_column(Integer, nullable=False)
+    
+    reference_year: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    received_at: Mapped[date] = mapped_column(Date, nullable=False)
+
+    amount: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2),
+        nullable=False,
+        default=Decimal("0.00"),
+    )
 
     # Auto-generated / server-managed — excluded from __init__
     id: Mapped[UUID] = mapped_column(

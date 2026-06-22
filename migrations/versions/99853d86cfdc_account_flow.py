@@ -33,6 +33,7 @@ def upgrade() -> None:
         "accounts",
         sa.Column("finance_id", sa.Uuid(), nullable=False),
         sa.Column("name", sa.String(), nullable=False),
+        sa.Column("name_code", sa.String(), nullable=False),
         sa.Column(
             "type",
             postgresql.ENUM(
@@ -60,9 +61,10 @@ def upgrade() -> None:
             ["finances.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("name"),
+        sa.UniqueConstraint("name_code"),
     )
     op.create_index("account_finance_id_idx", "accounts", ["finance_id"])
+    op.create_index("account_name_code", "accounts", ["name_code"])
     # ### end Alembic commands ###
 
 

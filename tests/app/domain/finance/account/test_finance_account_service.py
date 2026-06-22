@@ -12,6 +12,7 @@ from fastapi import HTTPException
 from app.domain.finance.account.schema import PayloadAccountCreateSchema
 from app.domain.finance.account.service import AccountService
 from app.models import AccountTypeEnum
+from app.shared.utils.string import to_snake_case
 
 
 @pytest.fixture
@@ -85,7 +86,16 @@ class TestFinanceAccountCreateService:
         current_user = SimpleNamespace(
             id=uuid4(), username="Finance User", finance=SimpleNamespace(id=finance_id)
         )
-        account = SimpleNamespace(id=uuid4(), finance_id=finance_id)
+        account = SimpleNamespace(
+            id=uuid4(),
+            finance_id=finance_id,
+            name=payload.name,
+            name_code=to_snake_case(payload.name),
+            type=payload.type,
+            is_active=True,
+            initial_balance=payload.initial_balance,
+            current_balance=payload.initial_balance,
+        )
 
         service = AccountService(repository=account_repository_mock)
         service.find_by = AsyncMock(return_value=None)
@@ -93,4 +103,5 @@ class TestFinanceAccountCreateService:
         account_repository_mock.save.return_value = account
 
         result = await service.create(current_user=current_user, payload=payload)
+        account_repository_mock.save.assert_awaited_once()
         assert result == account

@@ -3,65 +3,80 @@ from __future__ import annotations
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 from uuid import uuid4
+from datetime import date
 
 import pytest
 
-from app.domain.finance.account.route import (
+from app.domain.finance.income.route import (
     create,
-    account_service,
-    account_filter,
+    income_service,
+    income_filter,
     list_all,
     find_one,
     update,
     delete,
 )
-from app.domain.finance.account.schema import (
-    PayloadAccountCreateSchema,
-    PayloadAccountUpdateSchema,
+from app.domain.finance.income.schema import (
+    PayloadIncomeCreateSchema,
+    PayloadIncomeUpdateSchema,
 )
-from app.domain.finance.account.service import AccountService
-from app.models import AccountTypeEnum
+from app.domain.finance.income.service import IncomeService
 from app.shared.schemas import FilterPage
 
-
-def test_account_builds_service() -> None:
-    service = account_service(AsyncMock())
-    assert isinstance(service, AccountService)
-
-def test_get_account_filter_builds_dynamic_filter():
+def test_income_builds_service() -> None:
+    service = income_service(AsyncMock())
+    assert isinstance(service, IncomeService)
+    
+def test_get_income_filter_builds_dynamic_filter():
     finance_id = uuid4()
-    page_filter = account_filter(
+    account_id = uuid4()
+    page_filter = income_filter(
         page=1,
-        name="nubank",
-        type=AccountTypeEnum.BANK,
-        limit=12,
-        is_active=True,
+        source="Source Name",
+        limit=12,        
         finance_id=str(finance_id),
+        account_id=str(account_id),
+        source_code="source_name",
         clean_cache=True,
+        with_deleted=False,
+        reference_year=2026,
+        reference_month=1,
     )
 
     assert page_filter.page == 1
-    assert page_filter.name == "nubank"
-    assert page_filter.type == "BANK"
-    assert page_filter.limit == 12
-    assert page_filter.is_active
+    assert page_filter.source == "Source Name"    
+    assert page_filter.limit == 12    
     assert page_filter.finance_id == str(finance_id)
+    assert page_filter.account_id == str(account_id)
+    assert page_filter.source_code == "source_name"
     assert page_filter.clean_cache
-
-
+    assert not page_filter.with_deleted
+    assert page_filter.reference_year == 2026
+    assert page_filter.reference_month == 1
+    
 @pytest.mark.asyncio
-async def test_finance_account_route_create() -> None:
+async def test_finance_income_route_create() -> None:
     service = AsyncMock()
-    payload = PayloadAccountCreateSchema(
-        name="Test Account", type=AccountTypeEnum.BANK, initial_balance=100.0
+    account_id = uuid4()   
+    payload = PayloadIncomeCreateSchema(        
+        source="Source Name",
+        amount=100.00,     
+        account_id=account_id,
+        description="Some Description",
+        reference_year=2026,
+        reference_month=1,
+        received_at=date(2026, 1, 1),
     )
     expected = SimpleNamespace(
-        id="account-id",
-        name=payload.name,
-        type=payload.type,
-        is_active=True,
-        initial_balance=payload.initial_balance,
-        current_balance=payload.initial_balance
+        id="income-id",
+        source="Source Name",
+        amount=100.00,
+        account_id=account_id,
+        source_name="source_name",
+        description="Some Description",
+        reference_year=2026,
+        reference_month=1,
+        received_at=date(2026, 1, 1),
     )
     service.create.return_value = expected
     current_user = SimpleNamespace(id="user-id", username="Finance User")
@@ -70,11 +85,11 @@ async def test_finance_account_route_create() -> None:
 
     assert result is expected
     service.create.assert_awaited_once_with(current_user=current_user, payload=payload)
-
+    
 @pytest.mark.asyncio
-async def test_finance_account_route_list_all_paginate_and_filter() -> None:
+async def test_finance_income_route_list_all_paginate_and_filter() -> None:
     service = AsyncMock()
-    page_filter = account_filter(page=1, limit=12)
+    page_filter = income_filter(page=1, limit=12)
     expected = SimpleNamespace(items=[])
     service.list_all_cached.return_value = expected
     current_user = SimpleNamespace(id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id"))
@@ -95,15 +110,17 @@ async def test_finance_account_route_list_all_paginate_and_filter() -> None:
     assert service.list_all_cached.await_args.kwargs["user_request"] == "Finance User"
 
 @pytest.mark.asyncio
-async def test_finance_account_route_find_one() -> None:
+async def test_finance_income_route_find_one() -> None:
     service = AsyncMock()
     expected = SimpleNamespace(
-        id="account-id",
-        name="Test Account",
-        type=AccountTypeEnum.BANK,
-        is_active=True,
-        initial_balance=100.00,
-        current_balance=100.00
+        id="income-id",
+        source="Source Name",
+        amount=100.00,
+        source_name="source_name",
+        description="Some Description", 
+        reference_year=2026,
+        reference_month=1,
+        received_at=date(2026, 1, 1),
     )
     service.find_one_cached.return_value = expected
     current_user = SimpleNamespace(
@@ -111,14 +128,14 @@ async def test_finance_account_route_find_one() -> None:
     )
 
     result = await find_one(
-            param="account-id",
+            param="income-id",
             current_user=current_user,
             service=service,
         )
 
     assert result is expected
     service.find_one_cached.assert_awaited_once_with(
-            param="account-id",
+            param="income-id",
             user_request="Finance User",
             clean_cache=False,
             with_deleted=False,
@@ -126,23 +143,25 @@ async def test_finance_account_route_find_one() -> None:
         )
     
 @pytest.mark.asyncio
-async def test_finance_account_route_update() -> None:
+async def test_finance_income_route_update() -> None:
     service = AsyncMock()
     expected = SimpleNamespace(
-        id="account-id",
-        name="Test Account",
-        type=AccountTypeEnum.BANK,
-        is_active=True,
-        initial_balance=100.00,
-        current_balance=100.00
+        id="income-id",
+        source="Source Name",
+        amount=100.00,
+        source_name="source_name",
+        description="Some Description",
+        reference_year=2026,
+        reference_month=1,
+        received_at=date(2026, 1, 1),
     )
     service.update.return_value = expected
     current_user = SimpleNamespace(
         id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
     )
-    payload = PayloadAccountUpdateSchema(name="Test Account")
+    payload = PayloadIncomeUpdateSchema(reference_month=2)
     result = await update(
-            param="account-id",
+            param="income-id",
             current_user=current_user,
             service=service,
             payload=payload
@@ -150,27 +169,25 @@ async def test_finance_account_route_update() -> None:
 
     assert result is expected
     service.update.assert_awaited_once_with(
-            param="account-id",
+            param="income-id",
             user_request="Finance User",
             update_schema=payload,
         )
-
-
+    
 @pytest.mark.asyncio
-async def test_finance_account_route_delete() -> None:
+async def test_finance_income_route_delete() -> None:
     service = AsyncMock()
-    expected = SimpleNamespace(message="Deleted Account successfully")
+    expected = SimpleNamespace(message="Deleted Income successfully")
     service.soft_delete.return_value = expected
     current_user = SimpleNamespace(
         id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
     )
 
-    result = await delete(param="account-id", current_user=current_user, service=service)
+    result = await delete(param="income-id", current_user=current_user, service=service)
 
     assert result is expected
     service.soft_delete.assert_awaited_once_with(
-        param="account-id",
+        param="income-id",
         user_request="Finance User",
         finance_id="finance-id",
     )
-    

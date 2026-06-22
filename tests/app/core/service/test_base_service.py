@@ -17,6 +17,13 @@ class BaseModelSchema(BaseModel):
     value: int
 
 
+class SourceBaseModelSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    source: str
+    source_code: str
+
+
 @pytest.fixture
 def mock_repository():
     repo = MagicMock()
@@ -266,6 +273,14 @@ class MockUpdateSchema:
         return self._data
 
 
+class MockNameUpdateSchema(MockUpdateSchema):
+    model_fields = {"name": object(), "name_code": object()}
+
+
+class MockSourceUpdateSchema(MockUpdateSchema):
+    model_fields = {"source": object(), "source_code": object()}
+
+
 class TestBaseServiceUpdate:
     @staticmethod
     @pytest.mark.asyncio
@@ -320,6 +335,73 @@ class TestBaseServiceUpdate:
                 message=f"Update {base_service.alias} successfully",
                 user_request=None,
             )
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_update_syncs_name_code_when_name_changes(base_service, mock_repository):
+        entity = {
+            "id": "123",
+            "name": "old name",
+            "name_code": "old_name",
+            "value": 1,
+        }
+        mock_repository.find_by.return_value = entity
+        mock_repository.update = AsyncMock(return_value=entity)
+        base_service._invalidate_cache = AsyncMock(return_value=None)
+
+        update_schema = MockNameUpdateSchema({"name": "New Name", "value": 2})
+
+        with patch("app.core.service.base.log_service_success"):
+            await base_service.update(param="123", update_schema=update_schema)
+
+        updated_entity = mock_repository.update.await_args.args[0]
+        assert updated_entity["name"] == "New Name"
+        assert updated_entity["name_code"] == "new_name"
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_update_syncs_source_code_when_source_changes(base_service, mock_repository):
+        entity = SourceBaseModelSchema(
+            id="1",
+            source="Old Source",
+            source_code="old_source",
+        )
+        mock_repository.find_by.return_value = entity
+        mock_repository.update = AsyncMock(return_value=entity)
+        base_service._invalidate_cache = AsyncMock(return_value=None)
+
+        update_schema = MockSourceUpdateSchema({"source": "New Source"})
+
+        with patch("app.core.service.base.log_service_success"):
+            await base_service.update(param="1", update_schema=update_schema)
+
+        updated_entity = mock_repository.update.await_args.args[0]
+        assert updated_entity.source == "New Source"
+        assert updated_entity.source_code == "new_source"
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_update_skips_name_code_when_name_is_not_string(
+        base_service, mock_repository
+    ):
+        entity = {
+            "id": "123",
+            "name": "old name",
+            "name_code": "old_name",
+            "value": 1,
+        }
+        mock_repository.find_by.return_value = entity
+        mock_repository.update = AsyncMock(return_value=entity)
+        base_service._invalidate_cache = AsyncMock(return_value=None)
+
+        update_schema = MockNameUpdateSchema({"name": 123})
+
+        with patch("app.core.service.base.log_service_success"):
+            await base_service.update(param="123", update_schema=update_schema)
+
+        updated_entity = mock_repository.update.await_args.args[0]
+        assert updated_entity["name"] == 123
+        assert updated_entity["name_code"] == "old_name"
 
     @staticmethod
     @pytest.mark.asyncio

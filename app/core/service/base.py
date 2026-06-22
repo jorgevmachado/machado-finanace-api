@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Annotated, cast
+from typing import Annotated, Any, cast
 
 from fastapi import HTTPException, Query
 from pydantic import BaseModel
@@ -10,7 +10,7 @@ from app.core.logging import LoggingParams, log_service_success
 from app.core.pagination.pagination import exception_pagination
 from app.models import utcnow
 from app.shared.schemas import FilterPage, Message
-from app.shared.utils.string import is_valid_uuid
+from app.shared.utils.string import is_valid_uuid, to_snake_case
 
 
 class BaseService[
@@ -204,6 +204,7 @@ class BaseService[
                     detail=f"{self.alias} not found",
                 )
             update_data = update_schema.model_dump(exclude_unset=True)
+            self._sync_code_fields(update_schema, entity, update_data)
             for key, value in update_data.items():
                 if isinstance(entity, dict):
                     entity[key] = value
@@ -227,6 +228,31 @@ class BaseService[
                 message=f"Update {self.alias} successfully",
                 user_request=user_request,
             )
+
+    @staticmethod
+    def _sync_code_fields(
+        update_schema: BaseModel,
+        entity: ModelT,
+        update_data: dict[str, Any],
+    ) -> None:
+        schema_fields = getattr(type(update_schema), "model_fields", {})
+        field_pairs = (("name", "name_code"), ("source", "source_code"))
+
+        for source_field, code_field in field_pairs:
+            if code_field not in schema_fields or source_field not in update_data:
+                continue
+
+            updated_value = update_data[source_field]
+            if not isinstance(updated_value, str):
+                continue
+
+            current_value = (
+                entity.get(source_field)
+                if isinstance(entity, dict)
+                else getattr(entity, source_field, None)
+            )
+            if updated_value != current_value:
+                update_data[code_field] = to_snake_case(updated_value)
 
     async def update_entity(
         self,

@@ -10,6 +10,7 @@ from app.core.logging import LoggingParams
 from app.core.service import BaseService
 from app.domain.finance.account.repository import AccountRepository
 from app.domain.finance.account.schema import PayloadAccountCreateSchema, AccountSchema
+from app.shared.utils.string import to_snake_case
 
 from app.models import (
     User,
@@ -55,9 +56,10 @@ class AccountService(BaseService[AccountRepository, Account]):
             entity=Account(
                 finance_id=current_user.finance.id,
                 name=payload.name,
+                name_code=to_snake_case(payload.name),
                 type=payload.type,
                 is_active=True,
                 initial_balance=payload.initial_balance,
-                current_balance=payload.initial_balance
+                current_balance=payload.initial_balance,
             )
         )

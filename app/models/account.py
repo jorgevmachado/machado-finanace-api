@@ -13,6 +13,7 @@ from app.models import utcnow, AccountTypeEnum
 
 if TYPE_CHECKING:
     from app.models.finance import Finance
+    from app.models.income import Income
 
 
 @table_registry.mapped_as_dataclass
@@ -27,7 +28,9 @@ class Account:
         back_populates="accounts",
     )
 
-    name: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    name: Mapped[str] = mapped_column(String, nullable=False)
+
+    name_code: Mapped[str] = mapped_column(String, unique=True, nullable=False)
 
     type: Mapped[AccountTypeEnum] = mapped_column(
         SAEnum(AccountTypeEnum, name="accounttypeenum"),
@@ -47,6 +50,14 @@ class Account:
         Numeric(12, 2),
         nullable=False,
         default=Decimal("0.00"),
+    )
+
+    incomes: Mapped[list["Income"]] = relationship(
+        lazy=default_lazy,
+        default_factory=list,
+        init=False,
+        repr=False,
+        back_populates="account",
     )
 
     # Auto-generated / server-managed — excluded from __init__

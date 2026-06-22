@@ -46,10 +46,10 @@ def upgrade() -> None:
     sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True),
     sa.ForeignKeyConstraint(['finance_id'], ['finances.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('name'),
     sa.UniqueConstraint('name_code')
     )
     op.create_index("allocation_finance_id_idx", "allocations", ["finance_id"])
+    op.create_index("allocation_name_code", "allocations", ["name_code"])
     # ### end Alembic commands ###
 
 
