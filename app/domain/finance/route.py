@@ -14,10 +14,12 @@ from app.domain.finance.schema import FinanceSchema
 from app.domain.finance.service import FinanceService
 from app.models import User
 from app.domain.finance.account.route import router as account_router
+from app.domain.finance.allocation.route import router as allocation_route
 
 router = APIRouter()
 
 router.include_router(account_router, prefix="/account", tags=["FinanceAccount"])
+router.include_router(allocation_route, prefix="/allocation", tags=["FinanceAllocation"])
 
 Session = Annotated[AsyncSession, Depends(get_session)]
 

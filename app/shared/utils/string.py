@@ -1,6 +1,7 @@
 import re
+import unicodedata
 import uuid
-from typing import Any, cast
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -15,13 +16,6 @@ def is_valid_uuid(value: str | None = None) -> bool:
         return False
 
 
-class TextLanguageSchema(BaseModel):
-    text: str
-    error: bool = False
-    subtext: str | None = None
-    language: str
-
-
 def _normalize_entry(entry: Any) -> dict:
     if isinstance(entry, BaseModel):
         return entry.model_dump()
@@ -33,49 +27,12 @@ def _normalize_entry(entry: Any) -> dict:
 def text_strip(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
+def to_snake_case(text: str) -> str:
+    text = text_strip(text)
+    text = unicodedata.normalize("NFKD", text)
+    text = text.encode("ascii", "ignore").decode("ascii")
 
-def get_text_language(
-    entries: list[Any],
-    title: str,
-    group: str | None = None,
-    subtitle: str | None = None,
-    language: str = "en",
-    group_title: str = "version_group",
-) -> TextLanguageSchema:
-    normalized = [_normalize_entry(e) for e in entries]
-
-    if group is None:
-        text_entry = next(
-            (
-                entry
-                for entry in normalized
-                if entry.get("language", {}).get("name") == language
-            ),
-            normalized[0] if normalized else None,
-        )
-    else:
-        text_entry = next(
-            (
-                entry
-                for entry in normalized
-                if entry.get("language", {}).get("name") == language
-                and entry.get(group_title, {}).get("name") == group
-            ),
-            normalized[0] if normalized else None,
-        )
-
-    if text_entry is None:
-        return TextLanguageSchema(text="", error=True, language=language)
-
-    if not text_entry.get(title):
-        return TextLanguageSchema(text="", error=True, language=language)
-
-    text: str = cast(str, text_entry.get(title))
-    subtext_raw = text_entry.get(subtitle) if subtitle else None
-    subtext: str | None = cast(str, subtext_raw) if subtext_raw else None
-
-    return TextLanguageSchema(
-        text=text_strip(text),
-        subtext=text_strip(subtext) if subtext else None,
-        language=language,
-    )
+    text = text.lower()
+    text = re.sub(r"[^a-z0-9]+", "_", text)
+    text = re.sub(r"_+", "_", text).strip("_")
+    return text

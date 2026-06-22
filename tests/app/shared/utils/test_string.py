@@ -1,10 +1,10 @@
 from pydantic import BaseModel
 
 from app.shared.utils.string import (
-    TextLanguageSchema,
+    text_strip,
     _normalize_entry,
-    get_text_language,
     is_valid_uuid,
+    to_snake_case,
 )
 
 
@@ -47,69 +47,18 @@ class TestNormalizeEntry:
         assert result == {"key": "value"}
 
 
-class TestGetTextLanguage:
+class TestTextStrip:
     @staticmethod
-    def test_get_text_language_with_group():
-        entries = [
-            {
-                "language": {"name": "en"},
-                "version_group": {"name": "generation-i"},
-                "flavor_text": "Example text",
-            },
-        ]
-        result = get_text_language(
-            entries,
-            "flavor_text",
-            group="generation-i",
-            language="en",
-        )
-        assert isinstance(result, TextLanguageSchema)
-        assert result.text == "Example text"
-        assert not result.error
+    def test_text_strip():
+        text = "  Hello, World!  "
+        expected_text = "Hello, World!"
+        result = text_strip(text)
+        assert result == expected_text
 
+class TestToSnakeCase:
     @staticmethod
-    def test_get_text_language_without_group():
-        entries = [
-            {
-                "language": {"name": "en"},
-                "flavor_text": "Example text",
-            },
-        ]
-        result = get_text_language(entries, "flavor_text", language="en")
-        assert isinstance(result, TextLanguageSchema)
-        assert result.text == "Example text"
-
-    @staticmethod
-    def test_get_text_language_with_subtext():
-        entries = [
-            {
-                "language": {"name": "en"},
-                "flavor_text": "Example text",
-                "description": "Example description",
-            },
-        ]
-        result = get_text_language(
-            entries,
-            "flavor_text",
-            subtitle="description",
-            language="en",
-        )
-        assert result.text == "Example text"
-        assert result.subtext == "Example description"
-
-    @staticmethod
-    def test_get_text_language_empty_entries():
-        result = get_text_language([], "flavor_text", language="en")
-        assert result.error
-        assert result.text == ""
-
-    @staticmethod
-    def test_get_text_language_missing_key():
-        entries = [
-            {
-                "language": {"name": "en"},
-            },
-        ]
-        result = get_text_language(entries, "flavor_text", language="en")
-        assert result.error
-        assert result.text == ""
+    def test_to_snake_case():
+        text = "Residencial Ingrid Águas claras"
+        expected_text = "residencial_ingrid_aguas_claras"
+        result = to_snake_case(text)
+        assert result == expected_text

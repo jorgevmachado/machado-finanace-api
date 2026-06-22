@@ -4,45 +4,41 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
-from sqlalchemy import DateTime, ForeignKey
+from sqlalchemy import DateTime, ForeignKey, String, Boolean, Enum as SAEnum, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import default_lazy, table_registry
-from app.models import utcnow
+from app.models import utcnow, AllocationTypeEnum
 
 if TYPE_CHECKING:
-    from app.models.user import User
-    from app.models.account import Account
-    from app.models.allocation import Allocation
+    from app.models.finance import Finance
 
 
 @table_registry.mapped_as_dataclass
-class Finance:
-    __tablename__ = "finances"
+class Allocation:
+    __tablename__ = "allocations"
 
-    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
+    finance_id: Mapped[UUID] = mapped_column(ForeignKey("finances.id"), nullable=False)
 
-    user: Mapped["User"] = relationship(
+    finance: Mapped["Finance"] = relationship(
         init=False,
         lazy=default_lazy,
-        back_populates="finance",
+        back_populates="allocations",
     )
 
-    accounts: Mapped[list["Account"]] = relationship(
-        lazy=default_lazy,
-        default_factory=list,
-        init=False,
-        repr=False,
-        back_populates="finance",
+    name: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+
+    name_code: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+
+    type: Mapped[AllocationTypeEnum] = mapped_column(
+        SAEnum(AllocationTypeEnum, name="allocationtypeenum"),
+        nullable=False,
+        default=AllocationTypeEnum.OTHER,
     )
 
-    allocations: Mapped[list["Allocation"]] = relationship(
-        lazy=default_lazy,
-        default_factory=list,
-        init=False,
-        repr=False,
-        back_populates="finance",
-    )
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     # Auto-generated / server-managed — excluded from __init__
     id: Mapped[UUID] = mapped_column(
