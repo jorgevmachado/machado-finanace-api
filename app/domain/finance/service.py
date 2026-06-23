@@ -45,3 +45,12 @@ class FinanceService(BaseService[FinanceRepository, Finance]):
                 detail=f"User {current_user.username} already onboarded",
             )
         return await self.repository.save(entity=Finance(user_id=current_user.id))
+
+    async def find_by_user(self, current_user: User) -> Finance:
+        finance = current_user.finance if current_user.finance else None
+        if not finance:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail=f"User {current_user.username} must be onboarded first"
+            )
+        return await self.find_one(param=str(finance.id))

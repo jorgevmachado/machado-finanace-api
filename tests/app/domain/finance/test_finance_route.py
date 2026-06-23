@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from app.domain.finance.route import onboarding, finance_service
+from app.domain.finance.route import onboarding, finance_service, find_by_user
 from app.domain.finance.service import FinanceService
 
 
@@ -17,7 +17,7 @@ def test_finance_builds_service() -> None:
 @pytest.mark.asyncio
 async def test_finance_route_onboarding() -> None:
     service = AsyncMock()
-    expected = SimpleNamespace(id="trainer-id")
+    expected = SimpleNamespace(id="finance-id")
     service.onboard.return_value = expected
     current_user = SimpleNamespace(id="user-id", username="Finance User")
 
@@ -25,3 +25,16 @@ async def test_finance_route_onboarding() -> None:
 
     assert result is expected
     service.onboard.assert_awaited_once_with(current_user=current_user)
+
+
+@pytest.mark.asyncio
+async def test_finance_route_find_by_user() -> None:
+    service = AsyncMock()
+    expected = SimpleNamespace(id="finance-id")
+    service.find_by_user.return_value = expected
+    current_user = SimpleNamespace(id="user-id", username="Finance User", finance=expected)
+
+    result = await find_by_user(service=service, current_user=current_user)
+
+    assert result is expected
+    service.find_by_user.assert_awaited_once_with(current_user=current_user)

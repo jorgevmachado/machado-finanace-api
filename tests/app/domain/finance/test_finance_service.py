@@ -63,3 +63,40 @@ class TestFinanceOnboardingService:
         service = FinanceService(repository=finance_repository_mock)
         result = await service.onboard(current_user=current_user)
         assert result == finance
+
+class TestFinanceFindByUserService:
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_find_by_user_service_no_has_finance(
+        finance_repository_mock: AsyncMock,
+    ):
+        current_user = SimpleNamespace(
+            id=uuid4(), username="Finance User", finance=None
+        )
+
+        service = FinanceService(repository=finance_repository_mock)
+
+        with pytest.raises(HTTPException) as exc_info:
+            await service.find_by_user(current_user=current_user)
+
+        assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
+        assert (
+            exc_info.value.detail == f"User {current_user.username} must be onboarded first"
+        )
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_find_by_user_service_successfully(
+        finance_repository_mock: AsyncMock,
+    ):
+        finance = SimpleNamespace(id=uuid4())
+        current_user = SimpleNamespace(
+            id=uuid4(), username="Finance User", finance=finance
+        )
+
+        service = FinanceService(repository=finance_repository_mock)
+        service.find_one = AsyncMock(return_value=finance)
+
+        result = await service.find_by_user(current_user=current_user)
+
+        assert result == finance

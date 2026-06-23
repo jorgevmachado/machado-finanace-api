@@ -52,6 +52,9 @@ def finance_service(session: Session) -> FinanceService:
 Service = Annotated[FinanceService, Depends(finance_service)]
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
+@router.get("", response_model=FinanceSchema, status_code=HTTPStatus.OK)
+async def find_by_user(service: Service, current_user: CurrentUser):
+    return await service.find_by_user(current_user=current_user)
 
 @router.post(
     "/onboarding", response_model=FinanceSchema, status_code=HTTPStatus.CREATED

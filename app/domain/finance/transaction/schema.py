@@ -10,7 +10,7 @@ class PayloadTransactionCreateSchema(BaseModel):
     type: TransactionTypeEnum
     status: TransactionStatusEnum
     amount: float
-    paid_at: datetime
+    paid_at: datetime | None = None
     account_id: UUID
     category_id: UUID
     description: str

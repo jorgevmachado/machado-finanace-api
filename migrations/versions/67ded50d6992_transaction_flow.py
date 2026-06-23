@@ -41,7 +41,7 @@ def upgrade() -> None:
     sa.Column('account_id', sa.Uuid(), nullable=False),
     sa.Column('allocation_id', sa.Uuid(), nullable=False),
     sa.Column('category_id', sa.Uuid(), nullable=False),
-    sa.Column('paid_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('paid_at', sa.DateTime(timezone=True), nullable=True),
     sa.Column('description', sa.Text(), nullable=False),
     sa.Column('transaction_date', sa.Date(), nullable=False),
     sa.Column('type', postgresql.ENUM('INCOME', 'EXPENSE', 'TRANSFER', name='transactiontypeenum', create_type=False), nullable=False),

@@ -56,9 +56,7 @@ class Transaction:
         init=False,
         lazy=default_lazy,
         back_populates="transactions",
-    )
-
-    paid_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    )    
 
     description: Mapped[str] = mapped_column(Text, nullable=False)
 
@@ -81,6 +79,8 @@ class Transaction:
         nullable=False,
         default=Decimal("0.00"),
     )
+
+    paid_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, default=None)
 
     # Auto-generated / server-managed — excluded from __init__
     id: Mapped[UUID] = mapped_column(

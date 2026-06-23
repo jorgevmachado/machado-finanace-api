@@ -12,6 +12,7 @@ from app.domain.finance.account.service import AccountService
 
 from app.domain.finance.allocation.service import AllocationService
 from app.domain.finance.category.service import CategoryService
+from app.domain.finance.transaction.business import validate_paid_at
 
 from app.domain.finance.transaction.repository import (
     TransactionRepository,
@@ -106,13 +107,15 @@ class TransactionService(BaseService[TransactionRepository, Transaction]):
                 status_code=HTTPStatus.BAD_REQUEST,
                 detail=f"Category with this id {payload.category_id} does not exist",
             )
+        
+        paid_at = validate_paid_at(payload.status, payload.paid_at)
 
         return await self.repository.save(
             entity=Transaction(
                 type=payload.type,
                 status=payload.status,
                 amount=payload.amount,
-                paid_at=payload.paid_at,
+                paid_at=paid_at,
                 finance_id=current_user.finance.id,
                 account_id=payload.account_id,
                 category_id=payload.category_id,
