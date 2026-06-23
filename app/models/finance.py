@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from app.models.income import Income
     from app.models.allocation_contribution import AllocationContribution
     from app.models.category import Category
+    from app.models.transaction import Transaction
 
 
 @table_registry.mapped_as_dataclass
@@ -64,6 +65,14 @@ class Finance:
     )
 
     categories: Mapped[list["Category"]] = relationship(
+        lazy=default_lazy,
+        default_factory=list,
+        init=False,
+        repr=False,
+        back_populates="finance",
+    )
+
+    transactions: Mapped[list["Transaction"]] = relationship(
         lazy=default_lazy,
         default_factory=list,
         init=False,

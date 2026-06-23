@@ -36,3 +36,13 @@ class CategoryTypeEnum(str, Enum):
     PERSONAL = "PERSONAL"
     TRANSPORT = "TRANSPORT"
     ENTERTAINMENT = "ENTERTAINMENT"
+
+class TransactionTypeEnum(str, Enum):
+    INCOME = "INCOME"
+    EXPENSE = "EXPENSE"
+    TRANSFER = "TRANSFER"
+    
+class TransactionStatusEnum(str, Enum):
+    PAID = "PAID"
+    PENDING = "PENDING"
+    CANCELLED = "CANCELLED"

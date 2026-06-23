@@ -12,6 +12,7 @@ from app.models import utcnow, CategoryTypeEnum
 
 if TYPE_CHECKING:
     from app.models.finance import Finance
+    from app.models.transaction import Transaction
 
 
 @table_registry.mapped_as_dataclass
@@ -36,6 +37,14 @@ class Category:
         SAEnum(CategoryTypeEnum, name="categorytypeenum"),
         nullable=False,
         default=CategoryTypeEnum.OTHER,
+    )
+
+    transactions: Mapped[list["Transaction"]] = relationship(
+        lazy=default_lazy,
+        default_factory=list,
+        init=False,
+        repr=False,
+        back_populates="category",
     )
 
     # Auto-generated / server-managed — excluded from __init__

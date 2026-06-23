@@ -13,6 +13,7 @@ from app.models import utcnow, AllocationTypeEnum
 if TYPE_CHECKING:
     from app.models.finance import Finance
     from app.models.allocation_contribution import AllocationContribution
+    from app.models.transaction import Transaction
 
 
 @table_registry.mapped_as_dataclass
@@ -42,6 +43,14 @@ class Allocation:
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     allocation_contributions: Mapped[list["AllocationContribution"]] = relationship(
+        lazy=default_lazy,
+        default_factory=list,
+        init=False,
+        repr=False,
+        back_populates="allocation",
+    )
+
+    transactions: Mapped[list["Transaction"]] = relationship(
         lazy=default_lazy,
         default_factory=list,
         init=False,
