@@ -2,6 +2,18 @@ from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from datetime import datetime, date
 
+class PayloadIncomeCreateListItemSchema(BaseModel):    
+    amount: float
+    description: str | None = None        
+    reference_month: int
+
+class PayloadIncomeCreateListSchema(BaseModel):
+    account_id: UUID
+    source: str
+    reference_day: int | None = None
+    reference_year: int
+    description: str | None = None
+    incomes: list[PayloadIncomeCreateListItemSchema]
 
 class PayloadIncomeCreateSchema(BaseModel):
     source: str
