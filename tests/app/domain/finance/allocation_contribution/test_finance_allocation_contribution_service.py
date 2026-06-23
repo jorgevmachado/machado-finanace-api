@@ -23,7 +23,7 @@ def allocation_contribution_repository_mock() -> AsyncMock:
     return AsyncMock()
 
 
-class TestFinanceIncomeServiceFromSession:
+class TestFinanceAllocationContributionServiceFromSession:
     @staticmethod
     @pytest.mark.asyncio
     async def test_from_session_builds_service() -> None:

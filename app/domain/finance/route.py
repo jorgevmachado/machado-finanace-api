@@ -20,6 +20,7 @@ from app.domain.finance.allocation_contribution.route import (
     router as allocation_contribution_route,
 )
 from app.domain.finance.category.route import router as category_route
+from app.domain.finance.transaction.route import router as transaction_route
 
 router = APIRouter()
 
@@ -38,6 +39,8 @@ router.include_router(
 )
 
 router.include_router(category_route, prefix="/category", tags=["FinanceCategory"])
+
+router.include_router(transaction_route, prefix="/transaction", tags=["FinanceTransaction"])
 
 Session = Annotated[AsyncSession, Depends(get_session)]
 
