@@ -16,6 +16,7 @@ from app.domain.finance.category.schema import (
     CategorySchema,
     PayloadCategoryCreateSchema,
     PayloadCategoryUpdateSchema,
+    PayloadCategoryCreateListSchema,
 )
 from app.domain.finance.category.service import CategoryService
 from app.models import User
@@ -97,7 +98,8 @@ async def find_one(
 async def create(
     service: Service, current_user: CurrentUser, payload: PayloadCategoryCreateSchema
 ):
-    return await service.create(current_user=current_user, payload=payload)
+    finance = validate_finance(current_user.finance)
+    return await service.persist(finance=finance, payload=payload)
 
 
 @router.put("/{param}", response_model=CategorySchema, status_code=HTTPStatus.CREATED)
@@ -123,3 +125,13 @@ async def delete(
     return await service.soft_delete(
         param=param, user_request=current_user.username, finance_id=str(finance.id)
     )
+
+
+@router.post("/list", response_model=CategorySchema, status_code=HTTPStatus.OK)
+async def create_list(
+    service: Service,
+    current_user: CurrentUser,
+    payload: PayloadCategoryCreateListSchema,
+):
+    finance = validate_finance(current_user.finance)
+    return await service.create_list(finance=finance, payload=payload)

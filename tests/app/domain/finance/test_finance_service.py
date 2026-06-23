@@ -64,6 +64,7 @@ class TestFinanceOnboardingService:
         result = await service.onboard(current_user=current_user)
         assert result == finance
 
+
 class TestFinanceFindByUserService:
     @staticmethod
     @pytest.mark.asyncio
@@ -81,7 +82,8 @@ class TestFinanceFindByUserService:
 
         assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
         assert (
-            exc_info.value.detail == f"User {current_user.username} must be onboarded first"
+            exc_info.value.detail
+            == f"User {current_user.username} must be onboarded first"
         )
 
     @staticmethod

@@ -32,7 +32,9 @@ async def test_finance_route_find_by_user() -> None:
     service = AsyncMock()
     expected = SimpleNamespace(id="finance-id")
     service.find_by_user.return_value = expected
-    current_user = SimpleNamespace(id="user-id", username="Finance User", finance=expected)
+    current_user = SimpleNamespace(
+        id="user-id", username="Finance User", finance=expected
+    )
 
     result = await find_by_user(service=service, current_user=current_user)
 

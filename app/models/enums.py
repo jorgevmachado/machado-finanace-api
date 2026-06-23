@@ -31,17 +31,21 @@ class AllocationTypeEnum(str, Enum):
 class CategoryTypeEnum(str, Enum):
     FOOD = "FOOD"
     OTHER = "OTHER"
+    STUDIES = "STUDIES"
     UTILITY = "UTILITY"
     HEALTH = "HEALTH"
     PERSONAL = "PERSONAL"
     TRANSPORT = "TRANSPORT"
-    ENTERTAINMENT = "ENTERTAINMENT"
+    ENTERTAINMENT = ("ENTERTAINMENT",)
+    GOVERNMENT_FEES = "GOVERNMENT_FEES"
+
 
 class TransactionTypeEnum(str, Enum):
     INCOME = "INCOME"
     EXPENSE = "EXPENSE"
     TRANSFER = "TRANSFER"
-    
+
+
 class TransactionStatusEnum(str, Enum):
     PAID = "PAID"
     PENDING = "PENDING"

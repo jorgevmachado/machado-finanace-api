@@ -51,6 +51,6 @@ class FinanceService(BaseService[FinanceRepository, Finance]):
         if not finance:
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
-                detail=f"User {current_user.username} must be onboarded first"
+                detail=f"User {current_user.username} must be onboarded first",
             )
         return await self.find_one(param=str(finance.id))

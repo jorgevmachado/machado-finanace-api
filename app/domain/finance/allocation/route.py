@@ -16,6 +16,7 @@ from app.domain.finance.allocation.schema import (
     AllocationSchema,
     PayloadAllocationCreateSchema,
     PayloadAllocationUpdateSchema,
+    PayloadAllocationCreateListSchema,
 )
 from app.domain.finance.allocation.service import AllocationService
 from app.models import User
@@ -99,7 +100,8 @@ async def find_one(
 async def create(
     service: Service, current_user: CurrentUser, payload: PayloadAllocationCreateSchema
 ):
-    return await service.create(current_user=current_user, payload=payload)
+    finance = validate_finance(current_user.finance)
+    return await service.persist(finance=finance, payload=payload)
 
 
 @router.put("/{param}", response_model=AllocationSchema, status_code=HTTPStatus.CREATED)
@@ -125,3 +127,13 @@ async def delete(
     return await service.soft_delete(
         param=param, user_request=current_user.username, finance_id=str(finance.id)
     )
+
+
+@router.post("/list", response_model=list[AllocationSchema], status_code=HTTPStatus.OK)
+async def create_list(
+    service: Service,
+    current_user: CurrentUser,
+    payload: PayloadAllocationCreateListSchema,
+):
+    finance = validate_finance(current_user.finance)
+    return await service.create_list(finance=finance, payload=payload)

@@ -1,6 +1,6 @@
 import pytest
 
-from app.domain.finance.income.business import (
+from app.shared.utils.date import (
     generate_description,
     get_month_name,
     get_valid_day,
@@ -39,13 +39,14 @@ class TestFinanceIncomeGenerateDescriptionBusiness:
 
         result = generate_description(month, source, description, item_description)
         assert result == expected
-        
+
+
 class TestFinanceIncomeGetMonthNameBusiness:
     @staticmethod
     def test_get_month_name_when_month_is_1():
         month = 1
         expected = "January"
-        
+
         result = get_month_name(month)
         assert result == expected
 
@@ -55,7 +56,8 @@ class TestFinanceIncomeGetMonthNameBusiness:
 
         with pytest.raises(ValueError, match="Month must be between 1 and 12"):
             get_month_name(month)
-            
+
+
 class TestFinanceIncomeGetValidDayBusiness:
     @staticmethod
     def test_get_valid_day_when_not_has_day():

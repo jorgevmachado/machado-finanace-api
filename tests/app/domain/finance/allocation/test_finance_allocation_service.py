@@ -5,13 +5,16 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock
 from uuid import uuid4
 
-
 import pytest
 from fastapi import HTTPException
 
-from app.domain.finance.allocation.schema import PayloadAllocationCreateSchema
+from app.domain.finance.allocation.schema import (
+    PayloadAllocationCreateListSchema,
+    PayloadAllocationCreateSchema,
+)
 from app.domain.finance.allocation.service import AllocationService
 from app.models import AllocationTypeEnum
+from app.shared.utils.string import to_snake_case
 
 
 @pytest.fixture
@@ -27,10 +30,10 @@ class TestFinanceAllocationServiceFromSession:
         assert isinstance(service, AllocationService)
 
 
-class TestFinanceAllocationCreateService:
+class TestFinanceAllocationPersistService:
     @staticmethod
     @pytest.mark.asyncio
-    async def test_finance_allocation_service_create_not_has_finance(
+    async def test_persist_raises_when_allocation_exists(
         allocation_repository_mock: AsyncMock,
     ):
         payload = PayloadAllocationCreateSchema(
@@ -38,44 +41,19 @@ class TestFinanceAllocationCreateService:
             type=AllocationTypeEnum.OTHER,
             description="Some Description",
         )
-        current_user = SimpleNamespace(
-            id=uuid4(), username="Finance User", finance=None
-        )
-
-        service = AllocationService(repository=allocation_repository_mock)
-
-        with pytest.raises(HTTPException) as exc_info:
-            await service.create(current_user=current_user, payload=payload)
-
-        assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
-        assert exc_info.value.detail == "User must be onboarded first"
-
-    @staticmethod
-    @pytest.mark.asyncio
-    async def test_finance_allocation_service_create_already_exist_account(
-        allocation_repository_mock: AsyncMock,
-    ):
-        payload = PayloadAllocationCreateSchema(
-            name="Test Allocation",
-            type=AllocationTypeEnum.OTHER,
-            description="Some Description",
-        )
-        current_user = SimpleNamespace(
-            id=uuid4(), username="Finance User", finance=SimpleNamespace(id=uuid4())
-        )
-
+        finance = SimpleNamespace(id=uuid4())
         service = AllocationService(repository=allocation_repository_mock)
         service.find_by = AsyncMock(return_value=SimpleNamespace(id=uuid4()))
 
         with pytest.raises(HTTPException) as exc_info:
-            await service.create(current_user=current_user, payload=payload)
+            await service.persist(finance=finance, payload=payload)
 
         assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
         assert exc_info.value.detail == "Allocation with this name already exists"
 
     @staticmethod
     @pytest.mark.asyncio
-    async def test_finance_allocation_service_create_successfully(
+    async def test_persist_returns_existing_when_with_throw_false(
         allocation_repository_mock: AsyncMock,
     ):
         payload = PayloadAllocationCreateSchema(
@@ -83,16 +61,88 @@ class TestFinanceAllocationCreateService:
             type=AllocationTypeEnum.OTHER,
             description="Some Description",
         )
-        finance_id = uuid4()
-        current_user = SimpleNamespace(
-            id=uuid4(), username="Finance User", finance=SimpleNamespace(id=finance_id)
-        )
-        allocation = SimpleNamespace(id=uuid4(), finance_id=finance_id)
+        finance = SimpleNamespace(id=uuid4())
+        existing = SimpleNamespace(id=uuid4())
+        service = AllocationService(repository=allocation_repository_mock)
+        service.find_by = AsyncMock(return_value=existing)
 
+        result = await service.persist(finance=finance, payload=payload, with_throw=False)
+
+        assert result is existing
+        allocation_repository_mock.save.assert_not_awaited()
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_persist_successfully_saves(allocation_repository_mock: AsyncMock):
+        payload = PayloadAllocationCreateSchema(
+            name="Test Allocation",
+            type=AllocationTypeEnum.OTHER,
+            description="Some Description",
+        )
+        finance_id = uuid4()
+        finance = SimpleNamespace(id=finance_id)
+        expected = SimpleNamespace(id=uuid4())
         service = AllocationService(repository=allocation_repository_mock)
         service.find_by = AsyncMock(return_value=None)
+        allocation_repository_mock.save.return_value = expected
 
-        allocation_repository_mock.save.return_value = allocation
+        result = await service.persist(finance=finance, payload=payload)
 
-        result = await service.create(current_user=current_user, payload=payload)
-        assert result == allocation
+        assert result is expected
+        allocation_repository_mock.save.assert_awaited_once()
+        saved_entity = allocation_repository_mock.save.await_args.kwargs["entity"]
+        assert saved_entity.finance_id == finance_id
+        assert saved_entity.name == payload.name
+        assert saved_entity.name_code == to_snake_case(payload.name)
+        assert saved_entity.type == payload.type
+        assert saved_entity.is_active is True
+        assert saved_entity.description == payload.description
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_create_list_raises_for_empty_payload(
+        allocation_repository_mock: AsyncMock,
+    ):
+        service = AllocationService(repository=allocation_repository_mock)
+        payload = PayloadAllocationCreateListSchema(allocations=[])
+
+        with pytest.raises(HTTPException) as exc_info:
+            await service.create_list(finance=SimpleNamespace(id=uuid4()), payload=payload)
+
+        assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
+        assert exc_info.value.detail == "Allocation list cannot be empty"
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_create_list_calls_persist_for_each_item(
+        allocation_repository_mock: AsyncMock,
+    ):
+        service = AllocationService(repository=allocation_repository_mock)
+        finance = SimpleNamespace(id=uuid4())
+        payload = PayloadAllocationCreateListSchema(
+            allocations=[
+                PayloadAllocationCreateSchema(
+                    name="Casa",
+                    type=AllocationTypeEnum.HOUSE,
+                    description="Despesas da casa",
+                ),
+                PayloadAllocationCreateSchema(
+                    name="Lazer",
+                    type=AllocationTypeEnum.OTHER,
+                    description="Despesas com lazer",
+                ),
+            ]
+        )
+        expected = [SimpleNamespace(id=uuid4()), SimpleNamespace(id=uuid4())]
+        service.persist = AsyncMock(side_effect=expected)
+
+        result = await service.create_list(finance=finance, payload=payload)
+
+        assert result == expected
+        assert service.persist.await_count == 2
+        first_call = service.persist.await_args_list[0].kwargs
+        second_call = service.persist.await_args_list[1].kwargs
+        assert first_call["finance"] is finance
+        assert first_call["payload"] == payload.allocations[0]
+        assert first_call["with_throw"] is False
+        assert second_call["payload"] == payload.allocations[1]

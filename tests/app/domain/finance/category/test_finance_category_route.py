@@ -8,6 +8,7 @@ import pytest
 
 from app.domain.finance.category.route import (
     create,
+    create_list,
     category_service,
     category_filter,
     list_all,
@@ -66,13 +67,35 @@ async def test_finance_category_route_create() -> None:
         finance_id=finance_id,
         description=payload.description,
     )
-    service.create.return_value = expected
-    current_user = SimpleNamespace(id="user-id", username="Finance User")
+    service.persist.return_value = expected
+    current_user = SimpleNamespace(
+        id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
+    )
 
     result = await create(service=service, current_user=current_user, payload=payload)
 
     assert result is expected
-    service.create.assert_awaited_once_with(current_user=current_user, payload=payload)
+    service.persist.assert_awaited_once_with(
+        finance=current_user.finance, payload=payload
+    )
+
+
+@pytest.mark.asyncio
+async def test_finance_category_route_create_list() -> None:
+    service = AsyncMock()
+    payload = SimpleNamespace(categories=[])
+    expected = [SimpleNamespace(id="category-id")]
+    service.create_list.return_value = expected
+    current_user = SimpleNamespace(
+        id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
+    )
+
+    result = await create_list(service=service, current_user=current_user, payload=payload)
+
+    assert result == expected
+    service.create_list.assert_awaited_once_with(
+        finance=current_user.finance, payload=payload
+    )
 
 
 @pytest.mark.asyncio

@@ -56,11 +56,11 @@ class Transaction:
         init=False,
         lazy=default_lazy,
         back_populates="transactions",
-    )    
+    )
 
     description: Mapped[str] = mapped_column(Text, nullable=False)
 
-    transaction_date: Mapped[date] = mapped_column(Date, nullable=False)    
+    transaction_date: Mapped[date] = mapped_column(Date, nullable=False)
 
     type: Mapped[TransactionTypeEnum] = mapped_column(  # noqa: F821
         SAEnum(TransactionTypeEnum, name="transactiontypeenum"),
@@ -72,7 +72,7 @@ class Transaction:
         SAEnum(TransactionStatusEnum, name="transactionstatusenum"),
         nullable=False,
         default=TransactionStatusEnum.PAID,
-    )    
+    )
 
     amount: Mapped[Decimal] = mapped_column(
         Numeric(12, 2),
@@ -80,7 +80,9 @@ class Transaction:
         default=Decimal("0.00"),
     )
 
-    paid_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, default=None)
+    paid_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True, default=None
+    )
 
     # Auto-generated / server-managed — excluded from __init__
     id: Mapped[UUID] = mapped_column(

@@ -13,6 +13,21 @@ class PayloadAllocationContributionCreateSchema(BaseModel):
     contributor_name: str
 
 
+class PayloadAllocationContributionCreateListItemSchema(BaseModel):
+    amount: float
+    description: str | None = None
+    reference_month: int
+    contributor_name: str
+
+
+class PayloadAllocationContributionCreateListSchema(BaseModel):
+    account_id: UUID
+    allocation_id: UUID
+    description: str | None = None
+    contributions: list[PayloadAllocationContributionCreateListItemSchema]
+    reference_year: int
+
+
 class PayloadAllocationContributionUpdateSchema(BaseModel):
     amount: float | None = None
     description: str | None = None

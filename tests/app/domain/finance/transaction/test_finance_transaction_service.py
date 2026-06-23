@@ -32,40 +32,7 @@ class TestFinanceTransactionServiceFromSession:
         assert isinstance(service, TransactionService)
 
 
-class TestFinanceAllocationContributionCreateService:
-    @staticmethod
-    @pytest.mark.asyncio
-    async def test_finance_transaction_service_create_not_has_finance(
-        transaction_repository_mock: AsyncMock,
-    ):
-        current_date = utcnow()
-        current_year = current_date.year
-        payload = PayloadTransactionCreateSchema(
-            type=TransactionTypeEnum.EXPENSE,
-            amount=150.0,
-            status=TransactionStatusEnum.PAID,
-            account_id=uuid4(),
-            allocation_id=uuid4(),
-            category_id=uuid4(),
-            description="Some Description",
-            transaction_date=date(current_year, 1, 1),
-            paid_at=current_date,
-        )
-        current_user = SimpleNamespace(
-            id=uuid4(), username="Finance User", finance=None
-        )
-
-        service = TransactionService(
-            repository=transaction_repository_mock
-        )
-
-        with pytest.raises(HTTPException) as exc_info:
-            await service.create(current_user=current_user, payload=payload)
-
-        assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
-        assert exc_info.value.detail == "User must be onboarded first"
-    
-
+class TestFinanceTransactionCreateService:    
     @staticmethod
     @pytest.mark.asyncio
     async def test_finance_transaction_service_create_exist(
@@ -84,22 +51,17 @@ class TestFinanceAllocationContributionCreateService:
             transaction_date=date(current_year, 1, 1),
             paid_at=current_date,
         )
-        current_user = SimpleNamespace(
-            id=uuid4(), username="Finance User", finance=SimpleNamespace(id=uuid4())
+        finance = SimpleNamespace(
+            id=uuid4()
         )
 
-        service = TransactionService(
-            repository=transaction_repository_mock
-        )
+        service = TransactionService(repository=transaction_repository_mock)
         service.find_by = AsyncMock(return_value=SimpleNamespace(id=uuid4()))
         with pytest.raises(HTTPException) as exc_info:
-            await service.create(current_user=current_user, payload=payload)
+            await service.create(finance=finance, payload=payload)
 
         assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
-        assert (
-            exc_info.value.detail
-            == "Transaction already exists"
-        )
+        assert exc_info.value.detail == "Transaction already exists"
 
     @staticmethod
     @pytest.mark.asyncio
@@ -119,17 +81,13 @@ class TestFinanceAllocationContributionCreateService:
             transaction_date=date(current_year, 1, 1),
             paid_at=current_date,
         )
-        current_user = SimpleNamespace(
-            id=uuid4(), username="Finance User", finance=SimpleNamespace(id=uuid4())
-        )
+        finance = SimpleNamespace(id=uuid4())
 
-        service = TransactionService(
-            repository=transaction_repository_mock
-        )
+        service = TransactionService(repository=transaction_repository_mock)
         service.find_by = AsyncMock(return_value=None)
         service.account_service.find_by = AsyncMock(return_value=None)
         with pytest.raises(HTTPException) as exc_info:
-            await service.create(current_user=current_user, payload=payload)
+            await service.create(finance=finance, payload=payload)
 
         assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
         assert (
@@ -155,20 +113,16 @@ class TestFinanceAllocationContributionCreateService:
             transaction_date=date(current_year, 1, 1),
             paid_at=current_date,
         )
-        current_user = SimpleNamespace(
-            id=uuid4(), username="Finance User", finance=SimpleNamespace(id=uuid4())
-        )
+        finance = SimpleNamespace(id=uuid4())
 
-        service = TransactionService(
-            repository=transaction_repository_mock
-        )
+        service = TransactionService(repository=transaction_repository_mock)
         service.find_by = AsyncMock(return_value=None)
         service.account_service.find_by = AsyncMock(
             return_value=SimpleNamespace(id=payload.account_id)
         )
         service.allocation_service.find_by = AsyncMock(return_value=None)
         with pytest.raises(HTTPException) as exc_info:
-            await service.create(current_user=current_user, payload=payload)
+            await service.create(finance=finance, payload=payload)
 
         assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
         assert (
@@ -194,26 +148,26 @@ class TestFinanceAllocationContributionCreateService:
             transaction_date=date(current_year, 1, 1),
             paid_at=current_date,
         )
-        current_user = SimpleNamespace(
-            id=uuid4(), username="Finance User", finance=SimpleNamespace(id=uuid4())
-        )
+        finance = SimpleNamespace(id=uuid4())
 
         service = TransactionService(repository=transaction_repository_mock)
         service.find_by = AsyncMock(return_value=None)
         service.account_service.find_by = AsyncMock(
             return_value=SimpleNamespace(id=payload.account_id)
         )
-        service.allocation_service.find_by = AsyncMock(return_value=SimpleNamespace(id=payload.allocation_id))
+        service.allocation_service.find_by = AsyncMock(
+            return_value=SimpleNamespace(id=payload.allocation_id)
+        )
         service.category_service.find_by = AsyncMock(return_value=None)
         with pytest.raises(HTTPException) as exc_info:
-            await service.create(current_user=current_user, payload=payload)
+            await service.create(finance=finance, payload=payload)
 
         assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
         assert (
             exc_info.value.detail
             == f"Category with this id {payload.category_id} does not exist"
         )
-    
+
     @staticmethod
     @pytest.mark.asyncio
     async def test_finance_allocation_contribution_service_create_successfully(
@@ -244,13 +198,9 @@ class TestFinanceAllocationContributionCreateService:
             transaction_date=payload.transaction_date,
             paid_at=payload.paid_at,
         )
-        current_user = SimpleNamespace(
-            id=uuid4(), username="Finance User", finance=SimpleNamespace(id=uuid4())
-        )
+        finance = SimpleNamespace(id=uuid4())
 
-        service = TransactionService(
-            repository=transaction_repository_mock
-        )
+        service = TransactionService(repository=transaction_repository_mock)
         service.find_by = AsyncMock(return_value=None)
         service.account_service.find_by = AsyncMock(
             return_value=SimpleNamespace(id=payload.account_id)
@@ -262,5 +212,5 @@ class TestFinanceAllocationContributionCreateService:
             return_value=SimpleNamespace(id=payload.category_id)
         )
         service.repository.save.return_value = expected
-        result = await service.create(current_user=current_user, payload=payload)
+        result = await service.create(finance=finance, payload=payload)
         assert result == expected

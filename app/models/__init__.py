@@ -6,7 +6,7 @@ from app.models.enums import (
     AllocationTypeEnum,
     CategoryTypeEnum,
     TransactionTypeEnum,
-    TransactionStatusEnum
+    TransactionStatusEnum,
 )
 from app.models.user import User
 from app.models.finance import Finance

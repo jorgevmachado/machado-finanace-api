@@ -11,6 +11,10 @@ class PayloadCategoryCreateSchema(BaseModel):
     description: str
 
 
+class PayloadCategoryCreateListSchema(BaseModel):
+    categories: list[PayloadCategoryCreateSchema]
+
+
 class PayloadCategoryUpdateSchema(BaseModel):
     name: str | None = None
     type: CategoryTypeEnum | None = None

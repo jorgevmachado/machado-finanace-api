@@ -40,7 +40,9 @@ router.include_router(
 
 router.include_router(category_route, prefix="/category", tags=["FinanceCategory"])
 
-router.include_router(transaction_route, prefix="/transaction", tags=["FinanceTransaction"])
+router.include_router(
+    transaction_route, prefix="/transaction", tags=["FinanceTransaction"]
+)
 
 Session = Annotated[AsyncSession, Depends(get_session)]
 
@@ -52,9 +54,11 @@ def finance_service(session: Session) -> FinanceService:
 Service = Annotated[FinanceService, Depends(finance_service)]
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
+
 @router.get("", response_model=FinanceSchema, status_code=HTTPStatus.OK)
 async def find_by_user(service: Service, current_user: CurrentUser):
     return await service.find_by_user(current_user=current_user)
+
 
 @router.post(
     "/onboarding", response_model=FinanceSchema, status_code=HTTPStatus.CREATED

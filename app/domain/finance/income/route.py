@@ -104,7 +104,8 @@ async def find_one(
 async def create(
     service: Service, current_user: CurrentUser, payload: PayloadIncomeCreateSchema
 ):
-    return await service.create(current_user=current_user, payload=payload)
+    finance = validate_finance(current_user.finance)
+    return await service.create(finance=finance, payload=payload)
 
 
 @router.put("/{param}", response_model=IncomeSchema, status_code=HTTPStatus.CREATED)
@@ -134,9 +135,7 @@ async def delete(
 
 @router.post("/year", response_model=list[IncomeSchema], status_code=HTTPStatus.CREATED)
 async def create_list_by_year(
-    service: Service, 
-    current_user: CurrentUser,
-    payload: PayloadIncomeCreateListSchema    
+    service: Service, current_user: CurrentUser, payload: PayloadIncomeCreateListSchema
 ):
-    validate_finance(current_user.finance)
-    return await service.create_list_by_year(current_user=current_user, payload=payload)
+    finance = validate_finance(current_user.finance)
+    return await service.create_list_by_year(finance=finance, payload=payload)

@@ -46,7 +46,6 @@ def transaction_filter(
     allocation_id: str | None = None,
     clean_cache: bool = False,
     with_deleted: bool = False,
-
 ) -> FilterPage:
     return FilterPage.build(
         page=page,
@@ -104,10 +103,13 @@ async def find_one(
 async def create(
     service: Service, current_user: CurrentUser, payload: PayloadTransactionCreateSchema
 ):
-    return await service.create(current_user=current_user, payload=payload)
+    finance = validate_finance(current_user.finance)
+    return await service.create(finance=finance, payload=payload)
 
 
-@router.put("/{param}", response_model=TransactionSchema, status_code=HTTPStatus.CREATED)
+@router.put(
+    "/{param}", response_model=TransactionSchema, status_code=HTTPStatus.CREATED
+)
 async def update(
     param: str,
     service: Service,

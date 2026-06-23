@@ -11,12 +11,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.logging import LoggingParams
 from app.core.service import BaseService
 from app.domain.finance.account.service import AccountService
-from app.domain.finance.income.business import generate_description, get_valid_day
+from app.shared.utils.date import generate_description, get_valid_day
 from app.shared.utils.validator import validate_year, validate_month
 from app.domain.finance.income.repository import IncomeRepository
-from app.domain.finance.income.schema import PayloadIncomeCreateSchema, IncomeSchema, PayloadIncomeCreateListSchema
+from app.domain.finance.income.schema import (
+    PayloadIncomeCreateSchema,
+    IncomeSchema,
+    PayloadIncomeCreateListSchema,
+)
 
-from app.models import User, Income, Finance, Account
+from app.models import Income, Finance, Account
 from app.shared.utils.string import to_snake_case
 
 logger = logging.getLogger(__name__)
@@ -45,22 +49,22 @@ class IncomeService(BaseService[IncomeRepository, Income]):
         return cls(IncomeRepository(session))
 
     async def create(
-        self, current_user: User, payload: PayloadIncomeCreateSchema
+        self, finance: Finance, payload: PayloadIncomeCreateSchema
     ) -> Income:
-        finance, account = await self._validate_relations(
-            finance=current_user.finance, account_id=payload.account_id
+        account = await self._validate_relations(
+            finance=finance, account_id=payload.account_id
         )
-        
+
         payload.reference_year = validate_year(payload.reference_year)
         payload.reference_month = validate_month(payload.reference_month)
-        
-        return await self._persist(payload, account, finance)        
 
+        return await self._persist(payload, account, finance)
 
-    async def create_list_by_year(self, current_user: User, payload: PayloadIncomeCreateListSchema) -> list[Income]:
-        finance, account = await self._validate_relations(
-            finance=current_user.finance,
-            account_id=payload.account_id
+    async def create_list_by_year(
+        self, finance: Finance, payload: PayloadIncomeCreateListSchema
+    ) -> list[Income]:
+        account = await self._validate_relations(
+            finance=finance, account_id=payload.account_id
         )
 
         payload_incomes = payload.incomes if payload.incomes else []
@@ -71,14 +75,14 @@ class IncomeService(BaseService[IncomeRepository, Income]):
             )
 
         incomes: list[Income] = []
-        reference_year = validate_year(payload.reference_year)        
+        reference_year = validate_year(payload.reference_year)
         if payload_incomes and len(payload_incomes) > 0:
             for item in payload_incomes:
                 reference_month = validate_month(item.reference_month)
                 reference_day = get_valid_day(
                     year=reference_year,
                     month=reference_month,
-                    day=payload.reference_day
+                    day=payload.reference_day,
                 )
                 received_at = date(reference_year, reference_month, reference_day)
 
@@ -88,7 +92,7 @@ class IncomeService(BaseService[IncomeRepository, Income]):
                     description=payload.description,
                     item_description=item.description,
                 )
-                
+
                 item_payload = PayloadIncomeCreateSchema(
                     source=payload.source,
                     amount=item.amount,
@@ -96,25 +100,22 @@ class IncomeService(BaseService[IncomeRepository, Income]):
                     received_at=received_at,
                     description=description,
                     reference_year=reference_year,
-                    reference_month=reference_month
+                    reference_month=reference_month,
                 )
-                
+
                 income = await self._persist(
                     payload=item_payload,
                     account=account,
                     finance=finance,
-                    with_throw=False
+                    with_throw=False,
                 )
 
                 incomes.append(income)
         return incomes
-    
-    async def _validate_relations(self, account_id: UUID, finance: Finance | None = None):
-        if not finance:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail="User must be onboarded first",
-            )
+
+    async def _validate_relations(
+        self, account_id: UUID, finance: Finance
+    ):
         account = await self.account_service.find_by(
             id=account_id, finance_id=finance.id, without_throw=True
         )
@@ -125,14 +126,14 @@ class IncomeService(BaseService[IncomeRepository, Income]):
                 detail=f"Account with this id {account_id} does not exist",
             )
 
-        return finance, account
+        return account
 
     async def _persist(
-            self,
-            payload: PayloadIncomeCreateSchema,
-            account: Account,
-            finance: Finance,
-            with_throw: bool = True,
+        self,
+        payload: PayloadIncomeCreateSchema,
+        account: Account,
+        finance: Finance,
+        with_throw: bool = True,
     ) -> Income:
 
         reference_year = validate_year(payload.reference_year)
@@ -172,4 +173,3 @@ class IncomeService(BaseService[IncomeRepository, Income]):
                     reference_month=reference_month,
                 )
             )
-            

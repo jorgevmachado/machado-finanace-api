@@ -22,7 +22,7 @@ from app.domain.finance.transaction.schema import (
     TransactionSchema,
 )
 
-from app.models import User, Transaction
+from app.models import Transaction, Finance
 
 logger = logging.getLogger(__name__)
 
@@ -60,16 +60,10 @@ class TransactionService(BaseService[TransactionRepository, Transaction]):
         return cls(TransactionRepository(session))
 
     async def create(
-        self, payload: PayloadTransactionCreateSchema, current_user: User
+        self, finance: Finance, payload: PayloadTransactionCreateSchema
     ) -> Transaction:
-        if not current_user.finance:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail="User must be onboarded first",
-            )
-
         transaction = await self.find_by(
-            finance_id=current_user.finance.id,
+            finance_id=finance.id,
             account_id=payload.account_id,
             allocation_id=payload.allocation_id,
             category_id=payload.category_id,
@@ -107,7 +101,7 @@ class TransactionService(BaseService[TransactionRepository, Transaction]):
                 status_code=HTTPStatus.BAD_REQUEST,
                 detail=f"Category with this id {payload.category_id} does not exist",
             )
-        
+
         paid_at = validate_paid_at(payload.status, payload.paid_at)
 
         return await self.repository.save(
@@ -116,7 +110,7 @@ class TransactionService(BaseService[TransactionRepository, Transaction]):
                 status=payload.status,
                 amount=payload.amount,
                 paid_at=paid_at,
-                finance_id=current_user.finance.id,
+                finance_id=finance.id,
                 account_id=payload.account_id,
                 category_id=payload.category_id,
                 description=payload.description,

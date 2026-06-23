@@ -18,6 +18,7 @@ from app.domain.finance.allocation_contribution.schema import (
     AllocationContributionSchema,
     PayloadAllocationContributionCreateSchema,
     PayloadAllocationContributionUpdateSchema,
+    PayloadAllocationContributionCreateListSchema,
 )
 from app.domain.finance.allocation_contribution.service import (
     AllocationContributionService,
@@ -118,7 +119,8 @@ async def create(
     current_user: CurrentUser,
     payload: PayloadAllocationContributionCreateSchema,
 ):
-    return await service.create(current_user=current_user, payload=payload)
+    finance = validate_finance(current_user.finance)
+    return await service.create(finance=finance, payload=payload)
 
 
 @router.put(
@@ -148,3 +150,17 @@ async def delete(
     return await service.soft_delete(
         param=param, user_request=current_user.username, finance_id=str(finance.id)
     )
+
+
+@router.post(
+    "/year",
+    response_model=list[AllocationContributionSchema],
+    status_code=HTTPStatus.CREATED,
+)
+async def create_list_by_year(
+    service: Service,
+    current_user: CurrentUser,
+    payload: PayloadAllocationContributionCreateListSchema,
+):
+    finance = validate_finance(current_user.finance)
+    return await service.create_list_by_year(finance=finance, payload=payload)

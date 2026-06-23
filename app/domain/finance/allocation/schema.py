@@ -11,6 +11,10 @@ class PayloadAllocationCreateSchema(BaseModel):
     description: str
 
 
+class PayloadAllocationCreateListSchema(BaseModel):
+    allocations: list[PayloadAllocationCreateSchema]
+
+
 class PayloadAllocationUpdateSchema(BaseModel):
     name: str | None = None
     type: AllocationTypeEnum | None = None

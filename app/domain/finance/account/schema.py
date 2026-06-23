@@ -11,6 +11,10 @@ class PayloadAccountCreateSchema(BaseModel):
     initial_balance: float
 
 
+class PayloadAccountCreateListSchema(BaseModel):
+    accounts: list[PayloadAccountCreateSchema]
+
+
 class PayloadAccountUpdateSchema(BaseModel):
     name: str | None = None
     type: AccountTypeEnum | None = None

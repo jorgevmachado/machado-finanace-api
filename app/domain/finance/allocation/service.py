@@ -12,9 +12,10 @@ from app.domain.finance.allocation.repository import AllocationRepository
 from app.domain.finance.allocation.schema import (
     PayloadAllocationCreateSchema,
     AllocationSchema,
+    PayloadAllocationCreateListSchema,
 )
 
-from app.models import User, Allocation
+from app.models import Allocation, Finance
 from app.shared.utils.string import to_snake_case
 
 logger = logging.getLogger(__name__)
@@ -39,30 +40,57 @@ class AllocationService(BaseService[AllocationRepository, Allocation]):
     def from_session(cls, session: AsyncSession):
         return cls(AllocationRepository(session))
 
-    async def create(
-        self, current_user: User, payload: PayloadAllocationCreateSchema
-    ) -> Allocation:
-        if not current_user.finance:
+    async def create_list(
+        self, finance: Finance, payload: PayloadAllocationCreateListSchema
+    ) -> list[Allocation]:
+        payload_allocations = payload.allocations if payload.allocations else []
+
+        if len(payload_allocations) == 0:
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
-                detail="User must be onboarded first",
+                detail="Allocation list cannot be empty",
             )
+
+        allocations: list[Allocation] = []
+
+        if payload_allocations and len(payload_allocations) > 0:
+            for item in payload_allocations:
+                category = await self.persist(
+                    finance=finance,
+                    payload=item,
+                    with_throw=False,
+                )
+                allocations.append(category)
+
+        return allocations
+
+    async def persist(
+        self,
+        finance: Finance,
+        payload: PayloadAllocationCreateSchema,
+        with_throw: bool = True,
+    ) -> Allocation:
+
         allocation = await self.find_by(
-            finance_id=current_user.finance.id, name=payload.name, without_throw=True
+            finance_id=finance.id, name=payload.name, without_throw=True
         )
         if allocation:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail="Allocation with this name already exists",
+            if with_throw:
+                raise HTTPException(
+                    status_code=HTTPStatus.BAD_REQUEST,
+                    detail="Allocation with this name already exists",
+                )
+            else:
+                return allocation
+        else:
+            name_code = to_snake_case(payload.name)
+            return await self.repository.save(
+                entity=Allocation(
+                    finance_id=finance.id,
+                    name=payload.name,
+                    name_code=name_code,
+                    type=payload.type,
+                    is_active=True,
+                    description=payload.description,
+                )
             )
-        name_code = to_snake_case(payload.name)
-        return await self.repository.save(
-            entity=Allocation(
-                finance_id=current_user.finance.id,
-                name=payload.name,
-                name_code=name_code,
-                type=payload.type,
-                is_active=True,
-                description=payload.description,
-            )
-        )

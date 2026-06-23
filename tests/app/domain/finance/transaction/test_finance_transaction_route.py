@@ -18,7 +18,7 @@ from app.domain.finance.transaction.route import (
 )
 from app.domain.finance.transaction.schema import (
     PayloadTransactionCreateSchema,
-    PayloadTransactionUpdateSchema
+    PayloadTransactionUpdateSchema,
 )
 from app.domain.finance.transaction.service import (
     TransactionService,
@@ -48,7 +48,6 @@ def test_get_transaction_filter_builds_dynamic_filter():
         clean_cache=True,
         with_deleted=False,
         allocation_id=str(allocation_id),
-
     )
 
     assert page_filter.page == 1
@@ -60,7 +59,7 @@ def test_get_transaction_filter_builds_dynamic_filter():
     assert page_filter.clean_cache
     assert not page_filter.with_deleted
     assert page_filter.allocation_id == str(allocation_id)
-    assert page_filter.category_id == str(category_id)    
+    assert page_filter.category_id == str(category_id)
 
 
 @pytest.mark.asyncio
@@ -92,18 +91,16 @@ async def test_finance_transaction_route_create() -> None:
         paid_at=payload.paid_at,
     )
     service.create.return_value = expected
-    current_user = SimpleNamespace(id="user-id", username="Finance User")
+    current_user = SimpleNamespace(id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id"))
 
     result = await create(service=service, current_user=current_user, payload=payload)
 
     assert result is expected
-    service.create.assert_awaited_once_with(current_user=current_user, payload=payload)
+    service.create.assert_awaited_once_with(finance=current_user.finance, payload=payload)
 
 
 @pytest.mark.asyncio
-async def test_finance_transaction_route_list_all_paginate_and_filter() -> (
-    None
-):
+async def test_finance_transaction_route_list_all_paginate_and_filter() -> None:
     service = AsyncMock()
     page_filter = transaction_filter(page=1, limit=12)
     expected = SimpleNamespace(items=[])
