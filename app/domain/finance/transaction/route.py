@@ -16,6 +16,7 @@ from app.domain.finance.transaction.schema import (
     TransactionSchema,
     PayloadTransactionCreateSchema,
     PayloadTransactionUpdateSchema,
+    PayloadTransactionCreateListSchema,
 )
 from app.domain.finance.transaction.service import TransactionService
 from app.models import User
@@ -132,3 +133,12 @@ async def delete(
     return await service.soft_delete(
         param=param, user_request=current_user.username, finance_id=str(finance.id)
     )
+
+@router.post("/list", response_model=list[TransactionSchema], status_code=HTTPStatus.OK)
+async def create_list(
+        service: Service,
+        current_user: CurrentUser,
+        payload: PayloadTransactionCreateListSchema,
+):
+    finance = validate_finance(current_user.finance)
+    return await service.create_list(finance=finance, payload=payload)

@@ -15,10 +15,12 @@ from app.domain.finance.transaction.route import (
     find_one,
     update,
     delete,
+    create_list,
 )
 from app.domain.finance.transaction.schema import (
     PayloadTransactionCreateSchema,
     PayloadTransactionUpdateSchema,
+    PayloadTransactionCreateListSchema,
 )
 from app.domain.finance.transaction.service import (
     TransactionService,
@@ -222,3 +224,62 @@ async def test_finance_transaction_route_delete() -> None:
         user_request="Finance User",
         finance_id="finance-id",
     )
+
+
+@pytest.mark.asyncio
+async def test_finance_transaction_route_create_list() -> None:
+    """Test create_list endpoint"""
+    from app.domain.finance.transaction.schema import (
+        PayloadTransactionCreateListCategoryItemSchema,
+        PayloadTransactionCreateListItemSchema,
+    )
+    
+    service = AsyncMock()
+    current_date = utcnow()
+    current_year = current_date.year
+    
+    transaction_item = PayloadTransactionCreateListItemSchema(
+        reference_month=1,
+        amount=100.0,
+        status=TransactionStatusEnum.PAID,
+    )
+    
+    category_item = PayloadTransactionCreateListCategoryItemSchema(
+        category_id=uuid4(),
+        type=TransactionTypeEnum.EXPENSE,
+        description="Test Description",
+        transactions=[transaction_item],
+    )
+    
+    payload = PayloadTransactionCreateListSchema(
+        account_id=uuid4(),
+        allocation_id=uuid4(),
+        reference_year=current_year,
+        reference_day=15,
+        categories=[category_item],
+    )
+    
+    expected = [
+        SimpleNamespace(
+            id=uuid4(),
+            type=TransactionTypeEnum.EXPENSE,
+            amount=100.0,
+            status=TransactionStatusEnum.PAID,
+            account_id=payload.account_id,
+            allocation_id=payload.allocation_id,
+            category_id=category_item.category_id,
+            description="Test Description | month 1",
+            transaction_date=date(current_year, 1, 15),
+            paid_at=current_date,
+        )
+    ]
+    
+    service.create_list.return_value = expected
+    current_user = SimpleNamespace(
+        id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
+    )
+
+    result = await create_list(service=service, current_user=current_user, payload=payload)
+
+    assert result == expected
+    service.create_list.assert_awaited_once_with(finance=current_user.finance, payload=payload)

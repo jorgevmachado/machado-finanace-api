@@ -16,6 +16,26 @@ class PayloadTransactionCreateSchema(BaseModel):
     allocation_id: UUID
     transaction_date: date
 
+class PayloadTransactionCreateListItemSchema(BaseModel):
+    status: TransactionStatusEnum
+    amount: float
+    reference_month: int
+    paid_at: datetime | None = None
+    transaction_date: date | None = None
+
+class PayloadTransactionCreateListCategoryItemSchema(BaseModel):
+    type: TransactionTypeEnum
+    category_id: UUID
+    description: str
+    reference_day: int | None = None
+    transactions: list[PayloadTransactionCreateListItemSchema]
+
+class PayloadTransactionCreateListSchema(BaseModel):
+    account_id: UUID
+    reference_day: int | None = None
+    allocation_id: UUID
+    reference_year: int | None = None
+    categories: list[PayloadTransactionCreateListCategoryItemSchema]
 
 class PayloadTransactionUpdateSchema(BaseModel):
     type: TransactionTypeEnum | None = None
