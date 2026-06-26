@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from http import HTTPStatus
+from decimal import Decimal
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 from uuid import uuid4
@@ -13,7 +14,7 @@ from app.domain.finance.account.schema import (
     PayloadAccountCreateSchema,
 )
 from app.domain.finance.account.service import AccountService
-from app.models import AccountTypeEnum
+from app.models import AccountTypeEnum, TransactionStatusEnum
 from app.shared.utils.string import to_snake_case
 
 
@@ -152,3 +153,71 @@ class TestFinanceAccountPersistService:
         assert first_call["payload"] == payload.accounts[0]
         assert first_call["with_throw"] is False
         assert second_call["payload"] == payload.accounts[1]
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_refresh_updates_current_balance_when_mismatch(
+        account_repository_mock: AsyncMock,
+    ):
+        service = AccountService(repository=account_repository_mock)
+        entity = SimpleNamespace(
+            initial_balance=Decimal("100.00"),
+            current_balance=Decimal("0.00"),
+            transactions=[
+                SimpleNamespace(
+                    amount=Decimal("150.00"),
+                    status=TransactionStatusEnum.PAID,
+                ),
+                SimpleNamespace(
+                    amount=Decimal("25.00"),
+                    status=TransactionStatusEnum.PENDING,
+                ),
+            ],
+            allocation_contributions=[
+                SimpleNamespace(amount=Decimal("500.00")),
+            ],
+            incomes=[
+                SimpleNamespace(amount=Decimal("200.00")),
+            ],
+        )
+        updated = SimpleNamespace(id=uuid4())
+        finance = SimpleNamespace(id=uuid4())
+        service.find_one = AsyncMock(return_value=entity)
+        service.update_entity = AsyncMock(return_value=updated)
+
+        result = await service.refresh(param="account-id", finance=finance)
+
+        assert result is updated
+        assert entity.current_balance == Decimal("650.00")
+        service.update_entity.assert_awaited_once_with(entity=entity)
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_refresh_returns_entity_without_update_when_balance_matches(
+        account_repository_mock: AsyncMock,
+    ):
+        service = AccountService(repository=account_repository_mock)
+        entity = SimpleNamespace(
+            initial_balance=Decimal("100.00"),
+            current_balance=Decimal("650.00"),
+            transactions=[
+                SimpleNamespace(
+                    amount=Decimal("150.00"),
+                    status=TransactionStatusEnum.PAID,
+                ),
+            ],
+            allocation_contributions=[
+                SimpleNamespace(amount=Decimal("500.00")),
+            ],
+            incomes=[
+                SimpleNamespace(amount=Decimal("200.00")),
+            ],
+        )
+        finance = SimpleNamespace(id=uuid4())
+        service.find_one = AsyncMock(return_value=entity)
+        service.update_entity = AsyncMock()
+
+        result = await service.refresh(param="account-id", finance=finance)
+
+        assert result is entity
+        service.update_entity.assert_not_awaited()
