@@ -31,7 +31,6 @@ class PayloadIncomeCreateSchema(BaseModel):
 class PayloadIncomeUpdateSchema(BaseModel):
     source: str | None = None
     amount: float | None = None
-    account_id: UUID | None = None
     received_at: date | None = None
     description: str | None = None
     reference_year: int | None = None

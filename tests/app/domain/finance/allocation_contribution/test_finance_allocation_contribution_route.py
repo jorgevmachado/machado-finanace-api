@@ -33,13 +33,11 @@ def test_allocation_contribution_builds_service() -> None:
 
 
 def test_get_allocation_contribution_filter_builds_dynamic_filter():
-    finance_id = uuid4()
     account_id = uuid4()
     allocation_id = uuid4()
     page_filter = allocation_contribution_filter(
         page=1,
         limit=12,
-        finance_id=str(finance_id),
         account_id=str(account_id),
         clean_cache=True,
         with_deleted=False,
@@ -51,7 +49,6 @@ def test_get_allocation_contribution_filter_builds_dynamic_filter():
 
     assert page_filter.page == 1
     assert page_filter.limit == 12
-    assert page_filter.finance_id == str(finance_id)
     assert page_filter.account_id == str(account_id)
     assert page_filter.clean_cache
     assert not page_filter.with_deleted

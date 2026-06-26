@@ -42,7 +42,6 @@ def account_filter(
     limit: int | None = 12,
     offset: int | None = None,
     is_active: bool | None = None,
-    finance_id: str | None = None,
     clean_cache: bool = False,
     with_deleted: bool = False,
 ) -> FilterPage:
@@ -53,7 +52,6 @@ def account_filter(
         limit=limit,
         offset=offset,
         is_active=is_active,
-        finance_id=finance_id,
         clean_cache=clean_cache,
         with_deleted=with_deleted,
     )

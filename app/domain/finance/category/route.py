@@ -41,7 +41,6 @@ def category_filter(
     type: str | None = None,
     limit: int | None = 12,
     offset: int | None = None,
-    finance_id: str | None = None,
     clean_cache: bool = False,
     with_deleted: bool = False,
 ) -> FilterPage:
@@ -51,7 +50,6 @@ def category_filter(
         type=type,
         limit=limit,
         offset=offset,
-        finance_id=finance_id,
         clean_cache=clean_cache,
         with_deleted=with_deleted,
     )

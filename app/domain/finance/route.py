@@ -34,7 +34,7 @@ router.include_router(income_route, prefix="/income", tags=["FinanceIncome"])
 
 router.include_router(
     allocation_contribution_route,
-    prefix="/allocation-contribuition",
+    prefix="/allocation-contribution",
     tags=["FinanceAllocationContribution"],
 )
 

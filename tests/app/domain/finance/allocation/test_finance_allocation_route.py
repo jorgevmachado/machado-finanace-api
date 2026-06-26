@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
-from uuid import uuid4
 
 import pytest
 
@@ -31,14 +30,12 @@ def test_allocation_builds_service() -> None:
 
 
 def test_allocation_builds_dynamic_filter():
-    finance_id = uuid4()
     page_filter = allocation_filter(
         page=1,
         name="home",
         type=AllocationTypeEnum.OTHER,
         limit=12,
         is_active=True,
-        finance_id=str(finance_id),
         clean_cache=True,
         with_deleted=False,
     )
@@ -48,7 +45,6 @@ def test_allocation_builds_dynamic_filter():
     assert page_filter.type == "OTHER"
     assert page_filter.limit == 12
     assert page_filter.is_active
-    assert page_filter.finance_id == str(finance_id)
     assert page_filter.clean_cache
 
 

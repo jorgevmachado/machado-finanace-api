@@ -32,13 +32,11 @@ def test_category_builds_service() -> None:
 
 
 def test_get_category_filter_builds_dynamic_filter():
-    finance_id = uuid4()
     page_filter = category_filter(
         page=1,
         name="Category Name",
         type=CategoryTypeEnum.OTHER,
         limit=12,
-        finance_id=str(finance_id),
         clean_cache=True,
     )
 
@@ -46,7 +44,6 @@ def test_get_category_filter_builds_dynamic_filter():
     assert page_filter.name == "Category Name"
     assert page_filter.type == "OTHER"
     assert page_filter.limit == 12
-    assert page_filter.finance_id == str(finance_id)
     assert page_filter.clean_cache
 
 

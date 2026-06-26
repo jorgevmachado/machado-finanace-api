@@ -33,13 +33,11 @@ def test_income_builds_service() -> None:
 
 
 def test_get_income_filter_builds_dynamic_filter():
-    finance_id = uuid4()
     account_id = uuid4()
     page_filter = income_filter(
         page=1,
         source="Source Name",
         limit=12,
-        finance_id=str(finance_id),
         account_id=str(account_id),
         source_code="source_name",
         clean_cache=True,
@@ -51,7 +49,6 @@ def test_get_income_filter_builds_dynamic_filter():
     assert page_filter.page == 1
     assert page_filter.source == "Source Name"
     assert page_filter.limit == 12
-    assert page_filter.finance_id == str(finance_id)
     assert page_filter.account_id == str(account_id)
     assert page_filter.source_code == "source_name"
     assert page_filter.clean_cache

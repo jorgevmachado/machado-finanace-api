@@ -42,7 +42,6 @@ class PayloadTransactionUpdateSchema(BaseModel):
     status: TransactionStatusEnum | None = None
     amount: float | None = None
     paid_at: datetime | None = None
-    finance_id: UUID | None = None
     account_id: UUID | None = None
     category_id: UUID | None = None
     description: str | None = None

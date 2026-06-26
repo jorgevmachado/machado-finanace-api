@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
-from uuid import uuid4
 
 import pytest
 
@@ -31,14 +30,12 @@ def test_account_builds_service() -> None:
 
 
 def test_get_account_filter_builds_dynamic_filter():
-    finance_id = uuid4()
     page_filter = account_filter(
         page=1,
         name="nubank",
         type=AccountTypeEnum.BANK,
         limit=12,
         is_active=True,
-        finance_id=str(finance_id),
         clean_cache=True,
     )
 
@@ -47,7 +44,6 @@ def test_get_account_filter_builds_dynamic_filter():
     assert page_filter.type == "BANK"
     assert page_filter.limit == 12
     assert page_filter.is_active
-    assert page_filter.finance_id == str(finance_id)
     assert page_filter.clean_cache
 
 

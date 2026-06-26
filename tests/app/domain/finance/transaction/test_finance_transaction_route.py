@@ -35,7 +35,6 @@ def test_transaction_builds_service() -> None:
 
 
 def test_get_transaction_filter_builds_dynamic_filter():
-    finance_id = uuid4()
     account_id = uuid4()
     allocation_id = uuid4()
     category_id = uuid4()
@@ -44,7 +43,6 @@ def test_get_transaction_filter_builds_dynamic_filter():
         limit=12,
         type="EXPENSE",
         status="PAID",
-        finance_id=str(finance_id),
         account_id=str(account_id),
         category_id=str(category_id),
         clean_cache=True,
@@ -56,7 +54,6 @@ def test_get_transaction_filter_builds_dynamic_filter():
     assert page_filter.limit == 12
     assert page_filter.type == "EXPENSE"
     assert page_filter.status == "PAID"
-    assert page_filter.finance_id == str(finance_id)
     assert page_filter.account_id == str(account_id)
     assert page_filter.clean_cache
     assert not page_filter.with_deleted
