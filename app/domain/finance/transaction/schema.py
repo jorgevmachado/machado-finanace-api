@@ -2,6 +2,8 @@ from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from datetime import datetime, date
 
+from app.domain.finance.allocation.schema import AllocationSchema
+from app.domain.finance.category.schema import CategorySchema
 from app.models import TransactionTypeEnum, TransactionStatusEnum
 
 
@@ -56,12 +58,12 @@ class TransactionSchema(BaseModel):
     type: TransactionTypeEnum
     status: TransactionStatusEnum
     amount: float
+    category: CategorySchema
     paid_at: datetime
     finance_id: UUID
     account_id: UUID
-    category_id: UUID
     description: str
-    allocation_id: UUID
+    allocation: AllocationSchema
     transaction_date: date
     created_at: datetime
     updated_at: datetime | None = None

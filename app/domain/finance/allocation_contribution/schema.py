@@ -2,6 +2,8 @@ from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from datetime import datetime
 
+from app.domain.finance.allocation.schema import AllocationSchema
+
 
 class PayloadAllocationContributionCreateSchema(BaseModel):
     amount: float
@@ -43,7 +45,7 @@ class AllocationContributionSchema(BaseModel):
     amount: float
     account_id: UUID
     finance_id: UUID
-    allocation_id: UUID
+    allocation: AllocationSchema
     description: str | None = None
     reference_year: int
     reference_month: int
