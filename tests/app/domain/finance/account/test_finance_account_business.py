@@ -1,8 +1,8 @@
 from decimal import Decimal
 from types import SimpleNamespace
 
-from app.domain.finance.account.business import sum_amounts, sum_transactions_by_status
-from app.models import TransactionStatusEnum
+from app.domain.finance.account.business import sum_amounts, sum_expenses_by_status
+from app.models import ExpenseStatusEnum
 
 
 def test_sum_amounts_returns_decimal_total() -> None:
@@ -15,14 +15,14 @@ def test_sum_amounts_returns_decimal_total() -> None:
 
 def test_sum_transactions_by_status_filters_by_status() -> None:
     transactions = [
-        SimpleNamespace(amount=Decimal("10.00"), status=TransactionStatusEnum.PAID),
-        SimpleNamespace(amount=Decimal("20.00"), status=TransactionStatusEnum.PENDING),
-        SimpleNamespace(amount=Decimal("30.00"), status=TransactionStatusEnum.PAID),
+        SimpleNamespace(amount=Decimal("10.00"), status=ExpenseStatusEnum.PAID),
+        SimpleNamespace(amount=Decimal("20.00"), status=ExpenseStatusEnum.PENDING),
+        SimpleNamespace(amount=Decimal("30.00"), status=ExpenseStatusEnum.PAID),
     ]
 
-    result = sum_transactions_by_status(
+    result = sum_expenses_by_status(
         transactions=transactions,
-        status=TransactionStatusEnum.PAID,
+        status=ExpenseStatusEnum.PAID,
     )
 
     assert result == Decimal("40.00")

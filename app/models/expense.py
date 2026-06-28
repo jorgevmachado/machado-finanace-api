@@ -1,15 +1,15 @@
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
-from sqlalchemy import DateTime, ForeignKey, Enum as SAEnum, Date, Text, Numeric
+from sqlalchemy import DateTime, ForeignKey, Enum as SAEnum, Text, Numeric
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import default_lazy, table_registry
-from app.models import utcnow, TransactionTypeEnum, TransactionStatusEnum
+from app.models import utcnow, ExpenseStatusEnum
 
 if TYPE_CHECKING:
     from app.models.finance import Finance
@@ -19,15 +19,15 @@ if TYPE_CHECKING:
 
 
 @table_registry.mapped_as_dataclass
-class Transaction:
-    __tablename__ = "transactions"
+class Expense:
+    __tablename__ = "expenses"
 
     finance_id: Mapped[UUID] = mapped_column(ForeignKey("finances.id"), nullable=False)
 
     finance: Mapped["Finance"] = relationship(
         init=False,
         lazy=default_lazy,
-        back_populates="transactions",
+        back_populates="expenses",
     )
 
     account_id: Mapped[UUID] = mapped_column(ForeignKey("accounts.id"), nullable=False)
@@ -35,7 +35,7 @@ class Transaction:
     account: Mapped["Account"] = relationship(
         init=False,
         lazy=default_lazy,
-        back_populates="transactions",
+        back_populates="expenses",
     )
 
     allocation_id: Mapped[UUID] = mapped_column(
@@ -45,7 +45,7 @@ class Transaction:
     allocation: Mapped["Allocation"] = relationship(
         init=False,
         lazy=default_lazy,
-        back_populates="transactions",
+        back_populates="expenses",
     )
 
     category_id: Mapped[UUID] = mapped_column(
@@ -55,23 +55,15 @@ class Transaction:
     category: Mapped["Category"] = relationship(
         init=False,
         lazy=default_lazy,
-        back_populates="transactions",
+        back_populates="expenses",
     )
 
     description: Mapped[str] = mapped_column(Text, nullable=False)
 
-    transaction_date: Mapped[date] = mapped_column(Date, nullable=False)
-
-    type: Mapped[TransactionTypeEnum] = mapped_column(  # noqa: F821
-        SAEnum(TransactionTypeEnum, name="transactiontypeenum"),
+    status: Mapped[ExpenseStatusEnum] = mapped_column(  # noqa: F821
+        SAEnum(ExpenseStatusEnum, name="expensestatusenum"),
         nullable=False,
-        default=TransactionTypeEnum.EXPENSE,
-    )
-
-    status: Mapped[TransactionStatusEnum] = mapped_column(  # noqa: F821
-        SAEnum(TransactionStatusEnum, name="transactionstatusenum"),
-        nullable=False,
-        default=TransactionStatusEnum.PAID,
+        default=ExpenseStatusEnum.PAID,
     )
 
     amount: Mapped[Decimal] = mapped_column(

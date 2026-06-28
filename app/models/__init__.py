@@ -5,8 +5,7 @@ from app.models.enums import (
     AccountTypeEnum,
     AllocationTypeEnum,
     CategoryTypeEnum,
-    TransactionTypeEnum,
-    TransactionStatusEnum,
+    ExpenseStatusEnum,
 )
 from app.models.user import User
 from app.models.finance import Finance
@@ -15,7 +14,8 @@ from app.models.allocation import Allocation
 from app.models.income import Income
 from app.models.allocation_contribution import AllocationContribution
 from app.models.category import Category
-from app.models.transaction import Transaction
+from app.models.expense import Expense
+from app.models.transfer import Transfer
 
 __all__ = [
     "User",
@@ -25,13 +25,13 @@ __all__ = [
     "Income",
     "AllocationContribution",
     "Category",
-    "Transaction",
+    "Expense",
+    "Transfer",
     "RoleEnum",
     "StatusEnum",
     "AccountTypeEnum",
     "AllocationTypeEnum",
     "CategoryTypeEnum",
-    "TransactionTypeEnum",
-    "TransactionStatusEnum",
+    "ExpenseStatusEnum",
     "utcnow",
 ]

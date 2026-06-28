@@ -14,7 +14,7 @@ from app.domain.finance.account.schema import (
     PayloadAccountCreateSchema,
 )
 from app.domain.finance.account.service import AccountService
-from app.models import AccountTypeEnum, TransactionStatusEnum
+from app.models import AccountTypeEnum, ExpenseStatusEnum
 from app.shared.utils.string import to_snake_case
 
 
@@ -166,11 +166,11 @@ class TestFinanceAccountPersistService:
             transactions=[
                 SimpleNamespace(
                     amount=Decimal("150.00"),
-                    status=TransactionStatusEnum.PAID,
+                    status=ExpenseStatusEnum.PAID,
                 ),
                 SimpleNamespace(
                     amount=Decimal("25.00"),
-                    status=TransactionStatusEnum.PENDING,
+                    status=ExpenseStatusEnum.PENDING,
                 ),
             ],
             allocation_contributions=[
@@ -203,7 +203,7 @@ class TestFinanceAccountPersistService:
             transactions=[
                 SimpleNamespace(
                     amount=Decimal("150.00"),
-                    status=TransactionStatusEnum.PAID,
+                    status=ExpenseStatusEnum.PAID,
                 ),
             ],
             allocation_contributions=[

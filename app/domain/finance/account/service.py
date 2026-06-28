@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import LoggingParams
 from app.core.service import BaseService
-from app.domain.finance.account.business import sum_transactions_by_status, sum_amounts
+from app.domain.finance.account.business import sum_expenses_by_status, sum_amounts
 from app.domain.finance.account.repository import AccountRepository
 from app.domain.finance.account.schema import (
     PayloadAccountCreateSchema,
@@ -21,7 +21,7 @@ from app.shared.utils.string import to_snake_case
 from app.models import (
     Account,
     Finance,
-    TransactionStatusEnum,
+    ExpenseStatusEnum,
 )
 
 logger = logging.getLogger(__name__)
@@ -106,9 +106,9 @@ class AccountService(BaseService[AccountRepository, Account]):
         entity = await self.find_one(param=param, finance_id=finance.id)
         transactions = entity.transactions if entity.transactions else []
 
-        transaction_paid = sum_transactions_by_status(
+        transaction_paid = sum_expenses_by_status(
             transactions=transactions,
-            status=TransactionStatusEnum.PAID,
+            status=ExpenseStatusEnum.PAID,
         )
 
         contribution = sum_amounts(

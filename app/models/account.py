@@ -15,7 +15,8 @@ if TYPE_CHECKING:
     from app.models.finance import Finance
     from app.models.income import Income
     from app.models.allocation_contribution import AllocationContribution
-    from app.models.transaction import Transaction
+    from app.models.expense import Expense
+    from app.models.transfer import Transfer
 
 
 @table_registry.mapped_as_dataclass
@@ -70,12 +71,30 @@ class Account:
         back_populates="account",
     )
 
-    transactions: Mapped[list["Transaction"]] = relationship(
+    expenses: Mapped[list["Expense"]] = relationship(
         lazy=default_lazy,
         default_factory=list,
         init=False,
         repr=False,
         back_populates="account",
+    )
+    
+    to_transfers: Mapped[list["Transfer"]] = relationship(
+        lazy=default_lazy,
+        default_factory=list,
+        init=False,
+        repr=False,
+        back_populates="to_account",
+        foreign_keys="Transfer.to_account_id",
+    )
+
+    from_transfers: Mapped[list["Transfer"]] = relationship(
+        lazy=default_lazy,
+        default_factory=list,
+        init=False,
+        repr=False,
+        back_populates="from_account",
+        foreign_keys="Transfer.from_account_id",
     )
 
     # Auto-generated / server-managed — excluded from __init__

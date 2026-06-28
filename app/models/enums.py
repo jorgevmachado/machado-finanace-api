@@ -40,13 +40,7 @@ class CategoryTypeEnum(str, Enum):
     GOVERNMENT_FEES = "GOVERNMENT_FEES"
 
 
-class TransactionTypeEnum(str, Enum):
-    INCOME = "INCOME"
-    EXPENSE = "EXPENSE"
-    TRANSFER = "TRANSFER"
-
-
-class TransactionStatusEnum(str, Enum):
+class ExpenseStatusEnum(str, Enum):
     PAID = "PAID"
     PENDING = "PENDING"
     CANCELLED = "CANCELLED"

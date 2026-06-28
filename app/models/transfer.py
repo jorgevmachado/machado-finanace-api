@@ -1,50 +1,61 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
+from decimal import Decimal
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
-from sqlalchemy import DateTime, ForeignKey, String, Enum as SAEnum, Text
+from sqlalchemy import DateTime, ForeignKey, Date, Text, Numeric
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import default_lazy, table_registry
-from app.models import utcnow, CategoryTypeEnum
+from app.models import utcnow
 
 if TYPE_CHECKING:
     from app.models.finance import Finance
-    from app.models.expense import Expense
+    from app.models.account import Account
 
 
 @table_registry.mapped_as_dataclass
-class Category:
-    __tablename__ = "categories"
+class Transfer:
+    __tablename__ = "transfers"
 
     finance_id: Mapped[UUID] = mapped_column(ForeignKey("finances.id"), nullable=False)
 
     finance: Mapped["Finance"] = relationship(
         init=False,
         lazy=default_lazy,
-        back_populates="categories",
+        back_populates="transfers",
     )
 
-    name: Mapped[str] = mapped_column(String, nullable=False)
+    to_account_id: Mapped[UUID] = mapped_column(ForeignKey("accounts.id"), nullable=False)
 
-    name_code: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    to_account: Mapped["Account"] = relationship(
+        init=False,
+        lazy=default_lazy,
+        back_populates="to_transfers",
+        foreign_keys=[to_account_id],
+    )
+
+    from_account_id: Mapped[UUID] = mapped_column(
+        ForeignKey("accounts.id"), nullable=False
+    )
+
+    from_account: Mapped["Account"] = relationship(
+        init=False,
+        lazy=default_lazy,
+        back_populates="from_transfers",
+        foreign_keys=[from_account_id],
+    )
 
     description: Mapped[str] = mapped_column(Text, nullable=False)
 
-    type: Mapped[CategoryTypeEnum] = mapped_column(
-        SAEnum(CategoryTypeEnum, name="categorytypeenum"),
-        nullable=False,
-        default=CategoryTypeEnum.OTHER,
-    )
+    transfer_date: Mapped[date] = mapped_column(Date, nullable=False)
 
-    expenses: Mapped[list["Expense"]] = relationship(
-        lazy=default_lazy,
-        default_factory=list,
-        init=False,
-        repr=False,
-        back_populates="category",
+    amount: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2),
+        nullable=False,
+        default=Decimal("0.00"),
     )
 
     # Auto-generated / server-managed — excluded from __init__

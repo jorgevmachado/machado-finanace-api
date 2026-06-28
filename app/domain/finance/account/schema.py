@@ -3,8 +3,8 @@ from uuid import UUID
 from datetime import datetime
 
 from app.domain.finance.allocation_contribution.schema import AllocationContributionSchema
+from app.domain.finance.expense.schema import ExpenseSchema
 from app.domain.finance.income.schema import IncomeSchema
-from app.domain.finance.transaction.schema import TransactionSchema
 from app.models import AccountTypeEnum
 
 
@@ -35,7 +35,7 @@ class AccountSchema(BaseModel):
     incomes: list[IncomeSchema]    
     is_active: bool
     finance_id: UUID
-    transactions: list[TransactionSchema]    
+    expenses: list[ExpenseSchema]
     initial_balance: float
     current_balance: float
     allocation_contributions: list[AllocationContributionSchema]

@@ -13,7 +13,7 @@ from app.models import utcnow, AllocationTypeEnum
 if TYPE_CHECKING:
     from app.models.finance import Finance
     from app.models.allocation_contribution import AllocationContribution
-    from app.models.transaction import Transaction
+    from app.models.expense import Expense
 
 
 @table_registry.mapped_as_dataclass
@@ -50,7 +50,7 @@ class Allocation:
         back_populates="allocation",
     )
 
-    transactions: Mapped[list["Transaction"]] = relationship(
+    expenses: Mapped[list["Expense"]] = relationship(
         lazy=default_lazy,
         default_factory=list,
         init=False,

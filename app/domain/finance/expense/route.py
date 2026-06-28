@@ -11,14 +11,13 @@ from app.core.pagination import CustomLimitOffsetPage
 from app.core.security import get_current_user
 from app.core.security.security import validate_finance
 
-from app.domain.finance.transaction.repository import TransactionRepository
-from app.domain.finance.transaction.schema import (
-    TransactionSchema,
-    PayloadTransactionCreateSchema,
-    PayloadTransactionUpdateSchema,
-    PayloadTransactionCreateListSchema,
+from app.domain.finance.expense.repository import ExpenseRepository
+from app.domain.finance.expense.schema import (
+    ExpenseSchema,
+    PayloadExpenseCreateSchema,
+    PayloadExpenseUpdateSchema,
 )
-from app.domain.finance.transaction.service import TransactionService
+from app.domain.finance.expense.service import ExpenseService
 from app.models import User
 from app.shared.schemas import FilterPage, Message
 
@@ -27,17 +26,16 @@ router = APIRouter()
 Session = Annotated[AsyncSession, Depends(get_session)]
 
 
-def transaction_service(session: Session) -> TransactionService:
-    return TransactionService(TransactionRepository(session))
+def expense_service(session: Session) -> ExpenseService:
+    return ExpenseService(ExpenseRepository(session))
 
 
-Service = Annotated[TransactionService, Depends(transaction_service)]
+Service = Annotated[ExpenseService, Depends(expense_service)]
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
-def transaction_filter(
+def expense_filter(
     page: int | None = None,
-    type: str | None = None,
     limit: int | None = 12,
     status: str | None = None,
     offset: int | None = None,
@@ -49,7 +47,6 @@ def transaction_filter(
 ) -> FilterPage:
     return FilterPage.build(
         page=page,
-        type=type,
         limit=limit,
         status=status,
         offset=offset,
@@ -63,13 +60,13 @@ def transaction_filter(
 
 @router.get(
     "",
-    response_model=CustomLimitOffsetPage[TransactionSchema] | list[TransactionSchema],
+    response_model=CustomLimitOffsetPage[ExpenseSchema] | list[ExpenseSchema],
     status_code=HTTPStatus.OK,
 )
 async def list_all(
     service: Service,
     current_user: CurrentUser,
-    page_filter: Annotated[FilterPage, Depends(transaction_filter)] = None,
+    page_filter: Annotated[FilterPage, Depends(expense_filter)] = None,
 ):
     finance = validate_finance(current_user.finance)
     return await service.list_all_cached(
@@ -80,7 +77,7 @@ async def list_all(
     )
 
 
-@router.get("/{param}", response_model=TransactionSchema, status_code=HTTPStatus.OK)
+@router.get("/{param}", response_model=ExpenseSchema, status_code=HTTPStatus.OK)
 async def find_one(
     param: str,
     service: Service,
@@ -98,22 +95,22 @@ async def find_one(
     )
 
 
-@router.post("", response_model=TransactionSchema, status_code=HTTPStatus.CREATED)
+@router.post("", response_model=ExpenseSchema, status_code=HTTPStatus.CREATED)
 async def create(
-    service: Service, current_user: CurrentUser, payload: PayloadTransactionCreateSchema
+    service: Service, current_user: CurrentUser, payload: PayloadExpenseCreateSchema
 ):
     finance = validate_finance(current_user.finance)
     return await service.create(finance=finance, payload=payload)
 
 
 @router.put(
-    "/{param}", response_model=TransactionSchema, status_code=HTTPStatus.CREATED
+    "/{param}", response_model=ExpenseSchema, status_code=HTTPStatus.CREATED
 )
 async def update(
     param: str,
     service: Service,
     current_user: CurrentUser,
-    payload: PayloadTransactionUpdateSchema,
+    payload: PayloadExpenseUpdateSchema,
 ):
     validate_finance(current_user.finance)
     return await service.update(
@@ -131,12 +128,3 @@ async def delete(
     return await service.soft_delete(
         param=param, user_request=current_user.username, finance_id=str(finance.id)
     )
-
-@router.post("/list", response_model=list[TransactionSchema], status_code=HTTPStatus.OK)
-async def create_list(
-        service: Service,
-        current_user: CurrentUser,
-        payload: PayloadTransactionCreateListSchema,
-):
-    finance = validate_finance(current_user.finance)
-    return await service.create_list(finance=finance, payload=payload)

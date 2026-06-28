@@ -20,28 +20,28 @@ from app.domain.finance.allocation_contribution.route import (
     router as allocation_contribution_route,
 )
 from app.domain.finance.category.route import router as category_route
-from app.domain.finance.transaction.route import router as transaction_route
+from app.domain.finance.expense.route import router as expense_route
 
 router = APIRouter()
 
-router.include_router(account_router, prefix="/account", tags=["FinanceAccount"])
+router.include_router(account_router, prefix="/accounts", tags=["FinanceAccount"])
 
 router.include_router(
-    allocation_route, prefix="/allocation", tags=["FinanceAllocation"]
+    allocation_route, prefix="/allocations", tags=["FinanceAllocation"]
 )
 
-router.include_router(income_route, prefix="/income", tags=["FinanceIncome"])
+router.include_router(income_route, prefix="/incomes", tags=["FinanceIncome"])
 
 router.include_router(
     allocation_contribution_route,
-    prefix="/allocation-contribution",
+    prefix="/allocation-contributions",
     tags=["FinanceAllocationContribution"],
 )
 
-router.include_router(category_route, prefix="/category", tags=["FinanceCategory"])
+router.include_router(category_route, prefix="/categories", tags=["FinanceCategory"])
 
 router.include_router(
-    transaction_route, prefix="/transaction", tags=["FinanceTransaction"]
+    expense_route, prefix="/expenses", tags=["FinanceExpense"]
 )
 
 Session = Annotated[AsyncSession, Depends(get_session)]
