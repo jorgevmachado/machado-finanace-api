@@ -200,7 +200,7 @@ class TestFinanceExpenseCreateService:
 class TestFinanceExpense_PesistService:
     @staticmethod
     @pytest.mark.asyncio
-    async def test_finance_expense_persist_updates_existing_transaction(
+    async def test_finance_expense_persist_updates_existing_expense(
         expense_repository_mock: AsyncMock,
     ):
         """Test _persist when expense already exists (with_throw=False)"""
@@ -221,7 +221,7 @@ class TestFinanceExpense_PesistService:
             paid_at=current_date,
         )
 
-        existing_transaction = SimpleNamespace(
+        existing_expense = SimpleNamespace(
             id=uuid4(),
             amount=100.0,
             status=ExpenseStatusEnum.PAID,
@@ -233,8 +233,8 @@ class TestFinanceExpense_PesistService:
         )
 
         service = ExpenseService(repository=expense_repository_mock)
-        service.find_by = AsyncMock(return_value=existing_transaction)
-        expense_repository_mock.update.return_value = existing_transaction
+        service.find_by = AsyncMock(return_value=existing_expense)
+        expense_repository_mock.update.return_value = existing_expense
 
         result = await service._persist(
             finance=finance,
@@ -248,7 +248,7 @@ class TestFinanceExpense_PesistService:
         # Verify that update was called (not save)
         expense_repository_mock.update.assert_awaited_once()
         expense_repository_mock.save.assert_not_awaited()
-        assert result == existing_transaction
+        assert result == existing_expense
 
     @staticmethod
     @pytest.mark.asyncio
