@@ -79,7 +79,7 @@ class Account:
         back_populates="account",
     )
     
-    to_transfers: Mapped[list["Transfer"]] = relationship(
+    incoming_transfers: Mapped[list["Transfer"]] = relationship(
         lazy=default_lazy,
         default_factory=list,
         init=False,
@@ -88,7 +88,7 @@ class Account:
         foreign_keys="Transfer.to_account_id",
     )
 
-    from_transfers: Mapped[list["Transfer"]] = relationship(
+    outgoing_transfers: Mapped[list["Transfer"]] = relationship(
         lazy=default_lazy,
         default_factory=list,
         init=False,

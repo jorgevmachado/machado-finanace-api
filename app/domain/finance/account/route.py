@@ -134,11 +134,11 @@ async def create_list(
     finance = validate_finance(current_user.finance)
     return await service.create_list(finance=finance, payload=payload)
 
-@router.get("/{param}/refresh", response_model=AccountSchema, status_code=HTTPStatus.OK)
-async def refresh(
+@router.get("/{param}/recalculate", response_model=AccountSchema, status_code=HTTPStatus.OK)
+async def recalculate(
     param: str,
     service: Service,
     current_user: CurrentUser,
 ):
     finance = validate_finance(current_user.finance)
-    return await service.refresh(param=param, finance=finance)
+    return await service.recalculate(param=param, finance=finance)

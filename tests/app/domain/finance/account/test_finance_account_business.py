@@ -13,15 +13,15 @@ def test_sum_amounts_returns_decimal_total() -> None:
     assert result == Decimal("13.00")
 
 
-def test_sum_transactions_by_status_filters_by_status() -> None:
-    transactions = [
+def test_sum_expenses_by_status_filters_by_status() -> None:
+    expenses = [
         SimpleNamespace(amount=Decimal("10.00"), status=ExpenseStatusEnum.PAID),
         SimpleNamespace(amount=Decimal("20.00"), status=ExpenseStatusEnum.PENDING),
         SimpleNamespace(amount=Decimal("30.00"), status=ExpenseStatusEnum.PAID),
     ]
 
     result = sum_expenses_by_status(
-        transactions=transactions,
+        expenses=expenses,
         status=ExpenseStatusEnum.PAID,
     )
 

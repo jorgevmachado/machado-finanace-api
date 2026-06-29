@@ -14,7 +14,7 @@ from app.domain.finance.account.route import (
     find_one,
     update,
     delete,
-    refresh,
+    recalculate,
 )
 from app.domain.finance.account.schema import (
     PayloadAccountCreateSchema,
@@ -204,7 +204,7 @@ async def test_finance_account_route_delete() -> None:
 
 
 @pytest.mark.asyncio
-async def test_finance_account_route_refresh() -> None:
+async def test_finance_account_route_recalculate() -> None:
     service = AsyncMock()
     expected = SimpleNamespace(
         id="account-id",
@@ -214,17 +214,17 @@ async def test_finance_account_route_refresh() -> None:
         initial_balance=100.00,
         current_balance=650.00,
     )
-    service.refresh.return_value = expected
+    service.recalculate.return_value = expected
     current_user = SimpleNamespace(
         id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
     )
 
-    result = await refresh(
+    result = await recalculate(
         param="account-id", current_user=current_user, service=service
     )
 
     assert result is expected
-    service.refresh.assert_awaited_once_with(
+    service.recalculate.assert_awaited_once_with(
         param="account-id",
         finance=current_user.finance,
     )

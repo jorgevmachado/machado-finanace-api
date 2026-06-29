@@ -5,6 +5,7 @@ from datetime import datetime
 from app.domain.finance.allocation_contribution.schema import AllocationContributionSchema
 from app.domain.finance.expense.schema import ExpenseSchema
 from app.domain.finance.income.schema import IncomeSchema
+from app.domain.finance.transfer.schema import TransferSchema
 from app.models import AccountTypeEnum
 
 
@@ -36,6 +37,8 @@ class AccountSchema(BaseModel):
     is_active: bool
     finance_id: UUID
     expenses: list[ExpenseSchema]
+    incoming_transfers: list[TransferSchema]
+    outgoing_transfers: list[TransferSchema]
     initial_balance: float
     current_balance: float
     allocation_contributions: list[AllocationContributionSchema]

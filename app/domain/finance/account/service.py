@@ -102,27 +102,20 @@ class AccountService(BaseService[AccountRepository, Account]):
                 )
             )
 
-    async def refresh(self, param: str, finance: Finance) -> Account:
+    async def recalculate(self, param: str, finance: Finance) -> Account:
         entity = await self.find_one(param=param, finance_id=finance.id)
-        transactions = entity.transactions if entity.transactions else []
 
-        transaction_paid = sum_expenses_by_status(
-            transactions=transactions,
+        income = sum_amounts(income.amount for income in (entity.incomes or []))
+        incoming_transfer = sum_amounts(incoming_transfer.amount for incoming_transfer in (entity.incoming_transfers or []))
+
+        expenses = entity.expenses if entity.expenses else []
+
+        expense_paid = sum_expenses_by_status(
+            expenses=expenses,
             status=ExpenseStatusEnum.PAID,
         )
-
-        contribution = sum_amounts(
-            allocation_contribution.amount
-            for allocation_contribution in (entity.allocation_contributions or [])
-        )
-
-        income = sum_amounts(
-            income.amount
-            for income in (entity.incomes or [])
-        )
-
-        total_spend = transaction_paid
-        total_income = sum_amounts((entity.initial_balance, contribution, income))
+        total_spend = expense_paid
+        total_income = sum_amounts((entity.initial_balance, income, incoming_transfer))
         current_balance = total_income - total_spend
 
         if entity.current_balance != current_balance:

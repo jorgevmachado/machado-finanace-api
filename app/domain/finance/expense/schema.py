@@ -32,13 +32,12 @@ class ExpenseSchema(BaseModel):
     id: UUID
     status: ExpenseStatusEnum
     amount: float
-    category: CategorySchema
     paid_at: datetime
     finance_id: UUID
     account_id: UUID
-    description: str
+    category: CategorySchema
     allocation: AllocationSchema
-    transaction_date: date
+    description: str
     created_at: datetime
     updated_at: datetime | None = None
     deleted_at: datetime | None = None

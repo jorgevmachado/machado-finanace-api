@@ -33,7 +33,7 @@ class Transfer:
     to_account: Mapped["Account"] = relationship(
         init=False,
         lazy=default_lazy,
-        back_populates="to_transfers",
+        back_populates="incoming_transfers",
         foreign_keys=[to_account_id],
     )
 
@@ -44,7 +44,7 @@ class Transfer:
     from_account: Mapped["Account"] = relationship(
         init=False,
         lazy=default_lazy,
-        back_populates="from_transfers",
+        back_populates="outgoing_transfers",
         foreign_keys=[from_account_id],
     )
 
