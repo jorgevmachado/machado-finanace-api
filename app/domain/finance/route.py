@@ -9,20 +9,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_session
 from app.core.security import get_current_user
 from app.core.security.security import validate_finance
-
-from app.domain.finance.repository import FinanceRepository
-from app.domain.finance.schema import FinanceSchema, FinanceCreateSchema
-from app.domain.finance.service import FinanceService
-from app.models import User
 from app.domain.finance.account.route import router as account_router
 from app.domain.finance.allocation.route import router as allocation_route
-from app.domain.finance.income.route import router as income_route
 from app.domain.finance.allocation_contribution.route import (
     router as allocation_contribution_route,
 )
 from app.domain.finance.category.route import router as category_route
 from app.domain.finance.expense.route import router as expense_route
+from app.domain.finance.income.route import router as income_route
+from app.domain.finance.repository import FinanceRepository
+from app.domain.finance.schema import FinanceCreateSchema, FinanceSchema
+from app.domain.finance.service import FinanceService
 from app.domain.finance.transfer.route import router as transfer_route
+from app.models import User
+from app.shared.schemas import FilterPage
 
 router = APIRouter()
 
@@ -56,6 +56,17 @@ def finance_service(session: Session) -> FinanceService:
 Service = Annotated[FinanceService, Depends(finance_service)]
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
+def finance_filter(
+    year: int | None = None,
+    clean_cache: bool = False,
+    with_deleted: bool = False,
+) -> FilterPage:
+    return FilterPage.build(
+        year=year,
+        clean_cache=clean_cache,
+        with_deleted=with_deleted
+    )
+
 @router.post("", response_model=FinanceSchema, status_code=HTTPStatus.CREATED)
 async def create(service: Service, current_user: CurrentUser, payloads: list[FinanceCreateSchema]):
     finance = validate_finance(current_user.finance)
@@ -65,8 +76,12 @@ async def create(service: Service, current_user: CurrentUser, payloads: list[Fin
     )
 
 @router.get("", response_model=FinanceSchema, status_code=HTTPStatus.OK)
-async def find_by_user(service: Service, current_user: CurrentUser):
-    return await service.find_by_user(current_user=current_user)
+async def find_by_user(
+        service: Service,
+        current_user: CurrentUser,
+        page_filter: Annotated[FilterPage, Depends(finance_filter)] = None
+):
+    return await service.find_by_user(current_user=current_user, page_filter=page_filter)
 
 
 @router.post(

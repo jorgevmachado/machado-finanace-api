@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from app.domain.finance.business import merge_months_by_reference_month
+from types import SimpleNamespace
+
+from app.domain.finance.business import has_yearly_data, merge_months_by_reference_month
 from app.domain.finance.schema import FinanceCreateMonthSchema
 
 
@@ -29,3 +31,25 @@ class TestFinanceMergeMonthsByReferenceMonth:
         ]
         result = merge_months_by_reference_month(months=months)
         assert result == expected_result
+
+
+class TestFinanceHasYearlyData:
+    @staticmethod
+    def test_finance_has_yearly_data_true_when_income_exists():
+        finance = SimpleNamespace(
+            incomes=[SimpleNamespace(id="1")],
+            expenses=[],
+            allocation_contributions=[],
+            allocations=[],
+        )
+        assert has_yearly_data(finance) is True
+
+    @staticmethod
+    def test_finance_has_yearly_data_false_when_all_collections_empty():
+        finance = SimpleNamespace(
+            incomes=[],
+            expenses=[],
+            allocation_contributions=[],
+            allocations=[],
+        )
+        assert has_yearly_data(finance) is False

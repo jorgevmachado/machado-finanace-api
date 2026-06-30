@@ -103,6 +103,87 @@ class TestFinanceFindByUserService:
 
         assert result == finance
 
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_find_by_user_service_with_year_uses_repository_method(
+        finance_repository_mock: AsyncMock,
+    ):
+        finance = SimpleNamespace(
+            id=uuid4(),
+            incomes=[SimpleNamespace(id=uuid4())],
+            expenses=[],
+            allocation_contributions=[],
+            allocations=[],
+        )
+        current_user = SimpleNamespace(
+            id=uuid4(), username="Finance User", finance=finance
+        )
+        page_filter = SimpleNamespace(year=2026, with_deleted=False)
+
+        service = FinanceService(repository=finance_repository_mock)
+        service.repository.find_by_finance_year = AsyncMock(return_value=finance)
+        service.find_one = AsyncMock()
+
+        result = await service.find_by_user(
+            current_user=current_user,
+            page_filter=page_filter,
+        )
+
+        assert result == finance
+        service.repository.find_by_finance_year.assert_awaited_once_with(
+            finance_id=finance.id,
+            reference_year=2026,
+            with_deleted=False,
+        )
+        service.find_one.assert_not_awaited()
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_find_by_user_service_with_year_not_found(
+        finance_repository_mock: AsyncMock,
+    ):
+        finance = SimpleNamespace(id=uuid4())
+        current_user = SimpleNamespace(
+            id=uuid4(), username="Finance User", finance=finance
+        )
+        page_filter = SimpleNamespace(year=2026, with_deleted=False)
+
+        service = FinanceService(repository=finance_repository_mock)
+        service.repository.find_by_finance_year = AsyncMock(return_value=None)
+
+        with pytest.raises(HTTPException) as exc_info:
+            await service.find_by_user(current_user=current_user, page_filter=page_filter)
+
+        assert exc_info.value.status_code == HTTPStatus.NOT_FOUND
+        assert exc_info.value.detail == "Finance not found"
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_find_by_user_service_with_year_empty_data_not_found(
+        finance_repository_mock: AsyncMock,
+    ):
+        finance = SimpleNamespace(id=uuid4())
+        current_user = SimpleNamespace(
+            id=uuid4(), username="Finance User", finance=finance
+        )
+        page_filter = SimpleNamespace(year=2025, with_deleted=False)
+        filtered_finance = SimpleNamespace(
+            id=finance.id,
+            incomes=[],
+            expenses=[],
+            allocation_contributions=[],
+            allocations=[],
+        )
+
+        service = FinanceService(repository=finance_repository_mock)
+        service.repository.find_by_finance_year = AsyncMock(return_value=filtered_finance)
+
+        with pytest.raises(HTTPException) as exc_info:
+            await service.find_by_user(current_user=current_user, page_filter=page_filter)
+
+        assert exc_info.value.status_code == HTTPStatus.NOT_FOUND
+        assert exc_info.value.detail == "Finance not found"
+
 
 class TestFinanceCreateService:
     @staticmethod

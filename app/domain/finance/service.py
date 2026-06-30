@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import logging
 from http import HTTPStatus
+from typing import Annotated
 
-from fastapi import HTTPException
+from fastapi import HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import LoggingParams
@@ -15,6 +16,7 @@ from app.domain.finance.allocation.schema import PayloadAllocationCreateSchema
 from app.domain.finance.allocation.service import AllocationService
 
 from app.domain.finance.allocation_contribution.service import AllocationContributionService
+from app.domain.finance.business import has_yearly_data
 
 from app.domain.finance.category.service import CategoryService
 
@@ -32,6 +34,8 @@ from app.models import (
     Finance,
     Account,
 )
+from app.shared.schemas import FilterPage
+from app.shared.utils.validator import validate_year
 
 logger = logging.getLogger(__name__)
 
@@ -76,13 +80,33 @@ class FinanceService(BaseService[FinanceRepository, Finance]):
             )
         return await self.repository.save(entity=Finance(user_id=current_user.id))
 
-    async def find_by_user(self, current_user: User) -> Finance:
+    async def find_by_user(
+        self,
+        current_user: User,
+        page_filter: Annotated[FilterPage, Query()] = None,
+    ) -> Finance:
         finance = current_user.finance if current_user.finance else None
         if not finance:
             raise HTTPException(
                 status_code=HTTPStatus.BAD_REQUEST,
                 detail=f"User {current_user.username} must be onboarded first",
             )
+        year = getattr(page_filter, "year", None) if page_filter else None
+        with_deleted = page_filter.with_deleted if page_filter else False
+        if year is not None:
+            reference_year = validate_year(year)
+            result = await self.repository.find_by_finance_year(
+                finance_id=finance.id,
+                reference_year=reference_year,
+                with_deleted=with_deleted or False,
+            )
+            if result is None or not has_yearly_data(result):
+                raise HTTPException(
+                    status_code=HTTPStatus.NOT_FOUND,
+                    detail=f"{self.alias} not found",
+                )
+            return result
+
         return await self.find_one(param=str(finance.id))
 
     async def create(self, finance: Finance, payloads: list[FinanceCreateSchema]) -> Finance:

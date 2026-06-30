@@ -16,3 +16,20 @@ def merge_months_by_reference_month(
         merged_month.reference_day = month.reference_day
 
     return list(merged_months.values())
+
+
+def has_yearly_data(finance) -> bool:
+    incomes = getattr(finance, "incomes", []) or []
+    expenses = getattr(finance, "expenses", []) or []
+    allocation_contributions = (
+        getattr(finance, "allocation_contributions", []) or []
+    )
+    allocations = getattr(finance, "allocations", []) or []
+    return any(
+        [
+            len(incomes) > 0,
+            len(expenses) > 0,
+            len(allocation_contributions) > 0,
+            len(allocations) > 0,
+        ]
+    )
