@@ -2,7 +2,7 @@ from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from datetime import datetime, date
 
-from app.domain.finance.allocation.schema import AllocationSchema
+from app.domain.finance.allocation.schema import AllocationRelationSchema, AllocationSchema
 from app.domain.finance.category.schema import CategorySchema
 from app.models import ExpenseStatusEnum
 
@@ -14,6 +14,9 @@ class PayloadExpenseCreateSchema(BaseModel):
     category_id: UUID
     description: str
     allocation_id: UUID
+    reference_day: int | None = None
+    reference_year: int | None = None
+    reference_month: int | None = None
 
 class PayloadExpenseUpdateSchema(BaseModel):
     status: ExpenseStatusEnum | None = None
@@ -32,12 +35,14 @@ class ExpenseSchema(BaseModel):
     id: UUID
     status: ExpenseStatusEnum
     amount: float
-    paid_at: datetime
+    paid_at: datetime | None = None
     finance_id: UUID
     account_id: UUID
     category: CategorySchema
-    allocation: AllocationSchema
+    allocation: AllocationRelationSchema
     description: str
     created_at: datetime
     updated_at: datetime | None = None
     deleted_at: datetime | None = None
+
+AllocationSchema.model_rebuild(_types_namespace={"ExpenseSchema": ExpenseSchema})

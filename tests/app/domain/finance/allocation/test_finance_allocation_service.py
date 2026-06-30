@@ -9,7 +9,6 @@ import pytest
 from fastapi import HTTPException
 
 from app.domain.finance.allocation.schema import (
-    PayloadAllocationCreateListSchema,
     PayloadAllocationCreateSchema,
 )
 from app.domain.finance.allocation.service import AllocationService
@@ -97,52 +96,3 @@ class TestFinanceAllocationPersistService:
         assert saved_entity.type == payload.type
         assert saved_entity.is_active is True
         assert saved_entity.description == payload.description
-
-    @staticmethod
-    @pytest.mark.asyncio
-    async def test_create_list_raises_for_empty_payload(
-        allocation_repository_mock: AsyncMock,
-    ):
-        service = AllocationService(repository=allocation_repository_mock)
-        payload = PayloadAllocationCreateListSchema(allocations=[])
-
-        with pytest.raises(HTTPException) as exc_info:
-            await service.create_list(finance=SimpleNamespace(id=uuid4()), payload=payload)
-
-        assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
-        assert exc_info.value.detail == "Allocation list cannot be empty"
-
-    @staticmethod
-    @pytest.mark.asyncio
-    async def test_create_list_calls_persist_for_each_item(
-        allocation_repository_mock: AsyncMock,
-    ):
-        service = AllocationService(repository=allocation_repository_mock)
-        finance = SimpleNamespace(id=uuid4())
-        payload = PayloadAllocationCreateListSchema(
-            allocations=[
-                PayloadAllocationCreateSchema(
-                    name="Casa",
-                    type=AllocationTypeEnum.HOUSE,
-                    description="Despesas da casa",
-                ),
-                PayloadAllocationCreateSchema(
-                    name="Lazer",
-                    type=AllocationTypeEnum.OTHER,
-                    description="Despesas com lazer",
-                ),
-            ]
-        )
-        expected = [SimpleNamespace(id=uuid4()), SimpleNamespace(id=uuid4())]
-        service.persist = AsyncMock(side_effect=expected)
-
-        result = await service.create_list(finance=finance, payload=payload)
-
-        assert result == expected
-        assert service.persist.await_count == 2
-        first_call = service.persist.await_args_list[0].kwargs
-        second_call = service.persist.await_args_list[1].kwargs
-        assert first_call["finance"] is finance
-        assert first_call["payload"] == payload.allocations[0]
-        assert first_call["with_throw"] is False
-        assert second_call["payload"] == payload.allocations[1]

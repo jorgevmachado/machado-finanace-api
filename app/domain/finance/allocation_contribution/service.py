@@ -11,6 +11,8 @@ from app.core.logging import LoggingParams
 from app.core.service import BaseService
 from app.domain.finance.account.service import AccountService
 from app.domain.finance.allocation.service import AllocationService
+from app.domain.finance.business import merge_months_by_reference_month
+from app.domain.finance.schema import FinanceCreateContributionsSchema
 from app.shared.utils.date import generate_description
 from app.shared.utils.validator import validate_year, validate_month
 from app.domain.finance.allocation_contribution.repository import (
@@ -19,7 +21,6 @@ from app.domain.finance.allocation_contribution.repository import (
 from app.domain.finance.allocation_contribution.schema import (
     PayloadAllocationContributionCreateSchema,
     AllocationContributionSchema,
-    PayloadAllocationContributionCreateListSchema,
 )
 
 from app.models import AllocationContribution, Finance, Account, Allocation
@@ -69,61 +70,11 @@ class AllocationContributionService(
             allocation_id=payload.allocation_id,
         )
 
-        return await self._persist(
+        return await self.persist(
             payload=payload, account=account, finance=finance, allocation=allocation
         )
 
-    async def create_list_by_year(
-        self, finance: Finance, payload: PayloadAllocationContributionCreateListSchema
-    ) -> list[AllocationContribution]:
-        account, allocation = await self._validate_relations(
-            finance=finance,
-            account_id=payload.account_id,
-            allocation_id=payload.allocation_id,
-        )
-
-        payload_contributions = payload.contributions if payload.contributions else []
-
-        if len(payload_contributions) == 0:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail="Allocation Contribution list cannot be empty",
-            )
-
-        allocation_contributions: list[AllocationContribution] = []
-        reference_year = validate_year(payload.reference_year)
-        if payload_contributions and len(payload_contributions) > 0:
-            for item in payload_contributions:
-                reference_month = validate_month(item.reference_month)
-
-                description = generate_description(
-                    month=item.reference_month,
-                    source=item.contributor_name,
-                    description=payload.description,
-                    item_description=item.description,
-                )
-
-                item_payload = PayloadAllocationContributionCreateSchema(
-                    amount=item.amount,
-                    account_id=account.id,
-                    allocation_id=allocation.id,
-                    reference_year=reference_year,
-                    reference_month=reference_month,
-                    contributor_name=item.contributor_name,
-                    description=description,
-                )
-
-                allocation_contribution = await self._persist(
-                    payload=item_payload,
-                    account=account,
-                    finance=finance,
-                    allocation=allocation,
-                    with_throw=False,
-                )
-                allocation_contributions.append(allocation_contribution)
-        return allocation_contributions
-
-    async def _persist(
+    async def persist(
         self,
         payload: PayloadAllocationContributionCreateSchema,
         account: Account,
@@ -189,3 +140,42 @@ class AllocationContributionService(
             )
 
         return account, allocation
+
+    async def create_by_account(
+            self,
+            finance: Finance,
+            account: Account,
+            allocation: Allocation,
+            reference_year: int,
+            payload_allocation_contributions: list[FinanceCreateContributionsSchema]
+    ) -> list[AllocationContribution]:
+        allocation_contributions: list[AllocationContribution] = []
+        if len(payload_allocation_contributions) > 0:
+            for payload_contribution in payload_allocation_contributions:
+                payload_contribution_months = merge_months_by_reference_month(
+                    payload_contribution.months or []
+                )
+                if len(payload_contribution_months) > 0:
+                    for payload_contribution_month in payload_contribution_months:
+                        payload_contribution_month_description = generate_description(
+                            month=payload_contribution_month.reference_month,
+                            source=payload_contribution.contributor_name,
+                        )
+                        allocation_contribution = await self.persist(
+                            finance=finance,
+                            account=account,
+                            allocation=allocation,
+                            payload=PayloadAllocationContributionCreateSchema(
+                                amount=payload_contribution_month.amount,
+                                account_id=account.id,
+                                allocation_id=allocation.id,
+                                reference_year=reference_year,
+                                reference_month=payload_contribution_month.reference_month,
+                                contributor_name=payload_contribution.contributor_name,
+                                description=payload_contribution_month_description,
+                            ),
+                            with_throw=False,
+                        )
+                        allocation_contributions.append(allocation_contribution)
+        
+        return allocation_contributions

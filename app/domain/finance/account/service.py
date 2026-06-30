@@ -107,14 +107,14 @@ class AccountService(BaseService[AccountRepository, Account]):
 
         income = sum_amounts(income.amount for income in (entity.incomes or []))
         incoming_transfer = sum_amounts(incoming_transfer.amount for incoming_transfer in (entity.incoming_transfers or []))
-
+        outgoing_transfer = sum_amounts(outgoing_transfer.amount for outgoing_transfer in (entity.outgoing_transfers or []))
         expenses = entity.expenses if entity.expenses else []
 
         expense_paid = sum_expenses_by_status(
             expenses=expenses,
             status=ExpenseStatusEnum.PAID,
         )
-        total_spend = expense_paid
+        total_spend = expense_paid + outgoing_transfer
         total_income = sum_amounts((entity.initial_balance, income, incoming_transfer))
         current_balance = total_income - total_spend
 

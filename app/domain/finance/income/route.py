@@ -15,8 +15,7 @@ from app.domain.finance.income.repository import IncomeRepository
 from app.domain.finance.income.schema import (
     IncomeSchema,
     PayloadIncomeCreateSchema,
-    PayloadIncomeUpdateSchema,
-    PayloadIncomeCreateListSchema,
+    PayloadIncomeUpdateSchema
 )
 from app.domain.finance.income.service import IncomeService
 from app.models import User
@@ -129,11 +128,3 @@ async def delete(
     return await service.soft_delete(
         param=param, user_request=current_user.username, finance_id=str(finance.id)
     )
-
-
-@router.post("/year", response_model=list[IncomeSchema], status_code=HTTPStatus.CREATED)
-async def create_list_by_year(
-    service: Service, current_user: CurrentUser, payload: PayloadIncomeCreateListSchema
-):
-    finance = validate_finance(current_user.finance)
-    return await service.create_list_by_year(finance=finance, payload=payload)

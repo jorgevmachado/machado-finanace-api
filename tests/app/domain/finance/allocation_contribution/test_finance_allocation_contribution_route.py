@@ -8,7 +8,6 @@ import pytest
 
 from app.domain.finance.allocation_contribution.route import (
     create,
-    create_list_by_year,
     allocation_contribution_service,
     allocation_contribution_filter,
     list_all,
@@ -89,27 +88,6 @@ async def test_finance_allocation_contribution_route_create() -> None:
 
     assert result is expected
     service.create.assert_awaited_once_with(finance=current_user.finance, payload=payload)
-
-
-@pytest.mark.asyncio
-async def test_finance_allocation_contribution_route_create_list_by_year() -> None:
-    service = AsyncMock()
-    payload = SimpleNamespace(contributions=[])
-    expected = [SimpleNamespace(id=uuid4())]
-    service.create_list_by_year.return_value = expected
-    current_user = SimpleNamespace(
-        id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
-    )
-
-    result = await create_list_by_year(
-        service=service, current_user=current_user, payload=payload
-    )
-
-    assert result == expected
-    service.create_list_by_year.assert_awaited_once_with(
-        finance=current_user.finance, payload=payload
-    )
-
 
 @pytest.mark.asyncio
 async def test_finance_allocation_contribution_route_list_all_paginate_and_filter() -> (

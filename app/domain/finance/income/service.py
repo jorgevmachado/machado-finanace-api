@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import date
+from decimal import Decimal
 from http import HTTPStatus
 from uuid import UUID
 
@@ -11,13 +11,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.logging import LoggingParams
 from app.core.service import BaseService
 from app.domain.finance.account.service import AccountService
-from app.shared.utils.date import generate_description, get_valid_day
+from app.domain.finance.business import merge_months_by_reference_month
+from app.domain.finance.income.business import get_received_at
+from app.domain.finance.schema import FinanceCreateIncomeSchema
+from app.shared.utils.date import generate_description
 from app.shared.utils.validator import validate_year, validate_month
 from app.domain.finance.income.repository import IncomeRepository
 from app.domain.finance.income.schema import (
     PayloadIncomeCreateSchema,
     IncomeSchema,
-    PayloadIncomeCreateListSchema,
 )
 
 from app.models import Income, Finance, Account
@@ -59,59 +61,6 @@ class IncomeService(BaseService[IncomeRepository, Income]):
         payload.reference_month = validate_month(payload.reference_month)
 
         return await self._persist(payload, account, finance)
-
-    async def create_list_by_year(
-        self, finance: Finance, payload: PayloadIncomeCreateListSchema
-    ) -> list[Income]:
-        account = await self._validate_relations(
-            finance=finance, account_id=payload.account_id
-        )
-
-        payload_incomes = payload.incomes if payload.incomes else []
-        if len(payload_incomes) == 0 or len(payload_incomes) > 12:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail="Incomes must be between 1 and 12",
-            )
-
-        incomes: list[Income] = []
-        reference_year = validate_year(payload.reference_year)
-        if payload_incomes and len(payload_incomes) > 0:
-            for item in payload_incomes:
-                reference_month = validate_month(item.reference_month)
-                reference_day = get_valid_day(
-                    year=reference_year,
-                    month=reference_month,
-                    day=payload.reference_day,
-                )
-                received_at = date(reference_year, reference_month, reference_day)
-
-                description = generate_description(
-                    month=item.reference_month,
-                    source=payload.source,
-                    description=payload.description,
-                    item_description=item.description,
-                )
-
-                item_payload = PayloadIncomeCreateSchema(
-                    source=payload.source,
-                    amount=item.amount,
-                    account_id=account.id,
-                    received_at=received_at,
-                    description=description,
-                    reference_year=reference_year,
-                    reference_month=reference_month,
-                )
-
-                income = await self._persist(
-                    payload=item_payload,
-                    account=account,
-                    finance=finance,
-                    with_throw=False,
-                )
-
-                incomes.append(income)
-        return incomes
 
     async def _validate_relations(
         self, account_id: UUID, finance: Finance
@@ -157,7 +106,7 @@ class IncomeService(BaseService[IncomeRepository, Income]):
                     detail=f"Income with this year {reference_year}, month {reference_month} and source {payload.source} already exists",
                 )
             else:
-                income.amount = payload.amount
+                income.amount = Decimal(str(payload.amount))
                 return await self.repository.update(entity=income)
         else:
             return await self.repository.save(
@@ -173,3 +122,48 @@ class IncomeService(BaseService[IncomeRepository, Income]):
                     reference_month=reference_month,
                 )
             )
+
+    async def create_by_account(
+            self,
+            finance: Finance,
+            account: Account,
+            reference_day: int,
+            reference_year: int,
+            payload_incomes: list[FinanceCreateIncomeSchema]
+    ) -> list[Income]:
+        incomes: list[Income] = []
+        if len(payload_incomes) > 0:
+            for payload_income in payload_incomes:
+                payload_income_source = payload_income.source
+                payload_income_description = payload_income.description
+                payload_income_months = merge_months_by_reference_month(
+                    months=payload_income.months or []
+                )
+                if len(payload_income_months) > 0:
+                    for payload_income_month in payload_income_months:
+                        received_at = get_received_at(
+                            year=reference_year,
+                            month=payload_income_month.reference_month,
+                            day=payload_income_month.reference_day or reference_day,
+                        )
+                        description = generate_description(
+                            month=payload_income_month.reference_month,
+                            source=payload_income_source,
+                            description=payload_income_description,
+                        )
+
+                        await self._persist(
+                            finance=finance,
+                            account=account,
+                            payload=PayloadIncomeCreateSchema(
+                                source=payload_income_source,
+                                amount=payload_income_month.amount,
+                                account_id=account.id,
+                                received_at=received_at,
+                                description=description,
+                                reference_year=reference_year,
+                                reference_month=payload_income_month.reference_month,
+                            ),
+                            with_throw=False,
+                        )
+        return incomes

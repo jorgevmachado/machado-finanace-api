@@ -33,14 +33,14 @@ class AccountSchema(BaseModel):
     id: UUID
     name: str
     type: AccountTypeEnum
-    incomes: list[IncomeSchema]    
+    incomes: list[IncomeSchema]            
+    expenses: list[ExpenseSchema]
     is_active: bool
     finance_id: UUID
-    expenses: list[ExpenseSchema]
-    incoming_transfers: list[TransferSchema]
-    outgoing_transfers: list[TransferSchema]
     initial_balance: float
     current_balance: float
+    incoming_transfers: list[TransferSchema]
+    outgoing_transfers: list[TransferSchema]
     allocation_contributions: list[AllocationContributionSchema]
     created_at: datetime
     updated_at: datetime | None = None

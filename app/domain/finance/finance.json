@@ -1,0 +1,1247 @@
+[
+  {
+    "name": "Personal",
+    "type": "BANK",
+    "initial_balance": 0,
+    "reference_day": 5,
+    "reference_year": 2026,
+    "incomes": [
+      {
+        "source": "Salario (Itaú)",
+        "months": [
+          {
+            "amount": 7520.0,
+            "reference_month": 1
+          },
+          {
+            "amount": 7520.0,
+            "reference_month": 2
+          },
+          {
+            "amount": 7520.0,
+            "reference_month": 3
+          },
+          {
+            "amount": 7520.0,
+            "reference_month": 4
+          },
+          {
+            "amount": 7520.0,
+            "reference_month": 5
+          },
+          {
+            "amount": 7520.0,
+            "reference_month": 6
+          }
+        ]
+      }
+    ],
+    "allocations": [
+      {
+        "name": "Debito em Conta",
+        "type": "PERSONAL",
+        "description": "Despesas de Debito em Conta",
+        "categories": [
+          {
+            "name": "Internet Claro",
+            "type": "UTILITY",
+            "description": "Internet (Itaú)",
+            "months": [
+              {
+                "amount": 551.18,
+                "reference_month": 1
+              },
+              {
+                "amount": 360.05,
+                "reference_month": 2
+              },
+              {
+                "amount": 319.81,
+                "reference_month": 3
+              },
+              {
+                "amount": 319.73,
+                "reference_month": 4
+              },
+              {
+                "amount": 354.6,
+                "reference_month": 5
+              }
+            ]
+          },
+          {
+            "name": "L.U.V.E",
+            "type": "STUDIES",
+            "description": "Loja Universitária Verdade e Evolução (Nubank)",
+            "months": [
+              {
+                "amount": 0,
+                "reference_month": 1
+              },
+              {
+                "amount": 110.00,
+                "reference_month": 2
+              },
+              {
+                "amount": 220.00,
+                "reference_month": 3
+              },
+              {
+                "amount": 210.00,
+                "reference_month": 4
+              }
+            ]
+          },
+          {
+            "name": "Filosóficos",
+            "type": "STUDIES",
+            "description": "Capitulo Consciência Liberta (Nubank)",
+            "months": [
+              {
+                "amount": 140.00,
+                "reference_month": 1
+              },
+              {
+                "amount": 40.00,
+                "reference_month": 2
+              },
+              {
+                "amount": 40.00,
+                "reference_month": 3
+              },
+              {
+                "amount": 40.00,
+                "reference_month": 4
+              },
+              {
+                "amount": 40.00,
+                "reference_month": 5
+              },
+              {
+                "amount": 40.00,
+                "reference_month": 6
+              }
+            ]
+          },
+          {
+            "name": "M.C.B.D.A",
+            "type": "ENTERTAINMENT",
+            "description": "Moto Clube Bodes do Asfalto (Nubank)",
+            "months": [
+              {
+                "amount": 180.31,
+                "reference_month": 1
+              },
+              {
+                "amount": 180.31,
+                "reference_month": 2
+              },
+              {
+                "amount": 180.31,
+                "reference_month": 3
+              },
+              {
+                "amount": 180.31,
+                "reference_month": 4
+              },
+              {
+                "amount": 180.31,
+                "reference_month": 5
+              },
+              {
+                "amount": 180.31,
+                "reference_month": 6
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Pagamento Manual",
+        "type": "PERSONAL",
+        "description": "Pagamento Manual (Pix | Boleto)",
+        "categories": [
+          {
+            "name": "I.P.V.A",
+            "type": "GOVERNMENT_FEES",
+            "description": "Imposto sobre a Propriedade de Veículos Automotores.",
+            "months": [
+              {
+                "amount": 981.12,
+                "reference_month": 2
+              },
+              {
+                "amount": 119.23,
+                "reference_month": 4
+              }
+            ]
+          },
+          {
+            "name": "seguro Moto (Porto)",
+            "type": "TRANSPORT",
+            "description": "Seguro da moto Harley Davidson Road King",
+            "months": [
+              {
+                "amount": 542.46,
+                "reference_month": 1
+              },
+              {
+                "amount": 547.46,
+                "reference_month": 2
+              },
+              {
+                "amount": 548.31,
+                "reference_month": 3
+              },
+              {
+                "amount": 547.80,
+                "reference_month": 4
+              },
+              {
+                "amount": 54.28,
+                "reference_month": 5
+              }
+            ]
+          },
+          {
+            "name": "Mensalidade Cartão de Crédito (Nubank)",
+            "type": "OTHER",
+            "description": "Mensalidade do Cartão de Crédito (Sem Streaming e Serviços)",
+            "months": [
+              {
+                "amount": 5543.38,
+                "reference_month": 1
+              },
+              {
+                "amount": 2565.67,
+                "reference_month": 2
+              },
+              {
+                "amount": 658.59,
+                "reference_month": 3
+              },
+              {
+                "amount": 184.99,
+                "reference_month": 4
+              },
+              {
+                "amount": 243.10,
+                "reference_month": 5
+              },
+              {
+                "amount": 351.84,
+                "reference_month": 6
+              }
+            ]
+          },
+          {
+            "name": "Mensalidade Cartão de Crédito (Itaú)",
+            "type": "OTHER",
+            "description": "Mensalidade do Cartão de Crédito",
+            "months": [
+              {
+                "amount": 220.00,
+                "reference_month": 1
+              },
+              {
+                "amount": 3928.03,
+                "reference_month": 2
+              },
+              {
+                "amount": 3653.63,
+                "reference_month": 3
+              },
+              {
+                "amount": 3394.88,
+                "reference_month": 4
+              },
+              {
+                "amount": 3930.14,
+                "reference_month": 5
+              },
+              {
+                "amount": 3650.94,
+                "reference_month": 6
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Credito em Conta (Nubank)",
+        "type": "PERSONAL",
+        "description": "Despesas de Credito em Conta",
+        "categories": [
+          {
+            "name": "Netflix",
+            "type": "ENTERTAINMENT",
+            "description": "Taxa de Streaming",
+            "months": [
+              {
+                "amount": 44.90,
+                "reference_month": 1
+              },
+              {
+                "amount": 44.90,
+                "reference_month": 2
+              },
+              {
+                "amount": 44.90,
+                "reference_month": 3
+              },
+              {
+                "amount": 44.90,
+                "reference_month": 4
+              },
+              {
+                "amount": 44.90,
+                "reference_month": 5
+              },
+              {
+                "amount": 44.90,
+                "reference_month": 6
+              },
+              {
+                "amount": 44.90,
+                "reference_month": 7
+              },
+              {
+                "amount": 44.90,
+                "reference_month": 8
+              },
+              {
+                "amount": 44.90,
+                "reference_month": 9
+              },
+              {
+                "amount": 44.90,
+                "reference_month": 10
+              },
+              {
+                "amount": 44.90,
+                "reference_month": 11
+              },
+              {
+                "amount": 44.90,
+                "reference_month": 12
+              }
+            ]
+          },
+          {
+            "name": "HBO Max",
+            "type": "ENTERTAINMENT",
+            "description": "Taxa de Streaming",
+            "months": [
+              {
+                "amount": 22.45,
+                "reference_month": 1
+              },
+              {
+                "amount": 22.45,
+                "reference_month": 2
+              },
+              {
+                "amount": 22.45,
+                "reference_month": 3
+              },
+              {
+                "amount": 22.45,
+                "reference_month": 4
+              },
+              {
+                "amount": 22.45,
+                "reference_month": 5
+              },
+              {
+                "amount": 22.45,
+                "reference_month": 6
+              },
+              {
+                "amount": 22.45,
+                "reference_month": 7
+              },
+              {
+                "amount": 22.45,
+                "reference_month": 8
+              },
+              {
+                "amount": 22.45,
+                "reference_month": 9
+              },
+              {
+                "amount": 22.45,
+                "reference_month": 10
+              },
+              {
+                "amount": 22.45,
+                "reference_month": 11
+              },
+              {
+                "amount": 22.45,
+                "reference_month": 12
+              }
+            ]
+          },
+          {
+            "name": "Amazon",
+            "type": "ENTERTAINMENT",
+            "description": "Taxa de Streaming (Prime Video | Amazon Prime)",
+            "months": [
+              {
+                "amount": 166.80,
+                "reference_month": 6
+              }
+            ]
+          },
+          {
+            "name": "MeliMais",
+            "type": "ENTERTAINMENT",
+            "description": "Taxa de Streaming (Disney Plus | Mercado Livre)",
+            "months": [
+              {
+                "amount": 19.90,
+                "reference_month": 1
+              },
+              {
+                "amount": 19.90,
+                "reference_month": 2
+              },
+              {
+                "amount": 19.90,
+                "reference_month": 3
+              },
+              {
+                "amount": 19.90,
+                "reference_month": 4
+              },
+              {
+                "amount": 19.90,
+                "reference_month": 5
+              },
+              {
+                "amount": 19.90,
+                "reference_month": 6
+              },
+              {
+                "amount": 19.90,
+                "reference_month": 7
+              },
+              {
+                "amount": 19.90,
+                "reference_month": 8
+              },
+              {
+                "amount": 19.90,
+                "reference_month": 9
+              },
+              {
+                "amount": 19.90,
+                "reference_month": 10
+              },
+              {
+                "amount": 19.90,
+                "reference_month": 11
+              },
+              {
+                "amount": 19.90,
+                "reference_month": 12
+              }
+            ]
+          },
+          {
+            "name": "Google Storage",
+            "type": "ENTERTAINMENT",
+            "description": "Taxa de Serviço de Armazenamento",
+            "months": [
+              {
+                "amount": 9.90,
+                "reference_month": 1
+              },
+              {
+                "amount": 9.90,
+                "reference_month": 2
+              },
+              {
+                "amount": 9.90,
+                "reference_month": 3
+              },
+              {
+                "amount": 9.90,
+                "reference_month": 4
+              },
+              {
+                "amount": 9.90,
+                "reference_month": 5
+              },
+              {
+                "amount": 9.90,
+                "reference_month": 6
+              },
+              {
+                "amount": 9.90,
+                "reference_month": 7
+              },
+              {
+                "amount": 9.90,
+                "reference_month": 8
+              },
+              {
+                "amount": 9.90,
+                "reference_month": 9
+              },
+              {
+                "amount": 9.90,
+                "reference_month": 10
+              },
+              {
+                "amount": 9.90,
+                "reference_month": 11
+              },
+              {
+                "amount": 9.90,
+                "reference_month": 12
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Conta Conjunta (Nubank)",
+    "type": "BANK",
+    "initial_balance": 0,
+    "reference_day": 5,
+    "reference_year": 2026,
+    "incomes": [
+      {
+        "source": "Parte Hayane",
+        "months": [
+          {
+            "amount": 1700.00,
+            "reference_day": 2,
+            "reference_month": 1
+          },
+          {
+            "amount": 1000.00,
+            "reference_day": 6,
+            "reference_month": 2
+          },
+          {
+            "amount": 1200.00,
+            "reference_day": 5,
+            "reference_month": 3
+          },
+          {
+            "amount": 500.00,
+            "reference_day": 10,
+            "reference_month": 3
+          },
+          {
+            "amount": 600.00,
+            "reference_day": 14,
+            "reference_month": 4
+          },
+          {
+            "amount": 800.00,
+            "reference_day": 20,
+            "reference_month": 4
+          },
+          {
+            "amount": 1200.00,
+            "reference_day": 4,
+            "reference_month": 5
+          },
+          {
+            "amount": 300.00,
+            "reference_day": 8,
+            "reference_month": 5
+          },
+          {
+            "amount": 1700.00,
+            "reference_day": 10,
+            "reference_month": 6
+          }
+        ]
+      },
+      {
+        "source": "Parte Jorge",
+        "months": [
+          {
+            "amount": 1700.00,
+            "reference_day": 7,
+            "reference_month": 1
+          },
+          {
+            "amount": 1000.00,
+            "reference_day": 6,
+            "reference_month": 2
+          },
+          {
+            "amount": 1500.00,
+            "reference_day": 9,
+            "reference_month": 3
+          },
+          {
+            "amount": 1500.00,
+            "reference_day": 10,
+            "reference_month": 4
+          },
+          {
+            "amount": 1500.00,
+            "reference_day": 8,
+            "reference_month": 5
+          },
+          {
+            "amount": 300.00,
+            "reference_day": 14,
+            "reference_month": 5
+          },
+          {
+            "amount": 85.09,
+            "reference_day": 14,
+            "reference_month": 5
+          },
+          {
+            "amount": 1500.00,
+            "reference_day": 5,
+            "reference_month": 5
+          },
+          {
+            "amount": 300.00,
+            "reference_day": 12,
+            "reference_month": 6
+          },
+          {
+            "amount": 450.00,
+            "reference_day": 16,
+            "reference_month": 6
+          }
+        ]
+      }
+    ],
+    "allocations": [
+      {
+        "name": "Residencial Ingrid",
+        "type": "HOUSE",
+        "description": "Despesas do Residencial Ingrid",
+        "categories": [
+          {
+            "name": "Internet Vivo",
+            "type": "UTILITY",
+            "description": "Internet",
+            "months": [
+              {
+                "amount": 162.00,
+                "reference_month": 1
+              },
+              {
+                "amount": 162.00,
+                "reference_month": 2
+              },
+              {
+                "amount": 162.00,
+                "reference_month": 3
+              },
+              {
+                "amount": 162.00,
+                "reference_month": 4
+              },
+              {
+                "amount": 162.00,
+                "reference_month": 5
+              },
+              {
+                "amount": 162.00,
+                "reference_month": 6
+              },
+              {
+                "amount": 162.00,
+                "reference_month": 7
+              },
+              {
+                "amount": 162.00,
+                "reference_month": 8
+              },
+              {
+                "amount": 162.00,
+                "reference_month": 9
+              },
+              {
+                "amount": 162.00,
+                "reference_month": 10
+              },
+              {
+                "amount": 162.00,
+                "reference_month": 11
+              },
+              {
+                "amount": 162.00,
+                "reference_month": 12
+              }
+            ]
+          },
+          {
+            "name": "Garagem (Residencial Ingrid)",
+            "type": "TRANSPORT",
+            "description": "Garagem do Residencial Ingrid",
+            "months": [
+              {
+                "amount": 170.00,
+                "reference_month": 1
+              },
+              {
+                "amount": 170.00,
+                "reference_month": 2
+              },
+              {
+                "amount": 170.00,
+                "reference_month": 3
+              },
+              {
+                "amount": 170.00,
+                "reference_month": 4
+              },
+              {
+                "amount": 170.00,
+                "reference_month": 5
+              },
+              {
+                "amount": 170.00,
+                "reference_month": 6
+              },
+              {
+                "amount": 170.00,
+                "reference_month": 7
+              },
+              {
+                "amount": 170.00,
+                "reference_month": 8
+              },
+              {
+                "amount": 170.00,
+                "reference_month": 9
+              },
+              {
+                "amount": 170.00,
+                "reference_month": 10
+              },
+              {
+                "amount": 170.00,
+                "reference_month": 11
+              },
+              {
+                "amount": 170.00,
+                "reference_month": 12
+              }
+            ]
+          },
+          {
+            "name": "Condomínio (Facilite)",
+            "type": "UTILITY",
+            "description": "Condomínio do Residencial Ingrid",
+            "months": [
+              {
+                "amount": 766.21,
+                "reference_month": 1
+              },
+              {
+                "amount": 666.21,
+                "reference_month": 2
+              },
+              {
+                "amount": 662.21,
+                "reference_month": 3
+              },
+              {
+                "amount": 866.21,
+                "reference_month": 4
+              },
+              {
+                "amount": 794.14,
+                "reference_month": 5
+              },
+              {
+                "amount": 784.14,
+                "reference_month": 6
+              }
+            ]
+          },
+          {
+            "name": "Aluguel",
+            "type": "UTILITY",
+            "description": "Aluguel do Residencial Ingrid",
+            "months": [
+              {
+                "amount": 1500.00,
+                "reference_month": 1
+              },
+              {
+                "amount": 1500.00,
+                "reference_month": 2
+              },
+              {
+                "amount": 1500.00,
+                "reference_month": 3
+              },
+              {
+                "amount": 1500.00,
+                "reference_month": 4
+              },
+              {
+                "amount": 1500.00,
+                "reference_month": 5
+              },
+              {
+                "amount": 1500.00,
+                "reference_month": 6
+              },
+              {
+                "amount": 1500.00,
+                "reference_month": 7
+              },
+              {
+                "amount": 1500.00,
+                "reference_month": 8
+              },
+              {
+                "amount": 1500.00,
+                "reference_month": 9
+              },
+              {
+                "amount": 1500.00,
+                "reference_month": 10
+              },
+              {
+                "amount": 1500.00,
+                "reference_month": 11
+              },
+              {
+                "amount": 1500.00,
+                "reference_month": 12
+              }
+            ]
+          },
+          {
+            "name": "Luz",
+            "type": "GOVERNMENT_FEES",
+            "description": "Luz do Residencial Ingrid",
+            "months": [
+              {
+                "amount": 348.97,
+                "reference_month": 1
+              },
+              {
+                "amount": 281.51,
+                "reference_month": 2
+              },
+              {
+                "amount": 355.24,
+                "reference_month": 3
+              },
+              {
+                "amount": 359.63,
+                "reference_month": 4
+              },
+              {
+                "amount": 406.75,
+                "reference_month": 5
+              },
+              {
+                "amount": 294.55,
+                "reference_month": 6
+              }
+            ]
+          },
+          {
+            "name": "I.P.T.U",
+            "type": "GOVERNMENT_FEES",
+            "description": "Imposto sobre a Propriedade Predial e Territorial Urbana",
+            "months": [
+              {
+                "amount": 172.60,
+                "reference_month": 5
+              },
+              {
+                "amount": 164.38,
+                "reference_month": 6
+              }
+            ]
+          },
+          {
+            "name": "Diarista",
+            "type": "UTILITY",
+            "description": "Serviços de Diarista",
+            "months": [
+              {
+                "amount": 400.00,
+                "reference_month": 3
+              },
+              {
+                "amount": 400.00,
+                "reference_month": 4
+              },
+              {
+                "amount": 400.00,
+                "reference_month": 5
+              },
+              {
+                "amount": 400.00,
+                "reference_month": 6
+              }
+            ]
+          }
+        ],
+        "contributions": [
+          {
+            "contributor_name": "Hayane",
+            "months": [
+              {
+                "amount": 1700.00,
+                "reference_day": 2,
+                "reference_month": 1
+              },
+              {
+                "amount": 1000.00,
+                "reference_day": 6,
+                "reference_month": 2
+              },
+              {
+                "amount": 1200.00,
+                "reference_day": 5,
+                "reference_month": 3
+              },
+              {
+                "amount": 500.00,
+                "reference_day": 10,
+                "reference_month": 3
+              },
+              {
+                "amount": 600.00,
+                "reference_day": 14,
+                "reference_month": 4
+              },
+              {
+                "amount": 800.00,
+                "reference_day": 20,
+                "reference_month": 4
+              },
+              {
+                "amount": 1200.00,
+                "reference_day": 4,
+                "reference_month": 5
+              },
+              {
+                "amount": 300.00,
+                "reference_day": 8,
+                "reference_month": 5
+              },
+              {
+                "amount": 1700.00,
+                "reference_day": 10,
+                "reference_month": 6
+              }
+            ]
+          },
+          {
+            "contributor_name": "Jorge",
+            "months": [
+          {
+            "amount": 1700.00,
+            "reference_day": 7,
+            "reference_month": 1
+          },
+          {
+            "amount": 1000.00,
+            "reference_day": 6,
+            "reference_month": 2
+          },
+          {
+            "amount": 1500.00,
+            "reference_day": 9,
+            "reference_month": 3
+          },
+          {
+            "amount": 1500.00,
+            "reference_day": 10,
+            "reference_month": 4
+          },
+          {
+            "amount": 1500.00,
+            "reference_day": 8,
+            "reference_month": 5
+          },
+          {
+            "amount": 300.00,
+            "reference_day": 14,
+            "reference_month": 5
+          },
+          {
+            "amount": 85.09,
+            "reference_day": 14,
+            "reference_month": 5
+          },
+          {
+            "amount": 1500.00,
+            "reference_day": 5,
+            "reference_month": 5
+          },
+          {
+            "amount": 300.00,
+            "reference_day": 12,
+            "reference_month": 6
+          },
+          {
+            "amount": 450.00,
+            "reference_day": 16,
+            "reference_month": 6
+          }
+        ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Caixa",
+    "type": "BANK",
+    "initial_balance": 0,
+    "reference_day": 5,
+    "reference_year": 2026,
+    "incomes": [
+      {
+        "source": "Aposentadoria (Mãe)",
+        "months": [
+          {
+            "amount": 4744.35,
+            "reference_month": 1
+          },
+          {
+            "amount": 4744.35,
+            "reference_month": 2
+          },
+          {
+            "amount": 4744.35,
+            "reference_month": 3
+          },
+          {
+            "amount": 4744.35,
+            "reference_month": 4
+          },
+          {
+            "amount": 7116.00,
+            "reference_month": 5
+          },
+          {
+            "amount": 7116.53,
+            "reference_month": 6
+          }
+        ]
+      }
+    ],
+    "allocations": [
+      {
+        "name": "Residencial Monte Carlo",
+        "type": "HOUSE",
+        "description": "Despesas do Residencial Monte Carlo",
+        "categories": [
+          {
+            "name": "Garagem (Monte Carlo)",
+            "type": "TRANSPORT",
+            "description": "Garagem do Monte Carlo",
+            "months": [
+              {
+                "amount": 150.00,
+                "reference_month": 1
+              },
+              {
+                "amount": 150.00,
+                "reference_month": 2
+              }
+            ]
+          },
+          {
+            "name": "Condomínio (Ancora)",
+            "type": "UTILITY",
+            "description": "Condomínio do Monte Carlo",
+            "months": [
+              {
+                "amount": 780.24,
+                "reference_month": 1
+              },
+              {
+                "amount": 778.36,
+                "reference_month": 2
+              },
+              {
+                "amount": 788.38,
+                "reference_month": 3
+              },
+              {
+                "amount": 781.15,
+                "reference_month": 4
+              },
+              {
+                "amount": 782.67,
+                "reference_month": 5
+              },
+              {
+                "amount": 783.90,
+                "reference_month": 6
+              }
+            ]
+          },
+          {
+            "name": "Luz",
+            "type": "GOVERNMENT_FEES",
+            "description": "Luz do Monte Carlo",
+            "months": [
+              {
+                "amount": 130.00,
+                "reference_month": 1
+              },
+              {
+                "amount": 117.94,
+                "reference_month": 2
+              },
+              {
+                "amount": 145.26,
+                "reference_month": 3
+              },
+              {
+                "amount": 132.50,
+                "reference_month": 4
+              },
+              {
+                "amount": 142.19,
+                "reference_month": 5
+              },
+              {
+                "amount": 105.84,
+                "reference_month": 6
+              }
+            ]
+          },
+          {
+            "name": "I.P.T.U",
+            "type": "GOVERNMENT_FEES",
+            "description": "Imposto sobre a Propriedade Predial e Territorial Urbana",
+            "months": [
+              {
+                "amount": 225.59,
+                "reference_month": 5
+              },
+              {
+                "amount": 214.85,
+                "reference_month": 6
+              }
+            ]
+          },
+          {
+            "name": "Diarista",
+            "type": "UTILITY",
+            "description": "Serviços de Diarista",
+            "months": [
+              {
+                "amount": 300.00,
+                "reference_month": 6
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Pagamento Manual",
+        "type": "PERSONAL",
+        "description": "Pagamento Manual (Pix | Boleto)",
+        "categories": [
+          {
+            "name": "Mensalidade Plano de Saúde",
+            "type": "OTHER",
+            "description": "Mensalidade do Plano de saúde (Unimed)",
+            "months": [
+              {
+                "amount": 4320.44,
+                "reference_month": 1
+              },
+              {
+                "amount": 4320.44,
+                "reference_month": 2
+              },
+              {
+                "amount": 4320.44,
+                "reference_month": 3
+              },
+              {
+                "amount": 4320.44,
+                "reference_month": 4
+              },
+              {
+                "amount": 4320.44,
+                "reference_month": 5
+              },
+              {
+                "amount": 4320.44,
+                "reference_month": 6
+              }
+            ]
+          },
+          {
+            "name": "Mensalidade Cartão de Crédito (Caixa)",
+            "type": "OTHER",
+            "description": "Mensalidade do Cartão de Crédito (Caixa)",
+            "months": [
+              {
+                "amount": 1094.12,
+                "reference_month": 1
+              },
+              {
+                "amount": 451.46,
+                "reference_month": 2
+              },
+              {
+                "amount": 1553.92,
+                "reference_month": 3
+              },
+              {
+                "amount": 2621.73,
+                "reference_month": 4
+              },
+              {
+                "amount": 1536.92,
+                "reference_month": 5
+              },
+              {
+                "amount": 765.76,
+                "reference_month": 6
+              }
+            ]
+          },
+          {
+            "name": "Mensalidade Cartão de Crédito (Nubank)",
+            "type": "OTHER",
+            "description": "Mensalidade do Cartão de Crédito (Nubank)",
+            "months": [
+              {
+                "amount": 1753.80,
+                "reference_month": 1
+              },
+              {
+                "amount": 456.47,
+                "reference_month": 4
+              },
+              {
+                "amount": 819.22,
+                "reference_month": 5
+              },
+              {
+                "amount": 550.88,
+                "reference_month": 6
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

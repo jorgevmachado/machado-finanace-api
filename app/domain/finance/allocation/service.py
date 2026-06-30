@@ -12,7 +12,6 @@ from app.domain.finance.allocation.repository import AllocationRepository
 from app.domain.finance.allocation.schema import (
     PayloadAllocationCreateSchema,
     AllocationSchema,
-    PayloadAllocationCreateListSchema,
 )
 
 from app.models import Allocation, Finance
@@ -39,30 +38,6 @@ class AllocationService(BaseService[AllocationRepository, Allocation]):
     @classmethod
     def from_session(cls, session: AsyncSession):
         return cls(AllocationRepository(session))
-
-    async def create_list(
-        self, finance: Finance, payload: PayloadAllocationCreateListSchema
-    ) -> list[Allocation]:
-        payload_allocations = payload.allocations if payload.allocations else []
-
-        if len(payload_allocations) == 0:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail="Allocation list cannot be empty",
-            )
-
-        allocations: list[Allocation] = []
-
-        if payload_allocations and len(payload_allocations) > 0:
-            for item in payload_allocations:
-                category = await self.persist(
-                    finance=finance,
-                    payload=item,
-                    with_throw=False,
-                )
-                allocations.append(category)
-
-        return allocations
 
     async def persist(
         self,

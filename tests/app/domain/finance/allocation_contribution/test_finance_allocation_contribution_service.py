@@ -9,12 +9,14 @@ import pytest
 from fastapi import HTTPException
 
 from app.domain.finance.allocation_contribution.schema import (
-    PayloadAllocationContributionCreateListItemSchema,
-    PayloadAllocationContributionCreateListSchema,
     PayloadAllocationContributionCreateSchema,
 )
 from app.domain.finance.allocation_contribution.service import (
     AllocationContributionService,
+)
+from app.domain.finance.schema import (
+    FinanceCreateContributionsSchema,
+    FinanceCreateMonthSchema,
 )
 from app.models import utcnow
 
@@ -189,7 +191,7 @@ class TestFinanceAllocationContributionCreateService:
         service.find_by = AsyncMock(return_value=SimpleNamespace(id=uuid4()))
 
         with pytest.raises(HTTPException) as exc_info:
-            await service._persist(
+            await service.persist(
                 payload=payload,
                 account=account,
                 finance=finance,
@@ -219,7 +221,7 @@ class TestFinanceAllocationContributionCreateService:
         service.find_by = AsyncMock(return_value=existing)
         service.repository.update.return_value = updated
 
-        result = await service._persist(
+        result = await service.persist(
             payload=payload,
             account=account,
             finance=finance,
@@ -247,7 +249,7 @@ class TestFinanceAllocationContributionCreateService:
         service.find_by = AsyncMock(return_value=None)
         service.repository.save.return_value = expected
 
-        result = await service._persist(
+        result = await service.persist(
             payload=payload,
             account=account,
             finance=finance,
@@ -280,7 +282,7 @@ class TestFinanceAllocationContributionCreateService:
         allocation = SimpleNamespace(id=payload.allocation_id)
         expected = SimpleNamespace(id=uuid4())
         service._validate_relations = AsyncMock(return_value=(account, allocation))
-        service._persist = AsyncMock(return_value=expected)
+        service.persist = AsyncMock(return_value=expected)
 
         result = await service.create(finance=finance, payload=payload)
 
@@ -290,79 +292,61 @@ class TestFinanceAllocationContributionCreateService:
             account_id=payload.account_id,
             allocation_id=payload.allocation_id,
         )
-        service._persist.assert_awaited_once_with(
+        service.persist.assert_awaited_once_with(
             payload=payload, account=account, finance=finance, allocation=allocation
         )
 
+
+class TestFinanceAllocationContributionCreateByAccountService:
     @staticmethod
     @pytest.mark.asyncio
-    async def test_create_list_by_year_raises_when_empty(
+    async def test_create_by_account_merges_months_and_persists_unique_months(
         allocation_contribution_repository_mock: AsyncMock,
     ):
         service = AllocationContributionService(
             repository=allocation_contribution_repository_mock
         )
-        payload = PayloadAllocationContributionCreateListSchema(
-            account_id=uuid4(),
-            allocation_id=uuid4(),
-            description="Some Description",
-            contributions=[],
-            reference_year=utcnow().year,
+        finance = _finance()
+        account = SimpleNamespace(id=uuid4())
+        allocation = SimpleNamespace(id=uuid4())
+
+        payload_allocation_contributions = [
+            FinanceCreateContributionsSchema(
+                contributor_name="Jorge",
+                months=[
+                    FinanceCreateMonthSchema(
+                        amount=1500.00, reference_day=8, reference_month=5
+                    ),
+                    FinanceCreateMonthSchema(
+                        amount=300.00, reference_day=14, reference_month=5
+                    ),
+                    FinanceCreateMonthSchema(
+                        amount=85.09, reference_day=14, reference_month=5
+                    ),
+                    FinanceCreateMonthSchema(
+                        amount=300.00, reference_day=12, reference_month=6
+                    ),
+                ],
+            )
+        ]
+
+        persisted_may = SimpleNamespace(id=uuid4())
+        persisted_june = SimpleNamespace(id=uuid4())
+        service.persist = AsyncMock(side_effect=[persisted_may, persisted_june])
+
+        result = await service.create_by_account(
+            finance=finance,
+            account=account,
+            allocation=allocation,
+            reference_year=2026,
+            payload_allocation_contributions=payload_allocation_contributions,
         )
-        service._validate_relations = AsyncMock(
-            return_value=(SimpleNamespace(id=payload.account_id), SimpleNamespace(id=payload.allocation_id))
-        )
 
-        with pytest.raises(HTTPException) as exc_info:
-            await service.create_list_by_year(finance=_finance(), payload=payload)
-
-        assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
-        assert exc_info.value.detail == "Allocation Contribution list cannot be empty"
-
-    @staticmethod
-    @pytest.mark.asyncio
-    async def test_create_list_by_year_persists_each_item(
-        allocation_contribution_repository_mock: AsyncMock,
-    ):
-        service = AllocationContributionService(
-            repository=allocation_contribution_repository_mock
-        )
-        account_id = uuid4()
-        allocation_id = uuid4()
-        payload = PayloadAllocationContributionCreateListSchema(
-            account_id=account_id,
-            allocation_id=allocation_id,
-            description="Descricao base",
-            contributions=[
-                PayloadAllocationContributionCreateListItemSchema(
-                    amount=10.0,
-                    description="Janeiro",
-                    reference_month=1,
-                    contributor_name="Fonte A",
-                ),
-                PayloadAllocationContributionCreateListItemSchema(
-                    amount=20.0,
-                    description="Fevereiro",
-                    reference_month=2,
-                    contributor_name="Fonte B",
-                ),
-            ],
-            reference_year=utcnow().year,
-        )
-        account = SimpleNamespace(id=account_id)
-        allocation = SimpleNamespace(id=allocation_id)
-        expected = [SimpleNamespace(id=uuid4()), SimpleNamespace(id=uuid4())]
-        service._validate_relations = AsyncMock(return_value=(account, allocation))
-        service._persist = AsyncMock(side_effect=expected)
-
-        result = await service.create_list_by_year(finance=_finance(), payload=payload)
-
-        assert result == expected
-        assert service._persist.await_count == 2
-        first_call = service._persist.await_args_list[0].kwargs
-        second_call = service._persist.await_args_list[1].kwargs
-        assert first_call["with_throw"] is False
-        assert second_call["with_throw"] is False
-        assert first_call["payload"].reference_year == payload.reference_year
-        assert first_call["payload"].reference_month == 1
-        assert second_call["payload"].reference_month == 2
+        assert result == [persisted_may, persisted_june]
+        assert service.persist.await_count == 2
+        first_payload = service.persist.await_args_list[0].kwargs["payload"]
+        second_payload = service.persist.await_args_list[1].kwargs["payload"]
+        assert first_payload.reference_month == 5
+        assert first_payload.amount == 1885.09
+        assert second_payload.reference_month == 6
+        assert second_payload.amount == 300.00

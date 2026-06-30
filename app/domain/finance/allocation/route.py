@@ -15,8 +15,7 @@ from app.domain.finance.allocation.repository import AllocationRepository
 from app.domain.finance.allocation.schema import (
     AllocationSchema,
     PayloadAllocationCreateSchema,
-    PayloadAllocationUpdateSchema,
-    PayloadAllocationCreateListSchema,
+    PayloadAllocationUpdateSchema
 )
 from app.domain.finance.allocation.service import AllocationService
 from app.models import User
@@ -125,13 +124,3 @@ async def delete(
     return await service.soft_delete(
         param=param, user_request=current_user.username, finance_id=str(finance.id)
     )
-
-
-@router.post("/list", response_model=list[AllocationSchema], status_code=HTTPStatus.OK)
-async def create_list(
-    service: Service,
-    current_user: CurrentUser,
-    payload: PayloadAllocationCreateListSchema,
-):
-    finance = validate_finance(current_user.finance)
-    return await service.create_list(finance=finance, payload=payload)

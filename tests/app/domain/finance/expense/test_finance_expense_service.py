@@ -15,7 +15,8 @@ from app.domain.finance.expense.schema import (
 from app.domain.finance.expense.service import (
     ExpenseService,
 )
-from app.models import utcnow, ExpenseStatusEnum
+from app.domain.finance.schema import FinanceCreateCategorySchema, FinanceCreateMonthSchema
+from app.models import utcnow, ExpenseStatusEnum, CategoryTypeEnum
 
 
 @pytest.fixture
@@ -236,7 +237,7 @@ class TestFinanceExpense_PesistService:
         service.find_by = AsyncMock(return_value=existing_expense)
         expense_repository_mock.update.return_value = existing_expense
 
-        result = await service._persist(
+        result = await service.persist(
             finance=finance,
             account=account,
             category=category,
@@ -295,7 +296,7 @@ class TestFinanceExpense_PesistService:
         expense_repository_mock.save.side_effect = save_side_effect
 
         # Create both transactions
-        result_jan = await service._persist(
+        result_jan = await service.persist(
             finance=finance,
             account=account,
             category=category,
@@ -304,7 +305,7 @@ class TestFinanceExpense_PesistService:
             with_throw=False,
         )
 
-        result_feb = await service._persist(
+        result_feb = await service.persist(
             finance=finance,
             account=account,
             category=category,
@@ -321,16 +322,104 @@ class TestFinanceExpense_PesistService:
         assert first_call_kwargs["account_id"] == account.id
         assert first_call_kwargs["allocation_id"] == allocation.id
         assert first_call_kwargs["category_id"] == category.id
-        assert first_call_kwargs["paid_at"] == current_date
+        assert first_call_kwargs["description"] == "January Expense"
 
         second_call_kwargs = service.find_by.call_args_list[1][1]
         assert second_call_kwargs["finance_id"] == finance.id
         assert second_call_kwargs["account_id"] == account.id
         assert second_call_kwargs["allocation_id"] == allocation.id
         assert second_call_kwargs["category_id"] == category.id
-        assert second_call_kwargs["paid_at"] == current_date
+        assert second_call_kwargs["description"] == "February Expense"
 
         # Verify both transactions have different dates
         assert result_jan.description == "January Expense"
         assert result_feb.description == "February Expense"
         assert result_jan.description != result_feb.description
+
+
+class TestFinanceExpenseCreateByAccountService:
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_expense_create_by_category_builds_monthly_payloads(
+        expense_repository_mock: AsyncMock,
+    ):
+        finance = SimpleNamespace(id=uuid4())
+        account = SimpleNamespace(id=uuid4())
+        allocation = SimpleNamespace(id=uuid4())
+        category = SimpleNamespace(id=uuid4(), name="Internet", description="Vivo")
+        payload_months = [
+            FinanceCreateMonthSchema(amount=100.0, reference_month=1),
+            FinanceCreateMonthSchema(amount=120.0, reference_month=2),
+        ]
+        first_expense = SimpleNamespace(id=uuid4())
+        second_expense = SimpleNamespace(id=uuid4())
+
+        service = ExpenseService(repository=expense_repository_mock)
+        service.persist = AsyncMock(side_effect=[first_expense, second_expense])
+
+        result = await service.create_by_category(
+            finance=finance,
+            account=account,
+            category=category,
+            allocation=allocation,
+            reference_day=5,
+            reference_year=2026,
+            payload_months=payload_months,
+        )
+
+        assert result == [first_expense, second_expense]
+        assert service.persist.await_count == 2
+        first_payload = service.persist.await_args_list[0].kwargs["payload"]
+        second_payload = service.persist.await_args_list[1].kwargs["payload"]
+        assert first_payload.reference_month == 1
+        assert first_payload.description == "Vivo | January"
+        assert first_payload.status == ExpenseStatusEnum.PENDING
+        assert second_payload.reference_month == 2
+        assert second_payload.description == "Vivo | February"
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_expense_create_by_account_aggregates_all_categories(
+        expense_repository_mock: AsyncMock,
+    ):
+        finance = SimpleNamespace(id=uuid4())
+        account = SimpleNamespace(id=uuid4())
+        allocation = SimpleNamespace(id=uuid4())
+        first_category = SimpleNamespace(id=uuid4(), name="Internet", description="Vivo")
+        second_category = SimpleNamespace(id=uuid4(), name="Luz", description="Energisa")
+        payload_categories = [
+            FinanceCreateCategorySchema(
+                name="Internet",
+                type=CategoryTypeEnum.UTILITY,
+                description="Vivo",
+                months=[FinanceCreateMonthSchema(amount=100.0, reference_month=1)],
+            ),
+            FinanceCreateCategorySchema(
+                name="Luz",
+                type=CategoryTypeEnum.UTILITY,
+                description="Energisa",
+                months=[FinanceCreateMonthSchema(amount=90.0, reference_month=1)],
+            ),
+        ]
+        first_expense = SimpleNamespace(id=uuid4())
+        second_expense = SimpleNamespace(id=uuid4())
+
+        service = ExpenseService(repository=expense_repository_mock)
+        service.category_service.persist = AsyncMock(
+            side_effect=[first_category, second_category]
+        )
+        service.create_by_category = AsyncMock(
+            side_effect=[[first_expense], [second_expense]]
+        )
+
+        result = await service.create_by_account(
+            finance=finance,
+            account=account,
+            allocation=allocation,
+            reference_day=5,
+            reference_year=2026,
+            payload_categories=payload_categories,
+        )
+
+        assert result == [first_expense, second_expense]
+        assert service.create_by_category.await_count == 2

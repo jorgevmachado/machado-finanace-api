@@ -14,14 +14,11 @@ from app.domain.finance.income.route import (
     list_all,
     find_one,
     update,
-    delete,
-    create_list_by_year,
+    delete
 )
 from app.domain.finance.income.schema import (
     PayloadIncomeCreateSchema,
-    PayloadIncomeUpdateSchema,
-    PayloadIncomeCreateListItemSchema,
-    PayloadIncomeCreateListSchema,
+    PayloadIncomeUpdateSchema
 )
 from app.domain.finance.income.service import IncomeService
 from app.shared.schemas import FilterPage
@@ -199,47 +196,4 @@ async def test_finance_income_route_delete() -> None:
         param="income-id",
         user_request="Finance User",
         finance_id="finance-id",
-    )
-
-
-@pytest.mark.asyncio
-async def test_finance_income_route_create_list() -> None:
-    service = AsyncMock()
-    account_id = uuid4()
-    payload_item = PayloadIncomeCreateListItemSchema(amount=100.00, reference_month=1)
-    payload = PayloadIncomeCreateListSchema(
-        account_id=uuid4(),
-        source="Test Income",
-        reference_day=5,
-        reference_year=2026,
-        description="Some Description",
-        incomes=[payload_item],
-    )
-
-    expected = [
-        SimpleNamespace(
-            id="income-id",
-            source="Source Name",
-            amount=100.00,
-            account_id=account_id,
-            source_name="source_name",
-            description="Some Description",
-            reference_year=2026,
-            reference_month=1,
-            received_at=date(2026, 1, 1),
-        )
-    ]
-
-    service.create_list_by_year.return_value = expected
-    current_user = SimpleNamespace(
-        id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
-    )
-
-    result = await create_list_by_year(
-        service=service, current_user=current_user, payload=payload
-    )
-
-    assert result is expected
-    service.create_list_by_year.assert_awaited_once_with(
-        finance=current_user.finance, payload=payload
     )

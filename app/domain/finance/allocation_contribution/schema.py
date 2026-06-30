@@ -4,7 +4,6 @@ from datetime import datetime
 
 from app.domain.finance.allocation.schema import AllocationSchema
 
-
 class PayloadAllocationContributionCreateSchema(BaseModel):
     amount: float
     account_id: UUID
@@ -13,21 +12,6 @@ class PayloadAllocationContributionCreateSchema(BaseModel):
     reference_year: int
     reference_month: int
     contributor_name: str
-
-
-class PayloadAllocationContributionCreateListItemSchema(BaseModel):
-    amount: float
-    description: str | None = None
-    reference_month: int
-    contributor_name: str
-
-
-class PayloadAllocationContributionCreateListSchema(BaseModel):
-    account_id: UUID
-    allocation_id: UUID
-    description: str | None = None
-    contributions: list[PayloadAllocationContributionCreateListItemSchema]
-    reference_year: int
 
 
 class PayloadAllocationContributionUpdateSchema(BaseModel):

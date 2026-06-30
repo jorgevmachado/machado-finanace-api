@@ -173,6 +173,9 @@ class TestFinanceAccountRecalculateService:
             incoming_transfers=[
                 SimpleNamespace(amount=Decimal("1700.00")),
             ],
+            outgoing_transfers=[
+                SimpleNamespace(amount=Decimal("200.00")),
+            ],
             incomes=[
                 SimpleNamespace(amount=Decimal("1700.00")),
             ],
@@ -185,7 +188,7 @@ class TestFinanceAccountRecalculateService:
         result = await service.recalculate(param="account-id", finance=finance)
 
         assert result is updated
-        assert entity.current_balance == Decimal("3250.00")
+        assert entity.current_balance == Decimal("3050.00")
         service.update_entity.assert_awaited_once_with(entity=entity)
 
     @staticmethod
@@ -196,7 +199,7 @@ class TestFinanceAccountRecalculateService:
         service = AccountService(repository=account_repository_mock)
         entity = SimpleNamespace(
             initial_balance=Decimal("0.00"),
-            current_balance=Decimal("3250.00"),
+            current_balance=Decimal("3050.00"),
             expenses=[
                 SimpleNamespace(
                     amount=Decimal("150.00"),
@@ -205,6 +208,9 @@ class TestFinanceAccountRecalculateService:
             ],
             incoming_transfers=[
                 SimpleNamespace(amount=Decimal("1700.00")),
+            ],
+            outgoing_transfers=[
+                SimpleNamespace(amount=Decimal("200.00")),
             ],
             incomes=[
                 SimpleNamespace(amount=Decimal("1700.00")),

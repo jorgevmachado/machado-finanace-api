@@ -11,45 +11,16 @@ import pytest
 from fastapi import HTTPException
 
 from app.domain.finance.income.schema import (
-    PayloadIncomeCreateSchema,
-    PayloadIncomeCreateListItemSchema,
-    PayloadIncomeCreateListSchema,
+    PayloadIncomeCreateSchema
 )
+from app.domain.finance.schema import FinanceCreateIncomeSchema, FinanceCreateMonthSchema
 from app.domain.finance.income.service import IncomeService
 from app.models import utcnow
-from app.shared.utils.string import to_snake_case
 
 
 @pytest.fixture
 def income_repository_mock() -> AsyncMock:
     return AsyncMock()
-
-
-@pytest.fixture
-def payload_income_create_list_item():
-    return PayloadIncomeCreateListItemSchema(amount=100, reference_month=1)
-
-
-@pytest.fixture
-def payload_income_create_list(payload_income_create_list_item):
-    payload_income_create_list_item_1 = payload_income_create_list_item
-    payload_income_create_list_item_2 = payload_income_create_list_item
-    payload_income_create_list_item_2.reference_month = 2
-    payload_income_create_list_item_3 = payload_income_create_list_item
-    payload_income_create_list_item_3.reference_month = 3
-    return PayloadIncomeCreateListSchema(
-        account_id=uuid4(),
-        source="Test Income",
-        reference_day=5,
-        reference_year=2026,
-        description="Some Description",
-        incomes=[
-            payload_income_create_list_item_1,
-            payload_income_create_list_item_2,
-            payload_income_create_list_item_3,
-        ],
-    )
-
 
 class TestFinanceIncomeServiceFromSession:
     @staticmethod
@@ -57,7 +28,6 @@ class TestFinanceIncomeServiceFromSession:
     async def test_from_session_builds_service() -> None:
         service = IncomeService.from_session(AsyncMock())
         assert isinstance(service, IncomeService)
-
 
 class TestFinanceIncomeCreateService:
     @staticmethod
@@ -241,75 +211,6 @@ class TestFinanceIncomeCreateService:
 
         assert result == expected
 
-
-class TestFinanceIncomeCreateListService:    
-    @staticmethod
-    @pytest.mark.asyncio
-    async def test_finance_income_service_create_list_empty_incomes(
-        income_repository_mock: AsyncMock,
-        payload_income_create_list: PayloadIncomeCreateListSchema,
-    ):
-        payload = payload_income_create_list
-        payload.incomes = []
-        finance = SimpleNamespace(id=uuid4())
-
-        service = IncomeService(repository=income_repository_mock)
-        service.account_service.find_by = AsyncMock(
-            return_value=SimpleNamespace(id=payload.account_id)
-        )
-
-        with pytest.raises(HTTPException) as exc_info:
-            await service.create_list_by_year(
-                finance=finance, payload=payload_income_create_list
-            )
-
-        assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
-        assert exc_info.value.detail == "Incomes must be between 1 and 12"
-
-    @staticmethod
-    @pytest.mark.asyncio
-    async def test_finance_income_service_create_list_successfully(
-        income_repository_mock: AsyncMock,
-        payload_income_create_list: PayloadIncomeCreateListSchema,
-    ):
-        payload = payload_income_create_list
-        payload.incomes = payload.incomes[0:1]
-
-        expected: list[SimpleNamespace] = []
-        for item in payload.incomes:
-            reference_day = payload.reference_day or 1
-            income = SimpleNamespace(
-                id=uuid4(),
-                source=payload.source,
-                amount=item.amount,
-                source_code=to_snake_case(payload.source),
-                account_id=payload.account_id,
-                received_at=date(
-                    payload.reference_year, item.reference_month, reference_day
-                ),
-                description=payload.description,
-                reference_year=payload.reference_year,
-                reference_month=item.reference_month,
-            )
-            expected.append(income)
-
-        finance = SimpleNamespace(id=uuid4())
-
-        service = IncomeService(repository=income_repository_mock)
-        service.find_by = AsyncMock(return_value=None)
-        service.account_service.find_by = AsyncMock(
-            return_value=SimpleNamespace(id=payload.account_id)
-        )
-        for item in expected:
-            service._persist = AsyncMock(return_value=item)
-
-        result = await service.create_list_by_year(
-            finance=finance, payload=payload
-        )
-
-        assert result == expected
-
-
 class TestFinanceIncomePersistService:
     @staticmethod
     @pytest.mark.asyncio
@@ -353,6 +254,58 @@ class TestFinanceIncomePersistService:
         )
 
         assert result == expected
+
+class TestFinanceIncomeCreateByAccountService:
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_income_service_create_by_account_merge_months(
+        income_repository_mock: AsyncMock,
+    ):
+        finance = SimpleNamespace(id=uuid4())
+        account = SimpleNamespace(id=uuid4())
+
+        payload_incomes = [
+            FinanceCreateIncomeSchema(
+                source="Salario",
+                months=[
+                    FinanceCreateMonthSchema(
+                        amount=100.0,
+                        reference_month=1,
+                    ),
+                    FinanceCreateMonthSchema(
+                        amount=200.0,
+                        reference_month=1,
+                    ),
+                    FinanceCreateMonthSchema(
+                        amount=50.0,
+                        reference_day=12,
+                        reference_month=2,
+                    ),
+                ],
+                description="Receita",
+            )
+        ]
+
+        service = IncomeService(repository=income_repository_mock)
+        service._persist = AsyncMock(return_value=SimpleNamespace(id=uuid4()))
+
+        await service.create_by_account(
+            finance=finance,
+            account=account,
+            reference_day=5,
+            reference_year=utcnow().year,
+            payload_incomes=payload_incomes,
+        )
+
+        assert service._persist.await_count == 2
+
+        first_payload = service._persist.await_args_list[0].kwargs["payload"]
+        second_payload = service._persist.await_args_list[1].kwargs["payload"]
+
+        assert first_payload.reference_month == 1
+        assert first_payload.amount == 300.0
+        assert second_payload.reference_month == 2
+        assert second_payload.amount == 50.0
 
     @staticmethod
     @pytest.mark.asyncio

@@ -8,9 +8,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_session
 from app.core.security import get_current_user
+from app.core.security.security import validate_finance
 
 from app.domain.finance.repository import FinanceRepository
-from app.domain.finance.schema import FinanceSchema
+from app.domain.finance.schema import FinanceSchema, FinanceCreateSchema
 from app.domain.finance.service import FinanceService
 from app.models import User
 from app.domain.finance.account.route import router as account_router
@@ -55,6 +56,13 @@ def finance_service(session: Session) -> FinanceService:
 Service = Annotated[FinanceService, Depends(finance_service)]
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
+@router.post("", response_model=FinanceSchema, status_code=HTTPStatus.CREATED)
+async def create(service: Service, current_user: CurrentUser, payloads: list[FinanceCreateSchema]):
+    finance = validate_finance(current_user.finance)
+    return await service.create(
+        finance=finance,
+        payloads=payloads,
+    )
 
 @router.get("", response_model=FinanceSchema, status_code=HTTPStatus.OK)
 async def find_by_user(service: Service, current_user: CurrentUser):
