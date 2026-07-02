@@ -105,6 +105,7 @@ def downgrade() -> None:
             nullable=False,
         ),
     )
+    op.create_index("idx_expenses_status", "expenses", ["status"])
     op.drop_table("expense_months")
     op.execute("DROP TYPE IF EXISTS monthstatusenum")
     # ### end Alembic commands ###

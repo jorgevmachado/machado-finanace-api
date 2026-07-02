@@ -23,7 +23,7 @@ def upgrade() -> None:
     """Upgrade schema."""
     op.execute("""
                         DO $$ BEGIN
-                            CREATE TYPE accounttypeenum AS ENUM ('PIX', 'BANK', 'CASH', 'OTHER', 'INVESTMENT', 'CREDIT_CARD', 'ACCOUNT_DEBIT');
+                            CREATE TYPE accounttypeenum AS ENUM ('PIX', 'BANK', 'CASH', 'OTHER', 'INVESTMENT', 'ACCOUNT_DEBIT');
                         EXCEPTION
                             WHEN duplicate_object THEN null;
                         END $$;
@@ -42,7 +42,6 @@ def upgrade() -> None:
                 "CASH",
                 "OTHER",
                 "INVESTMENT",
-                "CREDIT_CARD",
                 "ACCOUNT_DEBIT",
                 name="accounttypeenum",
                 create_type=False,

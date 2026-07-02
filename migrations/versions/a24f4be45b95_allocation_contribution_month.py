@@ -35,7 +35,7 @@ def upgrade() -> None:
         sa.Column("deleted_at", sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(
             ["allocation_contribution_id"],
-            ["finances.id"],
+            ["allocation_contributions.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
     )

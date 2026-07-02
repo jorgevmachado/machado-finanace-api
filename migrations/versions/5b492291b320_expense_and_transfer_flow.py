@@ -117,11 +117,11 @@ def downgrade() -> None:
     op.drop_index(op.f("transfers_finance_id_idx"), table_name="transfers")
     op.drop_table("transfers")
 
-    op.drop_index(op.f("idx_expenses_status"), table_name="transactions")
-    op.drop_index(op.f("expenses_category_id_idx"), table_name="transactions")
-    op.drop_index(op.f("expenses_allocation_id_idx"), table_name="transactions")
-    op.drop_index(op.f("expenses_account_id_idx"), table_name="transactions")
-    op.drop_index(op.f("expenses_finance_id_idx"), table_name="transactions")
+    op.drop_index(op.f("idx_expenses_status"), table_name="expenses")
+    op.drop_index(op.f("expenses_category_id_idx"), table_name="expenses")
+    op.drop_index(op.f("expenses_allocation_id_idx"), table_name="expenses")
+    op.drop_index(op.f("expenses_account_id_idx"), table_name="expenses")
+    op.drop_index(op.f("expenses_finance_id_idx"), table_name="expenses")
     op.drop_table("expenses")
     op.execute("DROP TYPE IF EXISTS expensestatusenum")
     # ### end Alembic commands ###
