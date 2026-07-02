@@ -205,6 +205,7 @@ class PlanService(BaseService[FinanceRepository, Finance]):
         payload_expenses = payload_category.expenses or []
 
         for payload_expense in payload_expenses:
+            print('# => payload_expense => ', payload_expense)
             # Validar que reference_month está presente
             if not payload_expense.reference_month:
                 continue
@@ -257,7 +258,10 @@ class PlanService(BaseService[FinanceRepository, Finance]):
             # Para cada tipo de categoria, agrupar children e mesclar por month
             for category_type_key, children_list in children_by_type.items():
                 # Mesclar months dos children com mesmo reference_month
-                merged_children = self._merge_children_by_month(children_list)
+                # Se child não tiver reference_month, usar o do parent
+                merged_children = self._merge_children_by_month(
+                    children_list, parent_reference_month=payload_expense.reference_month
+                )
 
                 # Criar categoria para o child com o tipo específico
                 child_category_create = PayloadCategoryCreateSchema(
@@ -312,8 +316,13 @@ class PlanService(BaseService[FinanceRepository, Finance]):
                     )
                     finance.expenses.append(child_expense)
 
-    def _merge_children_by_month(self, children: list) -> list[dict]:
-        """Merge children expenses by reference_month, summing amounts."""
+    def _merge_children_by_month(
+        self, children: list, parent_reference_month: int | None = None
+    ) -> list[dict]:
+        """Merge children expenses by reference_month, summing amounts.
+        
+        If child has no reference_month, uses parent's reference_month.
+        """
         merged: dict[int, dict] = {}
 
         for child in children:
@@ -324,6 +333,10 @@ class PlanService(BaseService[FinanceRepository, Finance]):
                 reference_month = (
                     child.get("reference_month") if isinstance(child, dict) else None
                 )
+
+            # Se child não tiver reference_month, usar do parent
+            if reference_month is None:
+                reference_month = parent_reference_month
 
             if reference_month is None:
                 continue
