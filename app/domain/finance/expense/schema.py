@@ -53,6 +53,8 @@ class ExpenseSchema(BaseModel):
     allocation: AllocationRelationSchema
     description: str
     parent_id: UUID | None = None
+    parent: ExpenseParentSchema | None = None
+    children: list["ExpenseSchema"] | None = None
     created_at: datetime
     updated_at: datetime | None = None
     deleted_at: datetime | None = None

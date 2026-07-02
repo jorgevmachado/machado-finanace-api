@@ -72,7 +72,19 @@ class Expense:
         ForeignKey("expenses.id"), nullable=True, default=None
     )
 
-    parent: Mapped["Expense | None"] = relationship(lazy=default_lazy, init=False)
+    parent: Mapped["Expense | None"] = relationship(
+        lazy=default_lazy,
+        init=False,
+        remote_side="Expense.id",
+        back_populates="children",
+    )
+
+    children: Mapped[list["Expense"]] = relationship(
+        lazy=default_lazy,
+        default_factory=list,
+        init=False,
+        back_populates="parent",
+    )
 
     # Auto-generated / server-managed — excluded from __init__
     id: Mapped[UUID] = mapped_column(
