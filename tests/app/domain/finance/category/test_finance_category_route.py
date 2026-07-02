@@ -87,7 +87,9 @@ async def test_finance_category_route_create_list() -> None:
         id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
     )
 
-    result = await create_list(service=service, current_user=current_user, payload=payload)
+    result = await create_list(
+        service=service, current_user=current_user, payload=payload
+    )
 
     assert result == expected
     service.create_list.assert_awaited_once_with(

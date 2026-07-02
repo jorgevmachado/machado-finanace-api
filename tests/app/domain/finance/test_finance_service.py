@@ -12,6 +12,7 @@ from fastapi import HTTPException
 from app.domain.finance.service import FinanceService
 from app.models import AccountTypeEnum, AllocationTypeEnum
 
+
 @pytest.fixture
 def finance_repository_mock() -> AsyncMock:
     return AsyncMock()
@@ -152,7 +153,9 @@ class TestFinanceFindByUserService:
         service.repository.find_by_finance_year = AsyncMock(return_value=None)
 
         with pytest.raises(HTTPException) as exc_info:
-            await service.find_by_user(current_user=current_user, page_filter=page_filter)
+            await service.find_by_user(
+                current_user=current_user, page_filter=page_filter
+            )
 
         assert exc_info.value.status_code == HTTPStatus.NOT_FOUND
         assert exc_info.value.detail == "Finance not found"
@@ -176,10 +179,14 @@ class TestFinanceFindByUserService:
         )
 
         service = FinanceService(repository=finance_repository_mock)
-        service.repository.find_by_finance_year = AsyncMock(return_value=filtered_finance)
+        service.repository.find_by_finance_year = AsyncMock(
+            return_value=filtered_finance
+        )
 
         with pytest.raises(HTTPException) as exc_info:
-            await service.find_by_user(current_user=current_user, page_filter=page_filter)
+            await service.find_by_user(
+                current_user=current_user, page_filter=page_filter
+            )
 
         assert exc_info.value.status_code == HTTPStatus.NOT_FOUND
         assert exc_info.value.detail == "Finance not found"

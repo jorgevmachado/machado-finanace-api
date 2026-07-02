@@ -2,7 +2,9 @@ from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from datetime import datetime
 
-from app.domain.finance.allocation_contribution.schema import AllocationContributionSchema
+from app.domain.finance.allocation_contribution.schema import (
+    AllocationContributionSchema,
+)
 from app.domain.finance.expense.schema import ExpenseSchema
 from app.domain.finance.income.schema import IncomeSchema
 from app.domain.finance.transfer.schema import TransferSchema
@@ -33,7 +35,7 @@ class AccountSchema(BaseModel):
     id: UUID
     name: str
     type: AccountTypeEnum
-    incomes: list[IncomeSchema]            
+    incomes: list[IncomeSchema]
     expenses: list[ExpenseSchema]
     is_active: bool
     finance_id: UUID

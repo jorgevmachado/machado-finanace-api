@@ -16,7 +16,7 @@ from app.domain.finance.allocation_contribution.service import (
 )
 from app.domain.finance.schema import (
     FinanceCreateContributionsSchema,
-    FinanceCreateMonthSchema,
+    PayloadExpenseMonthPersistSchema,
 )
 from app.models import utcnow
 
@@ -129,7 +129,9 @@ class TestFinanceAllocationContributionCreateService:
             )
 
         assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
-        assert exc_info.value.detail == f"Account with this id {account_id} does not exist"
+        assert (
+            exc_info.value.detail == f"Account with this id {account_id} does not exist"
+        )
 
     @staticmethod
     @pytest.mark.asyncio
@@ -142,7 +144,9 @@ class TestFinanceAllocationContributionCreateService:
         finance = _finance()
         account_id = uuid4()
         allocation_id = uuid4()
-        service.account_service.find_by = AsyncMock(return_value=SimpleNamespace(id=account_id))
+        service.account_service.find_by = AsyncMock(
+            return_value=SimpleNamespace(id=account_id)
+        )
         service.allocation_service.find_by = AsyncMock(return_value=None)
 
         with pytest.raises(HTTPException) as exc_info:
@@ -314,16 +318,16 @@ class TestFinanceAllocationContributionCreateByAccountService:
             FinanceCreateContributionsSchema(
                 contributor_name="Jorge",
                 months=[
-                    FinanceCreateMonthSchema(
+                    PayloadExpenseMonthPersistSchema(
                         amount=1500.00, reference_day=8, reference_month=5
                     ),
-                    FinanceCreateMonthSchema(
+                    PayloadExpenseMonthPersistSchema(
                         amount=300.00, reference_day=14, reference_month=5
                     ),
-                    FinanceCreateMonthSchema(
+                    PayloadExpenseMonthPersistSchema(
                         amount=85.09, reference_day=14, reference_month=5
                     ),
-                    FinanceCreateMonthSchema(
+                    PayloadExpenseMonthPersistSchema(
                         amount=300.00, reference_day=12, reference_month=6
                     ),
                 ],

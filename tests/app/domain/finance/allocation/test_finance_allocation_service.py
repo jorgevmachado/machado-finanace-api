@@ -65,7 +65,9 @@ class TestFinanceAllocationPersistService:
         service = AllocationService(repository=allocation_repository_mock)
         service.find_by = AsyncMock(return_value=existing)
 
-        result = await service.persist(finance=finance, payload=payload, with_throw=False)
+        result = await service.persist(
+            finance=finance, payload=payload, with_throw=False
+        )
 
         assert result is existing
         allocation_repository_mock.save.assert_not_awaited()

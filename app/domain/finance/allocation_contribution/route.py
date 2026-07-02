@@ -17,7 +17,7 @@ from app.domain.finance.allocation_contribution.repository import (
 from app.domain.finance.allocation_contribution.schema import (
     AllocationContributionSchema,
     PayloadAllocationContributionCreateSchema,
-    PayloadAllocationContributionUpdateSchema
+    PayloadAllocationContributionUpdateSchema,
 )
 from app.domain.finance.allocation_contribution.service import (
     AllocationContributionService,

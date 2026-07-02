@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import LoggingParams
 from app.core.service import BaseService
-from app.domain.finance.account.business import sum_expenses_by_status, sum_amounts
+from app.domain.finance.account.business import sum_amounts, sum_expenses_by_status
 from app.domain.finance.account.repository import AccountRepository
 from app.domain.finance.account.schema import (
     PayloadAccountCreateSchema,
@@ -21,7 +21,7 @@ from app.shared.utils.string import to_snake_case
 from app.models import (
     Account,
     Finance,
-    ExpenseStatusEnum,
+    MonthStatusEnum,
 )
 
 logger = logging.getLogger(__name__)
@@ -106,15 +106,18 @@ class AccountService(BaseService[AccountRepository, Account]):
         entity = await self.find_one(param=param, finance_id=finance.id)
 
         income = sum_amounts(income.amount for income in (entity.incomes or []))
-        incoming_transfer = sum_amounts(incoming_transfer.amount for incoming_transfer in (entity.incoming_transfers or []))
-        outgoing_transfer = sum_amounts(outgoing_transfer.amount for outgoing_transfer in (entity.outgoing_transfers or []))
-        expenses = entity.expenses if entity.expenses else []
-
-        expense_paid = sum_expenses_by_status(
-            expenses=expenses,
-            status=ExpenseStatusEnum.PAID,
+        incoming_transfer = sum_amounts(
+            incoming_transfer.amount
+            for incoming_transfer in (entity.incoming_transfers or [])
         )
-        total_spend = expense_paid + outgoing_transfer
+        outgoing_transfer = sum_amounts(
+            outgoing_transfer.amount
+            for outgoing_transfer in (entity.outgoing_transfers or [])
+        )
+        expenses = entity.expenses if entity.expenses else []
+        total_paid = sum_expenses_by_status(expenses, MonthStatusEnum.PAID)
+
+        total_spend = total_paid + outgoing_transfer
         total_income = sum_amounts((entity.initial_balance, income, incoming_transfer))
         current_balance = total_income - total_spend
 

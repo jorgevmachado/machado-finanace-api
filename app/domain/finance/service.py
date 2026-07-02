@@ -15,7 +15,9 @@ from app.domain.finance.allocation.schema import PayloadAllocationCreateSchema
 
 from app.domain.finance.allocation.service import AllocationService
 
-from app.domain.finance.allocation_contribution.service import AllocationContributionService
+from app.domain.finance.allocation_contribution.service import (
+    AllocationContributionService,
+)
 from app.domain.finance.business import has_yearly_data
 
 from app.domain.finance.category.service import CategoryService
@@ -49,7 +51,7 @@ class FinanceService(BaseService[FinanceRepository, Finance]):
         allocation_service: AllocationService | None = None,
         category_service: CategoryService | None = None,
         expense_service: ExpenseService | None = None,
-        allocation_contribution_service: AllocationContributionService | None = None
+        allocation_contribution_service: AllocationContributionService | None = None,
     ) -> None:
         super().__init__(
             alias="Finance",
@@ -63,10 +65,17 @@ class FinanceService(BaseService[FinanceRepository, Finance]):
         session = repository.session
         self.account_service = account_service or AccountService.from_session(session)
         self.income_service = income_service or IncomeService.from_session(session)
-        self.allocation_service = allocation_service or AllocationService.from_session(session)
-        self.category_service = category_service or CategoryService.from_session(session)
+        self.allocation_service = allocation_service or AllocationService.from_session(
+            session
+        )
+        self.category_service = category_service or CategoryService.from_session(
+            session
+        )
         self.expense_service = expense_service or ExpenseService.from_session(session)
-        self.allocation_contribution_service = allocation_contribution_service or AllocationContributionService.from_session(session)
+        self.allocation_contribution_service = (
+            allocation_contribution_service
+            or AllocationContributionService.from_session(session)
+        )
 
     @classmethod
     def from_session(cls, session: AsyncSession):
@@ -109,7 +118,9 @@ class FinanceService(BaseService[FinanceRepository, Finance]):
 
         return await self.find_one(param=str(finance.id))
 
-    async def create(self, finance: Finance, payloads: list[FinanceCreateSchema]) -> Finance:
+    async def create(
+        self, finance: Finance, payloads: list[FinanceCreateSchema]
+    ) -> Finance:
         for payload in payloads:
             account = await self.account_service.persist(
                 finance=finance,
@@ -127,7 +138,7 @@ class FinanceService(BaseService[FinanceRepository, Finance]):
                 account=account,
                 reference_day=reference_day,
                 reference_year=reference_year,
-                payload_incomes=payload.incomes
+                payload_incomes=payload.incomes,
             )
 
             await self.create_allocations_by_account(
@@ -138,17 +149,17 @@ class FinanceService(BaseService[FinanceRepository, Finance]):
                 payload_allocations=payload.allocations,
             )
 
-
-
-        return await self.find_one(param=str(finance.id), user_request=finance.user.username)
+        return await self.find_one(
+            param=str(finance.id), user_request=finance.user.username
+        )
 
     async def create_allocations_by_account(
-            self,
-            finance: Finance,
-            account: Account,
-            reference_day: int,
-            reference_year: int,
-            payload_allocations: list[FinanceCreateAllocationSchema],
+        self,
+        finance: Finance,
+        account: Account,
+        reference_day: int,
+        reference_year: int,
+        payload_allocations: list[FinanceCreateAllocationSchema],
     ):
         if len(payload_allocations) > 0:
             for payload_allocation in payload_allocations:
@@ -157,7 +168,8 @@ class FinanceService(BaseService[FinanceRepository, Finance]):
                     payload=PayloadAllocationCreateSchema(
                         name=payload_allocation.name,
                         type=payload_allocation.type,
-                        description=payload_allocation.description or payload_allocation.name,
+                        description=payload_allocation.description
+                        or payload_allocation.name,
                     ),
                     with_throw=False,
                 )
@@ -167,12 +179,13 @@ class FinanceService(BaseService[FinanceRepository, Finance]):
                     allocation=allocation,
                     reference_day=reference_day,
                     reference_year=reference_year,
-                    payload_categories=payload_allocation.categories or []
+                    payload_categories=payload_allocation.categories or [],
                 )
                 await self.allocation_contribution_service.create_by_account(
                     finance=finance,
                     account=account,
                     allocation=allocation,
                     reference_year=reference_year,
-                    payload_allocation_contributions=payload_allocation.contributions or [],
+                    payload_allocation_contributions=payload_allocation.contributions
+                    or [],
                 )

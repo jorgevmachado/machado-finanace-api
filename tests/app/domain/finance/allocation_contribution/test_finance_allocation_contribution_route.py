@@ -87,7 +87,10 @@ async def test_finance_allocation_contribution_route_create() -> None:
     result = await create(service=service, current_user=current_user, payload=payload)
 
     assert result is expected
-    service.create.assert_awaited_once_with(finance=current_user.finance, payload=payload)
+    service.create.assert_awaited_once_with(
+        finance=current_user.finance, payload=payload
+    )
+
 
 @pytest.mark.asyncio
 async def test_finance_allocation_contribution_route_list_all_paginate_and_filter() -> (

@@ -11,6 +11,7 @@ from app.models import (
     Allocation,
     AllocationContribution,
     Expense,
+    ExpenseMonth,
     Finance,
     Income,
 )
@@ -29,13 +30,8 @@ class FinanceRepository(BaseRepository[Finance]):
         contribution_year_predicate = (
             AllocationContribution.reference_year == reference_year
         )
-        expense_year_predicate = (
-            func.extract(
-                "year",
-                func.coalesce(Expense.paid_at, Expense.created_at),
-            )
-            == reference_year
-        )
+        # Now checking ExpenseMonth instead of Expense
+        expense_year_predicate = ExpenseMonth.reference_year == reference_year
 
         if not with_deleted:
             income_year_predicate = and_(
@@ -47,17 +43,18 @@ class FinanceRepository(BaseRepository[Finance]):
                 contribution_year_predicate,
             )
             expense_year_predicate = and_(
-                Expense.deleted_at.is_(None),
+                ExpenseMonth.deleted_at.is_(None),
                 expense_year_predicate,
             )
 
+        # Updated to use ExpenseMonth relationship
         account_year_predicate = or_(
             Account.incomes.any(income_year_predicate),
-            Account.expenses.any(expense_year_predicate),
+            Account.expenses.any(Expense.months.any(expense_year_predicate)),
             Account.allocation_contributions.any(contribution_year_predicate),
         )
         allocation_year_predicate = or_(
-            Allocation.expenses.any(expense_year_predicate),
+            Allocation.expenses.any(Expense.months.any(expense_year_predicate)),
             Allocation.allocation_contributions.any(contribution_year_predicate),
         )
 
@@ -78,7 +75,8 @@ class FinanceRepository(BaseRepository[Finance]):
         )
         expense_count = await self.session.scalar(
             select(func.count())
-            .select_from(Expense)
+            .select_from(ExpenseMonth)
+            .join(Expense)
             .where(Expense.finance_id == finance_id, expense_year_predicate)
         )
         contribution_count = await self.session.scalar(
@@ -107,7 +105,7 @@ class FinanceRepository(BaseRepository[Finance]):
                     Income, income_year_predicate, include_aliases=True
                 ),
                 with_loader_criteria(
-                    Expense, expense_year_predicate, include_aliases=True
+                    ExpenseMonth, expense_year_predicate, include_aliases=True
                 ),
                 with_loader_criteria(
                     AllocationContribution,

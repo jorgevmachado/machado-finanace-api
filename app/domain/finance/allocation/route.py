@@ -15,7 +15,7 @@ from app.domain.finance.allocation.repository import AllocationRepository
 from app.domain.finance.allocation.schema import (
     AllocationSchema,
     PayloadAllocationCreateSchema,
-    PayloadAllocationUpdateSchema
+    PayloadAllocationUpdateSchema,
 )
 from app.domain.finance.allocation.service import AllocationService
 from app.models import User

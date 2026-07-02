@@ -103,9 +103,7 @@ async def create(
     return await service.create(finance=finance, payload=payload)
 
 
-@router.put(
-    "/{param}", response_model=ExpenseSchema, status_code=HTTPStatus.CREATED
-)
+@router.put("/{param}", response_model=ExpenseSchema, status_code=HTTPStatus.CREATED)
 async def update(
     param: str,
     service: Service,

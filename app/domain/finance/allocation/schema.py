@@ -10,7 +10,6 @@ if TYPE_CHECKING:
     from app.domain.finance.expense.schema import ExpenseSchema
 
 
-
 class PayloadAllocationCreateSchema(BaseModel):
     name: str
     type: AllocationTypeEnum
@@ -47,7 +46,7 @@ class AllocationSchema(BaseModel):
     type: AllocationTypeEnum
     expenses: list[ExpenseSchema]
     name_code: str
-    is_active: bool    
+    is_active: bool
     finance_id: UUID
     description: str | None = None
     created_at: datetime

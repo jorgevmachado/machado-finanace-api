@@ -4,6 +4,7 @@ from datetime import datetime
 
 from app.domain.finance.allocation.schema import AllocationSchema
 
+
 class PayloadAllocationContributionCreateSchema(BaseModel):
     amount: float
     account_id: UUID

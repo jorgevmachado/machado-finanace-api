@@ -56,32 +56,37 @@ def finance_service(session: Session) -> FinanceService:
 Service = Annotated[FinanceService, Depends(finance_service)]
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
+
 def finance_filter(
     year: int | None = None,
     clean_cache: bool = False,
     with_deleted: bool = False,
 ) -> FilterPage:
     return FilterPage.build(
-        year=year,
-        clean_cache=clean_cache,
-        with_deleted=with_deleted
+        year=year, clean_cache=clean_cache, with_deleted=with_deleted
     )
 
+
 @router.post("", response_model=FinanceSchema, status_code=HTTPStatus.CREATED)
-async def create(service: Service, current_user: CurrentUser, payloads: list[FinanceCreateSchema]):
+async def create(
+    service: Service, current_user: CurrentUser, payloads: list[FinanceCreateSchema]
+):
     finance = validate_finance(current_user.finance)
     return await service.create(
         finance=finance,
         payloads=payloads,
     )
 
+
 @router.get("", response_model=FinanceSchema, status_code=HTTPStatus.OK)
 async def find_by_user(
-        service: Service,
-        current_user: CurrentUser,
-        page_filter: Annotated[FilterPage, Depends(finance_filter)] = None
+    service: Service,
+    current_user: CurrentUser,
+    page_filter: Annotated[FilterPage, Depends(finance_filter)] = None,
 ):
-    return await service.find_by_user(current_user=current_user, page_filter=page_filter)
+    return await service.find_by_user(
+        current_user=current_user, page_filter=page_filter
+    )
 
 
 @router.post(

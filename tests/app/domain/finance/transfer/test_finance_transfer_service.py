@@ -18,9 +18,11 @@ from app.domain.finance.transfer.service import (
 )
 from app.models import utcnow
 
+
 @pytest.fixture
 def transfer_repository_mock() -> AsyncMock:
     return AsyncMock()
+
 
 class TestFinanceTransferServiceFromSession:
     @staticmethod
@@ -28,7 +30,8 @@ class TestFinanceTransferServiceFromSession:
     async def test_from_session_builds_service() -> None:
         service = TransferService.from_session(AsyncMock())
         assert isinstance(service, TransferService)
-        
+
+
 class TestFinanceTransferCreateService:
     @staticmethod
     @pytest.mark.asyncio
@@ -76,7 +79,10 @@ class TestFinanceTransferCreateService:
             await service.create(finance=finance, payload=payload)
 
         assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
-        assert exc_info.value.detail == f"To Account with this id {payload.to_account_id} does not exist"
+        assert (
+            exc_info.value.detail
+            == f"To Account with this id {payload.to_account_id} does not exist"
+        )
 
     @staticmethod
     @pytest.mark.asyncio
@@ -145,6 +151,7 @@ class TestFinanceTransferCreateService:
         result = await service.create(finance=finance, payload=payload)
         assert result == expected
 
+
 class TestFinanceTransfer_PesistService:
     @staticmethod
     @pytest.mark.asyncio
@@ -156,7 +163,7 @@ class TestFinanceTransfer_PesistService:
 
         finance = SimpleNamespace(id=uuid4())
         to_account = SimpleNamespace(id=uuid4())
-        from_account = SimpleNamespace(id=uuid4())        
+        from_account = SimpleNamespace(id=uuid4())
 
         payload = PayloadTransferCreateSchema(
             amount=150.0,
@@ -226,7 +233,7 @@ class TestFinanceTransfer_PesistService:
         # Mock save to return expense as-is
         def save_side_effect(entity):
             return entity
-                    
+
         transfer_repository_mock.save.side_effect = save_side_effect
 
         result_jan = await service._persist(

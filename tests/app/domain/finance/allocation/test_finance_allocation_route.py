@@ -75,6 +75,7 @@ async def test_finance_allocation_route_create() -> None:
         finance=current_user.finance, payload=payload
     )
 
+
 @pytest.mark.asyncio
 async def test_finance_allocation_route_list_all_paginate_and_filter() -> None:
     service = AsyncMock()

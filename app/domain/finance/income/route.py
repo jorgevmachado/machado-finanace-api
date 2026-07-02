@@ -15,7 +15,7 @@ from app.domain.finance.income.repository import IncomeRepository
 from app.domain.finance.income.schema import (
     IncomeSchema,
     PayloadIncomeCreateSchema,
-    PayloadIncomeUpdateSchema
+    PayloadIncomeUpdateSchema,
 )
 from app.domain.finance.income.service import IncomeService
 from app.models import User

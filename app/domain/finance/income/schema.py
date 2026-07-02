@@ -2,6 +2,7 @@ from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from datetime import datetime, date
 
+
 class PayloadIncomeCreateSchema(BaseModel):
     source: str
     amount: float

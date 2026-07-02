@@ -10,10 +10,9 @@ from uuid import uuid4
 import pytest
 from fastapi import HTTPException
 
-from app.domain.finance.income.schema import (
-    PayloadIncomeCreateSchema
-)
-from app.domain.finance.schema import FinanceCreateIncomeSchema, FinanceCreateMonthSchema
+from app.domain.finance.expense_month.schema import PayloadExpenseMonthPersistSchema
+from app.domain.finance.income.schema import PayloadIncomeCreateSchema
+from app.domain.finance.schema import FinanceCreateIncomeSchema
 from app.domain.finance.income.service import IncomeService
 from app.models import utcnow
 
@@ -22,12 +21,14 @@ from app.models import utcnow
 def income_repository_mock() -> AsyncMock:
     return AsyncMock()
 
+
 class TestFinanceIncomeServiceFromSession:
     @staticmethod
     @pytest.mark.asyncio
     async def test_from_session_builds_service() -> None:
         service = IncomeService.from_session(AsyncMock())
         assert isinstance(service, IncomeService)
+
 
 class TestFinanceIncomeCreateService:
     @staticmethod
@@ -46,9 +47,7 @@ class TestFinanceIncomeCreateService:
             reference_year=year,
             reference_month=1,
         )
-        finance = SimpleNamespace(
-            id=uuid4()
-        )
+        finance = SimpleNamespace(id=uuid4())
 
         service = IncomeService(repository=income_repository_mock)
 
@@ -211,6 +210,7 @@ class TestFinanceIncomeCreateService:
 
         assert result == expected
 
+
 class TestFinanceIncomePersistService:
     @staticmethod
     @pytest.mark.asyncio
@@ -255,6 +255,7 @@ class TestFinanceIncomePersistService:
 
         assert result == expected
 
+
 class TestFinanceIncomeCreateByAccountService:
     @staticmethod
     @pytest.mark.asyncio
@@ -268,15 +269,15 @@ class TestFinanceIncomeCreateByAccountService:
             FinanceCreateIncomeSchema(
                 source="Salario",
                 months=[
-                    FinanceCreateMonthSchema(
+                    PayloadExpenseMonthPersistSchema(
                         amount=100.0,
                         reference_month=1,
                     ),
-                    FinanceCreateMonthSchema(
+                    PayloadExpenseMonthPersistSchema(
                         amount=200.0,
                         reference_month=1,
                     ),
-                    FinanceCreateMonthSchema(
+                    PayloadExpenseMonthPersistSchema(
                         amount=50.0,
                         reference_day=12,
                         reference_month=2,

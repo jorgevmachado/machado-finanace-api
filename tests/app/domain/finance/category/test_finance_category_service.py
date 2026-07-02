@@ -33,7 +33,9 @@ class TestFinanceCategoryServiceFromSession:
 class TestFinanceCategoryPersistService:
     @staticmethod
     @pytest.mark.asyncio
-    async def test_persist_raises_when_category_exists(category_repository_mock: AsyncMock):
+    async def test_persist_raises_when_category_exists(
+        category_repository_mock: AsyncMock,
+    ):
         payload = PayloadCategoryCreateSchema(
             name="Test Category",
             type=CategoryTypeEnum.OTHER,
@@ -67,7 +69,9 @@ class TestFinanceCategoryPersistService:
         service = CategoryService(repository=category_repository_mock)
         service.find_by = AsyncMock(return_value=existing)
 
-        result = await service.persist(finance=finance, payload=payload, with_throw=False)
+        result = await service.persist(
+            finance=finance, payload=payload, with_throw=False
+        )
 
         assert result is existing
         category_repository_mock.save.assert_not_awaited()
@@ -107,7 +111,9 @@ class TestFinanceCategoryPersistService:
         payload = PayloadCategoryCreateListSchema(categories=[])
 
         with pytest.raises(HTTPException) as exc_info:
-            await service.create_list(finance=SimpleNamespace(id=uuid4()), payload=payload)
+            await service.create_list(
+                finance=SimpleNamespace(id=uuid4()), payload=payload
+            )
 
         assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
         assert exc_info.value.detail == "Categories list cannot be empty"

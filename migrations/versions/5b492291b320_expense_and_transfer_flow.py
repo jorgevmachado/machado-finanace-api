@@ -5,6 +5,7 @@ Revises: 86e5c676f9d7
 Create Date: 2026-06-28 12:38:48.582309
 
 """
+
 from typing import Sequence, Union
 
 from alembic import op
@@ -12,8 +13,8 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = '5b492291b320'
-down_revision: Union[str, Sequence[str], None] = '86e5c676f9d7'
+revision: str = "5b492291b320"
+down_revision: Union[str, Sequence[str], None] = "86e5c676f9d7"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -28,46 +29,79 @@ def upgrade() -> None:
                                         WHEN duplicate_object THEN null;
                                     END $$;
                                 """)
-    op.create_table('expenses',
-    sa.Column('finance_id', sa.Uuid(), nullable=False),
-    sa.Column('account_id', sa.Uuid(), nullable=False),
-    sa.Column('allocation_id', sa.Uuid(), nullable=False),
-    sa.Column('category_id', sa.Uuid(), nullable=False),
-    sa.Column('description', sa.Text(), nullable=False),
-    sa.Column('status', postgresql.ENUM('PAID', 'PENDING', 'CANCELLED', name='expensestatusenum', create_type=False), nullable=False),
-    sa.Column('amount', sa.Numeric(precision=12, scale=2), nullable=False),
-    sa.Column('paid_at', sa.DateTime(timezone=True), nullable=True),
-    sa.Column('id', sa.Uuid(), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
-    sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True),
-    sa.ForeignKeyConstraint(['account_id'], ['accounts.id'], ),
-    sa.ForeignKeyConstraint(['allocation_id'], ['allocations.id'], ),
-    sa.ForeignKeyConstraint(['category_id'], ['categories.id'], ),
-    sa.ForeignKeyConstraint(['finance_id'], ['finances.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    op.create_table(
+        "expenses",
+        sa.Column("finance_id", sa.Uuid(), nullable=False),
+        sa.Column("account_id", sa.Uuid(), nullable=False),
+        sa.Column("allocation_id", sa.Uuid(), nullable=False),
+        sa.Column("category_id", sa.Uuid(), nullable=False),
+        sa.Column("description", sa.Text(), nullable=False),
+        sa.Column(
+            "status",
+            postgresql.ENUM(
+                "PAID",
+                "PENDING",
+                "CANCELLED",
+                name="expensestatusenum",
+                create_type=False,
+            ),
+            nullable=False,
+        ),
+        sa.Column("amount", sa.Numeric(precision=12, scale=2), nullable=False),
+        sa.Column("paid_at", sa.DateTime(timezone=True), nullable=True),
+        sa.Column("id", sa.Uuid(), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+        sa.Column("deleted_at", sa.DateTime(timezone=True), nullable=True),
+        sa.ForeignKeyConstraint(
+            ["account_id"],
+            ["accounts.id"],
+        ),
+        sa.ForeignKeyConstraint(
+            ["allocation_id"],
+            ["allocations.id"],
+        ),
+        sa.ForeignKeyConstraint(
+            ["category_id"],
+            ["categories.id"],
+        ),
+        sa.ForeignKeyConstraint(
+            ["finance_id"],
+            ["finances.id"],
+        ),
+        sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index("expenses_finance_id_idx","expenses",["finance_id"])
-    op.create_index("expenses_account_id_idx","expenses",["account_id"])
-    op.create_index("expenses_allocation_id_idx","expenses",["allocation_id"])
-    op.create_index("expenses_category_id_idx","expenses",["category_id"])    
-    op.create_index("idx_expenses_status","expenses",["status"])
-    
-    op.create_table('transfers',
-    sa.Column('finance_id', sa.Uuid(), nullable=False),
-    sa.Column('to_account_id', sa.Uuid(), nullable=False),
-    sa.Column('from_account_id', sa.Uuid(), nullable=False),
-    sa.Column('description', sa.Text(), nullable=False),
-    sa.Column('transfer_date', sa.Date(), nullable=False),
-    sa.Column('amount', sa.Numeric(precision=12, scale=2), nullable=False),
-    sa.Column('id', sa.Uuid(), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
-    sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True),
-    sa.ForeignKeyConstraint(['finance_id'], ['finances.id'], ),
-    sa.ForeignKeyConstraint(['from_account_id'], ['accounts.id'], ),
-    sa.ForeignKeyConstraint(['to_account_id'], ['accounts.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    op.create_index("expenses_finance_id_idx", "expenses", ["finance_id"])
+    op.create_index("expenses_account_id_idx", "expenses", ["account_id"])
+    op.create_index("expenses_allocation_id_idx", "expenses", ["allocation_id"])
+    op.create_index("expenses_category_id_idx", "expenses", ["category_id"])
+    op.create_index("idx_expenses_status", "expenses", ["status"])
+
+    op.create_table(
+        "transfers",
+        sa.Column("finance_id", sa.Uuid(), nullable=False),
+        sa.Column("to_account_id", sa.Uuid(), nullable=False),
+        sa.Column("from_account_id", sa.Uuid(), nullable=False),
+        sa.Column("description", sa.Text(), nullable=False),
+        sa.Column("transfer_date", sa.Date(), nullable=False),
+        sa.Column("amount", sa.Numeric(precision=12, scale=2), nullable=False),
+        sa.Column("id", sa.Uuid(), nullable=False),
+        sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),
+        sa.Column("deleted_at", sa.DateTime(timezone=True), nullable=True),
+        sa.ForeignKeyConstraint(
+            ["finance_id"],
+            ["finances.id"],
+        ),
+        sa.ForeignKeyConstraint(
+            ["from_account_id"],
+            ["accounts.id"],
+        ),
+        sa.ForeignKeyConstraint(
+            ["to_account_id"],
+            ["accounts.id"],
+        ),
+        sa.PrimaryKeyConstraint("id"),
     )
     op.create_index("transfers_finance_id_idx", "transfers", ["finance_id"])
     op.create_index("transfers_to_account_id_idx", "transfers", ["to_account_id"])
@@ -88,6 +122,6 @@ def downgrade() -> None:
     op.drop_index(op.f("expenses_allocation_id_idx"), table_name="transactions")
     op.drop_index(op.f("expenses_account_id_idx"), table_name="transactions")
     op.drop_index(op.f("expenses_finance_id_idx"), table_name="transactions")
-    op.drop_table('expenses')
+    op.drop_table("expenses")
     op.execute("DROP TYPE IF EXISTS expensestatusenum")
     # ### end Alembic commands ###

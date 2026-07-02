@@ -134,7 +134,10 @@ async def create_list(
     finance = validate_finance(current_user.finance)
     return await service.create_list(finance=finance, payload=payload)
 
-@router.get("/{param}/recalculate", response_model=AccountSchema, status_code=HTTPStatus.OK)
+
+@router.get(
+    "/{param}/recalculate", response_model=AccountSchema, status_code=HTTPStatus.OK
+)
 async def recalculate(
     param: str,
     service: Service,

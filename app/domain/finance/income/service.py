@@ -62,9 +62,7 @@ class IncomeService(BaseService[IncomeRepository, Income]):
 
         return await self._persist(payload, account, finance)
 
-    async def _validate_relations(
-        self, account_id: UUID, finance: Finance
-    ):
+    async def _validate_relations(self, account_id: UUID, finance: Finance):
         account = await self.account_service.find_by(
             id=account_id, finance_id=finance.id, without_throw=True
         )
@@ -124,12 +122,12 @@ class IncomeService(BaseService[IncomeRepository, Income]):
             )
 
     async def create_by_account(
-            self,
-            finance: Finance,
-            account: Account,
-            reference_day: int,
-            reference_year: int,
-            payload_incomes: list[FinanceCreateIncomeSchema]
+        self,
+        finance: Finance,
+        account: Account,
+        reference_day: int,
+        reference_year: int,
+        payload_incomes: list[FinanceCreateIncomeSchema],
     ) -> list[Income]:
         incomes: list[Income] = []
         if len(payload_incomes) > 0:

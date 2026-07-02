@@ -1,21 +1,21 @@
 from __future__ import annotations
 
 from datetime import datetime
-from decimal import Decimal
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
-from sqlalchemy import DateTime, ForeignKey, Enum as SAEnum, Text, Numeric
+from sqlalchemy import DateTime, ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import default_lazy, table_registry
-from app.models import utcnow, ExpenseStatusEnum
+from app.models import utcnow
 
 if TYPE_CHECKING:
     from app.models.finance import Finance
     from app.models.account import Account
     from app.models.allocation import Allocation
     from app.models.category import Category
+    from app.models.expense_month import ExpenseMonth
 
 
 @table_registry.mapped_as_dataclass
@@ -58,23 +58,15 @@ class Expense:
         back_populates="expenses",
     )
 
+    months: Mapped[list["ExpenseMonth"]] = relationship(
+        lazy=default_lazy,
+        default_factory=list,
+        init=False,
+        repr=False,
+        back_populates="expense",
+    )
+
     description: Mapped[str] = mapped_column(Text, nullable=False)
-
-    status: Mapped[ExpenseStatusEnum] = mapped_column(  # noqa: F821
-        SAEnum(ExpenseStatusEnum, name="expensestatusenum"),
-        nullable=False,
-        default=ExpenseStatusEnum.PAID,
-    )
-
-    amount: Mapped[Decimal] = mapped_column(
-        Numeric(12, 2),
-        nullable=False,
-        default=Decimal("0.00"),
-    )
-
-    paid_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True, default=None
-    )
 
     # Auto-generated / server-managed — excluded from __init__
     id: Mapped[UUID] = mapped_column(

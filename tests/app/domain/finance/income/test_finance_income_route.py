@@ -14,11 +14,11 @@ from app.domain.finance.income.route import (
     list_all,
     find_one,
     update,
-    delete
+    delete,
 )
 from app.domain.finance.income.schema import (
     PayloadIncomeCreateSchema,
-    PayloadIncomeUpdateSchema
+    PayloadIncomeUpdateSchema,
 )
 from app.domain.finance.income.service import IncomeService
 from app.shared.schemas import FilterPage
@@ -79,12 +79,16 @@ async def test_finance_income_route_create() -> None:
         received_at=date(2026, 1, 1),
     )
     service.create.return_value = expected
-    current_user = SimpleNamespace(id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id"))
+    current_user = SimpleNamespace(
+        id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
+    )
 
     result = await create(service=service, current_user=current_user, payload=payload)
 
     assert result is expected
-    service.create.assert_awaited_once_with(finance=current_user.finance, payload=payload)
+    service.create.assert_awaited_once_with(
+        finance=current_user.finance, payload=payload
+    )
 
 
 @pytest.mark.asyncio

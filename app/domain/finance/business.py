@@ -1,10 +1,10 @@
-from app.domain.finance.schema import FinanceCreateMonthSchema
+from app.domain.finance.expense_month.schema import PayloadExpenseMonthPersistSchema
 
 
 def merge_months_by_reference_month(
-    months: list[FinanceCreateMonthSchema],
-) -> list[FinanceCreateMonthSchema]:
-    merged_months: dict[int, FinanceCreateMonthSchema] = {}
+    months: list[PayloadExpenseMonthPersistSchema],
+) -> list[PayloadExpenseMonthPersistSchema]:
+    merged_months: dict[int, PayloadExpenseMonthPersistSchema] = {}
     for month in months:
         reference_month = month.reference_month
         merged_month = merged_months.get(reference_month)
@@ -21,9 +21,7 @@ def merge_months_by_reference_month(
 def has_yearly_data(finance) -> bool:
     incomes = getattr(finance, "incomes", []) or []
     expenses = getattr(finance, "expenses", []) or []
-    allocation_contributions = (
-        getattr(finance, "allocation_contributions", []) or []
-    )
+    allocation_contributions = getattr(finance, "allocation_contributions", []) or []
     allocations = getattr(finance, "allocations", []) or []
     return any(
         [

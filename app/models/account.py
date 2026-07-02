@@ -78,7 +78,7 @@ class Account:
         repr=False,
         back_populates="account",
     )
-    
+
     incoming_transfers: Mapped[list["Transfer"]] = relationship(
         lazy=default_lazy,
         default_factory=list,

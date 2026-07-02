@@ -19,6 +19,7 @@ def test_finance_builds_service() -> None:
     service = finance_service(AsyncMock())
     assert isinstance(service, FinanceService)
 
+
 def test_get_finance_filter_builds_dynamic_filter():
     page_filter = finance_filter(
         year=2026,
@@ -28,6 +29,7 @@ def test_get_finance_filter_builds_dynamic_filter():
     assert page_filter.year == 2026
     assert page_filter.clean_cache is True
     assert page_filter.with_deleted is False
+
 
 @pytest.mark.asyncio
 async def test_finance_route_onboarding() -> None:

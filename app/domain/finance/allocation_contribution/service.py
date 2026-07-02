@@ -142,12 +142,12 @@ class AllocationContributionService(
         return account, allocation
 
     async def create_by_account(
-            self,
-            finance: Finance,
-            account: Account,
-            allocation: Allocation,
-            reference_year: int,
-            payload_allocation_contributions: list[FinanceCreateContributionsSchema]
+        self,
+        finance: Finance,
+        account: Account,
+        allocation: Allocation,
+        reference_year: int,
+        payload_allocation_contributions: list[FinanceCreateContributionsSchema],
     ) -> list[AllocationContribution]:
         allocation_contributions: list[AllocationContribution] = []
         if len(payload_allocation_contributions) > 0:
@@ -177,5 +177,5 @@ class AllocationContributionService(
                             with_throw=False,
                         )
                         allocation_contributions.append(allocation_contribution)
-        
+
         return allocation_contributions

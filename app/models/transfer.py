@@ -28,7 +28,9 @@ class Transfer:
         back_populates="transfers",
     )
 
-    to_account_id: Mapped[UUID] = mapped_column(ForeignKey("accounts.id"), nullable=False)
+    to_account_id: Mapped[UUID] = mapped_column(
+        ForeignKey("accounts.id"), nullable=False
+    )
 
     to_account: Mapped["Account"] = relationship(
         init=False,

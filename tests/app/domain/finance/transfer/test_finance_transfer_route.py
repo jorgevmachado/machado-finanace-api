@@ -42,18 +42,18 @@ def test_get_transfer_filter_builds_dynamic_filter():
         limit=12,
         transfer_date=transfer_date,
         to_account_id=str(to_account_id),
-        from_account_id=str(from_account_id),    
+        from_account_id=str(from_account_id),
         clean_cache=True,
-        with_deleted=False,        
+        with_deleted=False,
     )
 
     assert page_filter.page == 1
-    assert page_filter.limit == 12    
-    assert page_filter.transfer_date == transfer_date    
+    assert page_filter.limit == 12
+    assert page_filter.transfer_date == transfer_date
     assert page_filter.to_account_id == str(to_account_id)
     assert page_filter.from_account_id == str(from_account_id)
     assert page_filter.clean_cache
-    assert not page_filter.with_deleted    
+    assert not page_filter.with_deleted
 
 
 @pytest.mark.asyncio
@@ -69,19 +69,23 @@ async def test_finance_transfer_route_create() -> None:
     )
     expected = SimpleNamespace(
         id=uuid4(),
-        amount=payload.amount,    
+        amount=payload.amount,
         description=payload.description,
         transfer_date=payload.transfer_date,
         to_account_id=payload.to_account_id,
         from_account_id=payload.from_account_id,
     )
     service.create.return_value = expected
-    current_user = SimpleNamespace(id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id"))
+    current_user = SimpleNamespace(
+        id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
+    )
 
     result = await create(service=service, current_user=current_user, payload=payload)
 
     assert result is expected
-    service.create.assert_awaited_once_with(finance=current_user.finance, payload=payload)
+    service.create.assert_awaited_once_with(
+        finance=current_user.finance, payload=payload
+    )
 
 
 @pytest.mark.asyncio

@@ -17,7 +17,6 @@ from app.domain.finance.transfer.repository import (
 from app.domain.finance.transfer.schema import (
     TransferSchema,
     PayloadTransferCreateSchema,
-
 )
 
 from app.models import Transfer, Finance, Account
@@ -29,7 +28,7 @@ class TransferService(BaseService[TransferRepository, Transfer]):
     def __init__(
         self,
         repository: TransferRepository,
-        account_service: AccountService | None = None,        
+        account_service: AccountService | None = None,
     ) -> None:
         super().__init__(
             alias="Transfer",
@@ -43,7 +42,7 @@ class TransferService(BaseService[TransferRepository, Transfer]):
             cache_prefix="transfer",
         )
         session = repository.session
-        self.account_service = account_service or AccountService.from_session(session)        
+        self.account_service = account_service or AccountService.from_session(session)
 
     @classmethod
     def from_session(cls, session: AsyncSession):
@@ -55,16 +54,16 @@ class TransferService(BaseService[TransferRepository, Transfer]):
 
         to_account, from_account = await self._validate_relations(
             finance=finance,
-            to_account_id=payload.to_account_id,            
-            from_account_id=payload.from_account_id,            
+            to_account_id=payload.to_account_id,
+            from_account_id=payload.from_account_id,
         )
-        
+
         return await self._persist(
             finance=finance,
             to_account=to_account,
-            from_account=from_account,            
+            from_account=from_account,
             payload=payload,
-            with_throw=True
+            with_throw=True,
         )
 
     async def _validate_relations(
@@ -92,19 +91,19 @@ class TransferService(BaseService[TransferRepository, Transfer]):
             )
 
         return to_account, from_account
-    
+
     async def _persist(
-            self,
-            finance: Finance,
-            to_account: Account,
-            from_account: Account,                        
-            payload: PayloadTransferCreateSchema,
-            with_throw: bool = True,
+        self,
+        finance: Finance,
+        to_account: Account,
+        from_account: Account,
+        payload: PayloadTransferCreateSchema,
+        with_throw: bool = True,
     ) -> Transfer:
         transfer = await self.find_by(
             finance_id=finance.id,
             to_account_id=to_account.id,
-            from_account_id=from_account.id,            
+            from_account_id=from_account.id,
             transfer_date=payload.transfer_date,
             without_throw=True,
         )
@@ -119,8 +118,8 @@ class TransferService(BaseService[TransferRepository, Transfer]):
                 transfer.description = payload.description
                 transfer.transfer_date = payload.transfer_date
                 return await self.repository.update(entity=transfer)
-            
-        else:            
+
+        else:
             return await self.repository.save(
                 entity=Transfer(
                     amount=payload.amount,

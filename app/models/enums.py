@@ -40,7 +40,7 @@ class CategoryTypeEnum(str, Enum):
     GOVERNMENT_FEES = "GOVERNMENT_FEES"
 
 
-class ExpenseStatusEnum(str, Enum):
+class MonthStatusEnum(str, Enum):
     PAID = "PAID"
     PENDING = "PENDING"
     CANCELLED = "CANCELLED"
