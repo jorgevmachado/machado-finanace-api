@@ -185,7 +185,7 @@ class FinanceService(BaseService[FinanceRepository, Finance]):
                     finance=finance,
                     account=account,
                     allocation=allocation,
+                    reference_day=reference_day,
                     reference_year=reference_year,
-                    payload_allocation_contributions=payload_allocation.contributions
-                    or [],
+                    payload_allocation_contributions=payload_allocation.contributions or [],
                 )

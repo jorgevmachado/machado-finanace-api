@@ -50,7 +50,9 @@ class TestAuthRoutes:
         mock_service.register.assert_awaited_once_with(register_schema)
 
     @pytest.mark.asyncio
-    async def test_register_route_returns_user_response(self, mock_service, register_schema):
+    async def test_register_route_returns_user_response(
+        self, mock_service, register_schema
+    ):
         created_user = SimpleNamespace(
             id=uuid4(),
             name=register_schema.name,

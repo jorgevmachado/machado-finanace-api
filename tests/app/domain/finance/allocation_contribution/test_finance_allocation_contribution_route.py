@@ -61,18 +61,18 @@ def test_get_allocation_contribution_filter_builds_dynamic_filter():
 async def test_finance_allocation_contribution_route_create() -> None:
     service = AsyncMock()
     payload = PayloadAllocationContributionCreateSchema(
-        contributor_name="Contributor Name",
-        amount=100.0,
+        months=[],
         account_id=uuid4(),
-        allocation_id=uuid4(),
         description="Some Description",
+        allocation_id=uuid4(),
+        reference_day=10,
         reference_year=utcnow().year,
         reference_month=1,
+        contributor_name="Contributor Name",
     )
     expected = SimpleNamespace(
         id=uuid4(),
-        contributor_name=payload.contributor_name,
-        amount=payload.amount,
+        contributor_name=payload.contributor_name,        
         account_id=payload.account_id,
         allocation_id=payload.allocation_id,
         description=payload.description,
@@ -162,13 +162,12 @@ async def test_finance_allocation_contribution_route_update() -> None:
     service = AsyncMock()
     expected = SimpleNamespace(
         id=uuid4(),
-        contributor_name="Contributor Name",
-        amount=100.0,
         account_id=uuid4(),
-        allocation_id=uuid4(),
         description="Some Description",
+        allocation_id=uuid4(),
         reference_year=utcnow().year,
         reference_month=1,
+        contributor_name="Contributor Name",
     )
     service.update.return_value = expected
     current_user = SimpleNamespace(

@@ -33,7 +33,9 @@ def expense():
 
 class TestExpenseMonthServicePersistList:
     @pytest.mark.asyncio
-    async def test_persist_list_fills_missing_months(self, expense_month_service, expense):
+    async def test_persist_list_fills_missing_months(
+        self, expense_month_service, expense
+    ):
         payload = [
             PayloadExpenseMonthPersistSchema(
                 reference_month=1,
@@ -62,7 +64,9 @@ class TestExpenseMonthServicePersistList:
             assert mock_persist.call_count == 12
 
     @pytest.mark.asyncio
-    async def test_persist_list_all_months_provided(self, expense_month_service, expense):
+    async def test_persist_list_all_months_provided(
+        self, expense_month_service, expense
+    ):
         payload = [
             PayloadExpenseMonthPersistSchema(
                 reference_month=i,
@@ -141,7 +145,9 @@ class TestExpenseMonthServicePersist:
             assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
 
     @pytest.mark.asyncio
-    async def test_persist_existing_without_throw_updates(self, expense_month_service, expense):
+    async def test_persist_existing_without_throw_updates(
+        self, expense_month_service, expense
+    ):
         payload = PayloadExpenseMonthPersistSchema(
             reference_month=1,
             amount=Decimal("100.00"),
@@ -170,7 +176,9 @@ class TestExpenseMonthServicePersist:
                 assert result.id == "test-month-id"
 
     @pytest.mark.asyncio
-    async def test_persist_with_reference_year_fallback(self, expense_month_service, expense):
+    async def test_persist_with_reference_year_fallback(
+        self, expense_month_service, expense
+    ):
         payload = PayloadExpenseMonthPersistSchema(
             reference_month=1,
             amount=Decimal("100.00"),

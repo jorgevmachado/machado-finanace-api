@@ -284,6 +284,7 @@ class TestFinanceCreateService:
             finance=finance,
             account=account,
             allocation=allocation,
+            reference_day=5,
             reference_year=2026,
             payload_allocation_contributions=payload_allocation.contributions,
         )

@@ -1,4 +1,5 @@
 import calendar
+from datetime import date
 
 
 def generate_description(
@@ -36,3 +37,15 @@ def get_valid_day(year: int, month: int, day: int | None = None) -> int:
         return first_day
 
     return day
+
+
+def validate_received_at(
+    day: int, year: int, month: int, received_at: date | None = None
+) -> date:
+    if received_at is not None:
+        return received_at
+    return date(year, month, day)
+
+
+def get_received_at(year: int, month: int, day: int):
+    return date(year, month, day)

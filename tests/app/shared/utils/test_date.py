@@ -1,9 +1,13 @@
+from datetime import date
+
 import pytest
 
 from app.shared.utils.date import (
     generate_description,
     get_month_name,
     get_valid_day,
+    validate_received_at,
+    get_received_at,
 )
 
 
@@ -89,3 +93,39 @@ class TestFinanceIncomeGetValidDayBusiness:
         day = 3
         result = get_valid_day(year, month, day)
         assert result == 3
+
+
+class TestFinanceValidateReceivedAtBusiness:
+    @staticmethod
+    def test_income_business_validate_received_at():
+
+        valid_date = date(2026, 7, 20)
+        result = validate_received_at(
+            year=2026, day=20, month=7, received_at=valid_date
+        )
+        assert result == valid_date
+
+    @staticmethod
+    def test_income_business_validate_received_at_with_none():
+        result = validate_received_at(year=2026, day=20, month=7, received_at=None)
+        assert result == date(2026, 7, 20)
+
+
+class TestFinanceGetReceivedAtBusiness:
+    @staticmethod
+    def test_get_received_at_returns_correct_date():
+        result = get_received_at(year=2026, month=1, day=15)
+        assert result == date(2026, 1, 15)
+
+    @staticmethod
+    def test_get_received_at_with_different_dates():
+        result = get_received_at(year=2025, month=12, day=31)
+        assert result == date(2025, 12, 31)
+        assert result.year == 2025
+        assert result.month == 12
+        assert result.day == 31
+
+    @staticmethod
+    def test_get_received_at_february():
+        result = get_received_at(year=2024, month=2, day=29)
+        assert result == date(2024, 2, 29)

@@ -18,6 +18,7 @@ from app.models.expense import Expense
 from app.models.transfer import Transfer
 from app.models.expense_month import ExpenseMonth
 from app.models.income_month import IncomeMonth
+from app.models.allocation_contribution_month import AllocationContributionMonth
 
 __all__ = [
     "User",
@@ -31,6 +32,7 @@ __all__ = [
     "Transfer",
     "ExpenseMonth",
     "IncomeMonth",
+    "AllocationContributionMonth",
     "RoleEnum",
     "StatusEnum",
     "AccountTypeEnum",

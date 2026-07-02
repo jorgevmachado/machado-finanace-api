@@ -92,7 +92,13 @@ def expense(account, category, allocation):
 class TestExpenseServiceCreate:
     @pytest.mark.asyncio
     async def test_create_expense_success(
-        self, expense_service_with_mocks, finance, account, category, allocation, expense
+        self,
+        expense_service_with_mocks,
+        finance,
+        account,
+        category,
+        allocation,
+        expense,
     ):
         payload = PayloadExpenseCreateSchema(
             account_id=account.id,
@@ -217,7 +223,13 @@ class TestExpenseServiceValidateCategory:
 class TestExpenseServicePersist:
     @pytest.mark.asyncio
     async def test_persist_new_expense_success(
-        self, expense_service_with_mocks, finance, account, category, allocation, expense
+        self,
+        expense_service_with_mocks,
+        finance,
+        account,
+        category,
+        allocation,
+        expense,
     ):
         payload = PayloadExpenseCreateSchema(
             account_id=account.id,
@@ -250,7 +262,13 @@ class TestExpenseServicePersist:
 
     @pytest.mark.asyncio
     async def test_persist_existing_expense_with_throw(
-        self, expense_service_with_mocks, finance, account, category, allocation, expense
+        self,
+        expense_service_with_mocks,
+        finance,
+        account,
+        category,
+        allocation,
+        expense,
     ):
         payload = PayloadExpenseCreateSchema(
             account_id=account.id,
@@ -281,7 +299,13 @@ class TestExpenseServicePersist:
 
     @pytest.mark.asyncio
     async def test_persist_existing_expense_without_throw(
-        self, expense_service_with_mocks, finance, account, category, allocation, expense
+        self,
+        expense_service_with_mocks,
+        finance,
+        account,
+        category,
+        allocation,
+        expense,
     ):
         payload = PayloadExpenseCreateSchema(
             account_id=account.id,
@@ -319,7 +343,13 @@ class TestExpenseServicePersist:
 class TestExpenseServiceCreateByAccount:
     @pytest.mark.asyncio
     async def test_create_by_account_success(
-        self, expense_service_with_mocks, finance, account, allocation, category, expense
+        self,
+        expense_service_with_mocks,
+        finance,
+        account,
+        allocation,
+        category,
+        expense,
     ):
         payload_categories = [
             FinanceCreateCategorySchema(

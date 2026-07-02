@@ -15,6 +15,7 @@ from app.models import (
     Finance,
     Income,
     IncomeMonth,
+    AllocationContributionMonth,
 )
 
 
@@ -28,10 +29,7 @@ class FinanceRepository(BaseRepository[Finance]):
         with_deleted: bool = False,
     ) -> Finance | None:
         income_month_year_predicate = IncomeMonth.reference_year == reference_year
-        contribution_year_predicate = (
-            AllocationContribution.reference_year == reference_year
-        )
-        # Now checking ExpenseMonth instead of Expense
+        contribution_year_predicate = AllocationContributionMonth.reference_year == reference_year
         expense_year_predicate = ExpenseMonth.reference_year == reference_year
 
         if not with_deleted:

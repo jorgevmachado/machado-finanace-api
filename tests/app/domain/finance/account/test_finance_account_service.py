@@ -8,7 +8,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.finance.account.repository import AccountRepository
 from app.domain.finance.account.service import AccountService
-from app.domain.finance.account.schema import PayloadAccountCreateSchema, PayloadAccountCreateListSchema
+from app.domain.finance.account.schema import (
+    PayloadAccountCreateSchema,
+    PayloadAccountCreateListSchema,
+)
 from app.models import Account, Finance, AccountTypeEnum
 
 
@@ -53,7 +56,9 @@ class TestAccountServiceCreate:
             initial_balance=Decimal("1000.00"),
         )
 
-        with patch.object(account_service, "persist", new_callable=AsyncMock) as mock_persist:
+        with patch.object(
+            account_service, "persist", new_callable=AsyncMock
+        ) as mock_persist:
             mock_persist.return_value = account
             result = await account_service.create(finance=finance, payload=payload)
 
@@ -89,7 +94,9 @@ class TestAccountServiceCreateList:
             ]
         )
 
-        with patch.object(account_service, "persist", new_callable=AsyncMock) as mock_persist:
+        with patch.object(
+            account_service, "persist", new_callable=AsyncMock
+        ) as mock_persist:
             mock_persist.return_value = account
             result = await account_service.create_list(finance=finance, payload=payload)
 
@@ -99,30 +106,40 @@ class TestAccountServiceCreateList:
 
 class TestAccountServicePersist:
     @pytest.mark.asyncio
-    async def test_persist_existing_account_with_throw(self, account_service, finance, account):
+    async def test_persist_existing_account_with_throw(
+        self, account_service, finance, account
+    ):
         payload = PayloadAccountCreateSchema(
             name="Test Account",
             type=AccountTypeEnum.BANK,
             initial_balance=Decimal("1000.00"),
         )
 
-        with patch.object(account_service, "find_by", new_callable=AsyncMock) as mock_find:
+        with patch.object(
+            account_service, "find_by", new_callable=AsyncMock
+        ) as mock_find:
             mock_find.return_value = account
             with pytest.raises(HTTPException) as exc_info:
-                await account_service.persist(finance=finance, payload=payload, with_throw=True)
+                await account_service.persist(
+                    finance=finance, payload=payload, with_throw=True
+                )
 
             assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
             assert "already exists" in exc_info.value.detail
 
     @pytest.mark.asyncio
-    async def test_persist_existing_account_without_throw(self, account_service, finance, account):
+    async def test_persist_existing_account_without_throw(
+        self, account_service, finance, account
+    ):
         payload = PayloadAccountCreateSchema(
             name="Test Account",
             type=AccountTypeEnum.BANK,
             initial_balance=Decimal("1000.00"),
         )
 
-        with patch.object(account_service, "find_by", new_callable=AsyncMock) as mock_find:
+        with patch.object(
+            account_service, "find_by", new_callable=AsyncMock
+        ) as mock_find:
             mock_find.return_value = account
             result = await account_service.persist(
                 finance=finance, payload=payload, with_throw=False
@@ -138,7 +155,9 @@ class TestAccountServicePersist:
             initial_balance=Decimal("1000.00"),
         )
 
-        with patch.object(account_service, "find_by", new_callable=AsyncMock) as mock_find:
+        with patch.object(
+            account_service, "find_by", new_callable=AsyncMock
+        ) as mock_find:
             mock_find.return_value = None
             with patch.object(
                 account_service.repository, "save", new_callable=AsyncMock
@@ -164,9 +183,13 @@ class TestAccountServiceRecalculate:
         account_with_income.expenses = []
         account_with_income.initial_balance = Decimal("1000.00")
 
-        with patch.object(account_service, "find_one", new_callable=AsyncMock) as mock_find:
+        with patch.object(
+            account_service, "find_one", new_callable=AsyncMock
+        ) as mock_find:
             mock_find.return_value = account_with_income
-            with patch.object(account_service, "update_entity", new_callable=AsyncMock) as mock_update:
+            with patch.object(
+                account_service, "update_entity", new_callable=AsyncMock
+            ) as mock_update:
                 mock_update.return_value = account_with_income
                 result = await account_service.recalculate(
                     param="test-account-id", finance=finance
@@ -188,7 +211,9 @@ class TestAccountServiceRecalculate:
         account_no_changes.expenses = []
         account_no_changes.initial_balance = Decimal("1000.00")
 
-        with patch.object(account_service, "find_one", new_callable=AsyncMock) as mock_find:
+        with patch.object(
+            account_service, "find_one", new_callable=AsyncMock
+        ) as mock_find:
             mock_find.return_value = account_no_changes
             result = await account_service.recalculate(
                 param="test-account-id", finance=finance

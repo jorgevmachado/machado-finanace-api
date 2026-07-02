@@ -11,10 +11,10 @@ from app.core.logging import LoggingParams
 from app.core.service import BaseService
 from app.domain.finance.account.service import AccountService
 from app.domain.finance.business import merge_months_by_reference_month
-from app.domain.finance.income.business import get_received_at
 from app.domain.finance.income_month.schema import PayloadIncomeMonthPersistSchema
 from app.domain.finance.income_month.service import IncomeMonthService
 from app.domain.finance.schema import FinanceCreateIncomeSchema
+from app.shared.utils.date import get_received_at
 from app.shared.utils.validator import validate_year
 from app.domain.finance.income.repository import IncomeRepository
 from app.domain.finance.income.schema import (
@@ -46,7 +46,9 @@ class IncomeService(BaseService[IncomeRepository, Income]):
         )
         session = repository.session
         self.account_service = account_service or AccountService.from_session(session)
-        self.income_month_service = income_month_service or IncomeMonthService.from_session(session)
+        self.income_month_service = (
+            income_month_service or IncomeMonthService.from_session(session)
+        )
 
     @classmethod
     def from_session(cls, session: AsyncSession):
@@ -55,11 +57,12 @@ class IncomeService(BaseService[IncomeRepository, Income]):
     async def create(
         self, finance: Finance, payload: PayloadIncomeCreateSchema
     ) -> Income:
+
         account = await self._validate_relations(
             finance=finance, account_id=payload.account_id
         )
 
-        return await self._persist(payload, account, finance,True)
+        return await self._persist(payload, account, finance, True)
 
     async def _validate_relations(self, account_id: UUID, finance: Finance):
         account = await self.account_service.find_by(

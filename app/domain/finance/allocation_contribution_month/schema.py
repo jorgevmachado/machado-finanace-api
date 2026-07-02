@@ -1,9 +1,10 @@
-from pydantic import BaseModel, ConfigDict
+from datetime import date, datetime
 from uuid import UUID
-from datetime import datetime, date
+
+from pydantic import ConfigDict, BaseModel
 
 
-class PayloadIncomeMonthPersistSchema(BaseModel):
+class PayloadAllocationContributionMonthPersistSchema(BaseModel):
     id: UUID | None = None
     amount: float
     received_at: date | None = None
@@ -12,15 +13,14 @@ class PayloadIncomeMonthPersistSchema(BaseModel):
     reference_month: int
 
 
-class IncomeMonthSchema(BaseModel):
+class AllocationContributionMonthSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
     amount: float
-    income_id: UUID
-    received_at: date
     reference_year: int
     reference_month: int
+    allocation_contribution_id: UUID
     created_at: datetime
     updated_at: datetime | None = None
     deleted_at: datetime | None = None

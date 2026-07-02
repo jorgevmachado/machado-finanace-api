@@ -22,6 +22,10 @@ def income_month_service(mock_session):
     return IncomeMonthService(repository)
 
 
+# //continue extensão do vsCode
+# Deep Seek
+
+
 @pytest.fixture
 def income():
     income = MagicMock(spec=Income)
@@ -30,13 +34,10 @@ def income():
     return income
 
 
-
 class TestIncomeMonthServicePersistList:
     @pytest.mark.asyncio
     async def test_income_month_persist_list_fills_missing_months(
-        self,
-            income_month_service, 
-            income
+        self, income_month_service, income
     ):
         payload = [
             PayloadIncomeMonthPersistSchema(
@@ -56,10 +57,7 @@ class TestIncomeMonthServicePersistList:
         ) as mock_persist:
             mock_persist.return_value = MagicMock(spec=IncomeMonth)
             result = await income_month_service.persist_list(
-                income=income,
-                reference_day=10,
-                reference_year=2026,
-                payload=payload
+                income=income, reference_day=10, reference_year=2026, payload=payload
             )
 
             # Should have 12 months (original 2 + 10 missing)
@@ -68,9 +66,7 @@ class TestIncomeMonthServicePersistList:
 
     @pytest.mark.asyncio
     async def test_income_month_persist_list_all_months_provided(
-        self,
-            income_month_service,
-            income
+        self, income_month_service, income
     ):
         payload = [
             PayloadIncomeMonthPersistSchema(
@@ -86,37 +82,34 @@ class TestIncomeMonthServicePersistList:
         ) as mock_persist:
             mock_persist.return_value = MagicMock(spec=IncomeMonth)
             result = await income_month_service.persist_list(
-                income=income,
-                reference_day=10,
-                reference_year=2026,
-                payload=payload
+                income=income, reference_day=10, reference_year=2026, payload=payload
             )
 
             assert len(result) == 12
             assert mock_persist.call_count == 12
 
+
+class TestIncomeMonthServicePersist:
     @pytest.mark.asyncio
     async def test_income_month_persist_already_exists_with_throw(
-        self,
-        income_month_service,
-        income
+        self, income_month_service, income
     ):
         from http import HTTPStatus
         from fastapi import HTTPException
-        
+
         payload = PayloadIncomeMonthPersistSchema(
             reference_month=1,
             amount=100.00,
             received_at=None,
         )
-        
+
         existing_income_month = MagicMock(spec=IncomeMonth)
-        
+
         with patch.object(
             income_month_service, "find_by", new_callable=AsyncMock
         ) as mock_find:
             mock_find.return_value = existing_income_month
-            
+
             try:
                 await income_month_service.persist(
                     income=income,
@@ -132,19 +125,17 @@ class TestIncomeMonthServicePersistList:
 
     @pytest.mark.asyncio
     async def test_income_month_persist_already_exists_without_throw(
-        self,
-        income_month_service,
-        income
+        self, income_month_service, income
     ):
         payload = PayloadIncomeMonthPersistSchema(
             reference_month=1,
             amount=150.00,
             received_at=None,
         )
-        
+
         existing_income_month = MagicMock(spec=IncomeMonth)
         existing_income_month.id = "income-month-id"
-        
+
         with patch.object(
             income_month_service, "find_by", new_callable=AsyncMock
         ) as mock_find:
@@ -153,7 +144,7 @@ class TestIncomeMonthServicePersistList:
             ) as mock_update:
                 mock_find.return_value = existing_income_month
                 mock_update.return_value = existing_income_month
-                
+
                 result = await income_month_service.persist(
                     income=income,
                     payload=payload,
@@ -161,27 +152,23 @@ class TestIncomeMonthServicePersistList:
                     reference_day=10,
                     with_throw=False,
                 )
-                
+
                 assert result == existing_income_month
                 mock_update.assert_awaited_once()
 
     @pytest.mark.asyncio
-    async def test_income_month_persist_creates_new(
-        self,
-        income_month_service,
-        income
-    ):
+    async def test_income_month_persist_creates_new(self, income_month_service, income):
         from datetime import date
-        
+
         payload = PayloadIncomeMonthPersistSchema(
             reference_month=1,
             amount=200.00,
             received_at=date(2026, 1, 10),
         )
-        
+
         created_income_month = MagicMock(spec=IncomeMonth)
         created_income_month.id = "new-income-month-id"
-        
+
         with patch.object(
             income_month_service, "find_by", new_callable=AsyncMock
         ) as mock_find:
@@ -190,13 +177,13 @@ class TestIncomeMonthServicePersistList:
             ) as mock_save:
                 mock_find.return_value = None
                 mock_save.return_value = created_income_month
-                
+
                 result = await income_month_service.persist(
                     income=income,
                     payload=payload,
                     reference_year=2026,
                     reference_day=10,
                 )
-                
+
                 assert result == created_income_month
                 mock_save.assert_awaited_once()

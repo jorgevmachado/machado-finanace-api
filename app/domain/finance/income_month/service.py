@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import LoggingParams
 from app.core.service import BaseService
-from app.domain.finance.income_month.business import validate_received_at
+from app.shared.utils.date import validate_received_at
 
 from app.domain.finance.income_month.repository import (
     IncomeMonthRepository,
@@ -73,7 +73,7 @@ class IncomeMonthService(BaseService[IncomeMonthRepository, IncomeMonth]):
         # Sort by month for consistency
         payload.sort(key=lambda x: x.reference_month)
 
-        income_months = []
+        income_months: list[IncomeMonth] = []
         for item in payload:
             income_month = await self.persist(
                 income=income,
@@ -95,12 +95,12 @@ class IncomeMonthService(BaseService[IncomeMonthRepository, IncomeMonth]):
     ) -> IncomeMonth:
 
         current_reference_year = payload.reference_year or reference_year
-        
+
         received_at = validate_received_at(
             year=current_reference_year,
             day=reference_day,
             month=payload.reference_month,
-            received_at=payload.received_at
+            received_at=payload.received_at,
         )
 
         income_month = await self.find_by(

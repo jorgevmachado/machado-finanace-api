@@ -35,7 +35,9 @@ def mock_repository():
 
 class TestAuthServiceRegister:
     @pytest.mark.asyncio
-    async def test_register_rejects_existing_email(self, mock_repository, register_schema):
+    async def test_register_rejects_existing_email(
+        self, mock_repository, register_schema
+    ):
         mock_repository.get_by_email.return_value = SimpleNamespace(id=uuid4())
         service = AuthService(repository=mock_repository)
 
@@ -47,7 +49,9 @@ class TestAuthServiceRegister:
         mock_repository.get_by_email.assert_awaited_once_with(register_schema.email)
 
     @pytest.mark.asyncio
-    async def test_register_rejects_existing_username(self, mock_repository, register_schema):
+    async def test_register_rejects_existing_username(
+        self, mock_repository, register_schema
+    ):
         mock_repository.get_by_email.return_value = None
         mock_repository.get_by_username.return_value = SimpleNamespace(id=uuid4())
         service = AuthService(repository=mock_repository)
@@ -58,17 +62,21 @@ class TestAuthServiceRegister:
         assert exc_info.value.status_code == HTTPStatus.CONFLICT
         assert exc_info.value.detail == "Username already taken"
         mock_repository.get_by_email.assert_awaited_once()
-        mock_repository.get_by_username.assert_awaited_once_with(register_schema.username)
+        mock_repository.get_by_username.assert_awaited_once_with(
+            register_schema.username
+        )
 
     @pytest.mark.asyncio
-    async def test_register_creates_hashed_user(self, mock_repository, register_schema, monkeypatch):
+    async def test_register_creates_hashed_user(
+        self, mock_repository, register_schema, monkeypatch
+    ):
         user_id = uuid4()
         created_user = SimpleNamespace(id=user_id, email=register_schema.email)
-        
+
         mock_repository.get_by_email.return_value = None
         mock_repository.get_by_username.return_value = None
         mock_repository.create.return_value = created_user
-        
+
         monkeypatch.setattr(
             "app.domain.auth.service.get_password_hash", lambda _: "hashed-password"
         )
@@ -79,7 +87,7 @@ class TestAuthServiceRegister:
         assert result is created_user
         assert result.id == user_id
         mock_repository.create.assert_awaited_once()
-        
+
         payload = mock_repository.create.await_args.args[0]
         assert payload["password"] == "hashed-password"
         assert payload["status"] == StatusEnum.ACTIVE
@@ -87,12 +95,14 @@ class TestAuthServiceRegister:
         assert payload["username"] == register_schema.username
 
     @pytest.mark.asyncio
-    async def test_register_calls_repository_with_correct_payload(self, mock_repository, register_schema, monkeypatch):
+    async def test_register_calls_repository_with_correct_payload(
+        self, mock_repository, register_schema, monkeypatch
+    ):
         created_user = SimpleNamespace(id=uuid4())
         mock_repository.get_by_email.return_value = None
         mock_repository.get_by_username.return_value = None
         mock_repository.create.return_value = created_user
-        
+
         monkeypatch.setattr(
             "app.domain.auth.service.get_password_hash", lambda _: "hashed"
         )
@@ -122,7 +132,9 @@ class TestAuthServiceLogin:
         )
 
     @pytest.mark.asyncio
-    async def test_login_rejects_invalid_password(self, mock_repository, login_schema, monkeypatch):
+    async def test_login_rejects_invalid_password(
+        self, mock_repository, login_schema, monkeypatch
+    ):
         user = SimpleNamespace(id=uuid4(), password="hashed", username="ash")
         mock_repository.get_by_email_or_username.return_value = user
         monkeypatch.setattr("app.domain.auth.service.verify_password", lambda *_: False)
@@ -135,11 +147,15 @@ class TestAuthServiceLogin:
         assert exc_info.value.detail == "Invalid credentials"
 
     @pytest.mark.asyncio
-    async def test_login_returns_valid_token(self, mock_repository, login_schema, monkeypatch):
+    async def test_login_returns_valid_token(
+        self, mock_repository, login_schema, monkeypatch
+    ):
         user_id = uuid4()
-        user = SimpleNamespace(id=user_id, password="hashed", role="USER", username="ash")
+        user = SimpleNamespace(
+            id=user_id, password="hashed", role="USER", username="ash"
+        )
         mock_repository.get_by_email_or_username.return_value = user
-        
+
         monkeypatch.setattr("app.domain.auth.service.verify_password", lambda *_: True)
         monkeypatch.setattr(
             "app.domain.auth.service.create_access_token",
@@ -157,7 +173,7 @@ class TestAuthServiceLogin:
         user_id = uuid4()
         email = "user@example.com"
         user = SimpleNamespace(id=user_id, password="hashed", role="USER")
-        
+
         mock_repository.get_by_email_or_username.return_value = user
         monkeypatch.setattr("app.domain.auth.service.verify_password", lambda *_: True)
         monkeypatch.setattr(

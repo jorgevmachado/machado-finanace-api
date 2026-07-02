@@ -11,10 +11,16 @@ from app.core.logging import LoggingParams
 from app.core.service import BaseService
 from app.domain.finance.account.service import AccountService
 from app.domain.finance.allocation.service import AllocationService
+from app.domain.finance.allocation_contribution_month.schema import (
+    PayloadAllocationContributionMonthPersistSchema,
+)
+from app.domain.finance.allocation_contribution_month.service import (
+    AllocationContributionMonthService,
+)
 from app.domain.finance.business import merge_months_by_reference_month
 from app.domain.finance.schema import FinanceCreateContributionsSchema
-from app.shared.utils.date import generate_description
-from app.shared.utils.validator import validate_year, validate_month
+from app.shared.utils.date import get_received_at
+from app.shared.utils.validator import validate_year
 from app.domain.finance.allocation_contribution.repository import (
     AllocationContributionRepository,
 )
@@ -36,6 +42,8 @@ class AllocationContributionService(
         repository: AllocationContributionRepository,
         account_service: AccountService | None = None,
         allocation_service: AllocationService | None = None,
+        allocation_contribution_month_service: AllocationContributionMonthService
+        | None = None,
     ) -> None:
         super().__init__(
             alias="AllocationContribution",
@@ -53,6 +61,10 @@ class AllocationContributionService(
         self.allocation_service = allocation_service or AllocationService.from_session(
             session
         )
+        self.allocation_contribution_month_service = (
+            allocation_contribution_month_service
+            or AllocationContributionMonthService.from_session(session)
+        )
 
     @classmethod
     def from_session(cls, session: AsyncSession):
@@ -61,8 +73,6 @@ class AllocationContributionService(
     async def create(
         self, finance: Finance, payload: PayloadAllocationContributionCreateSchema
     ) -> AllocationContribution:
-        payload.reference_year = validate_year(payload.reference_year)
-        payload.reference_month = validate_month(payload.reference_month)
 
         account, allocation = await self._validate_relations(
             finance=finance,
@@ -83,7 +93,6 @@ class AllocationContributionService(
         with_throw: bool = True,
     ) -> AllocationContribution:
         reference_year = validate_year(payload.reference_year)
-        reference_month = validate_month(payload.reference_month)
 
         allocation_contribution = await self.find_by(
             finance_id=finance.id,
@@ -91,7 +100,6 @@ class AllocationContributionService(
             allocation_id=allocation.id,
             reference_year=reference_year,
             contributor_name=payload.contributor_name,
-            reference_month=reference_month,
             without_throw=True,
         )
 
@@ -99,24 +107,35 @@ class AllocationContributionService(
             if with_throw:
                 raise HTTPException(
                     status_code=HTTPStatus.BAD_REQUEST,
-                    detail=f"Allocation Contribution with this year {reference_year}, month {reference_month} and name {payload.contributor_name} already exists",
+                    detail=f"Allocation Contribution with this year {reference_year} and name {payload.contributor_name} already exists",
                 )
             else:
-                allocation_contribution.amount = payload.amount
+                allocation_contribution.description = payload.description
+                await self.allocation_contribution_month_service.persist_list(
+                    payload=payload.months,
+                    reference_day=payload.reference_day or 10,
+                    reference_year=reference_year,
+                    allocation_contribution=allocation_contribution,
+                )
                 return await self.repository.update(entity=allocation_contribution)
         else:
-            return await self.repository.save(
+            created_allocation_contribution = await self.repository.save(
                 entity=AllocationContribution(
-                    amount=payload.amount,
                     finance_id=finance.id,
                     account_id=account.id,
                     description=payload.description,
                     allocation_id=allocation.id,
-                    reference_year=reference_year,
-                    reference_month=reference_month,
                     contributor_name=payload.contributor_name,
                 )
             )
+            await self.allocation_contribution_month_service.persist_list(
+                payload=payload.months,
+                reference_day=payload.reference_day or 10,
+                reference_year=reference_year,
+                allocation_contribution=created_allocation_contribution,
+            )
+
+            return await self.find_by(id=created_allocation_contribution.id)
 
     async def _validate_relations(
         self, finance: Finance, account_id: UUID, allocation_id: UUID
@@ -146,36 +165,53 @@ class AllocationContributionService(
         finance: Finance,
         account: Account,
         allocation: Allocation,
+        reference_day: int,
         reference_year: int,
         payload_allocation_contributions: list[FinanceCreateContributionsSchema],
     ) -> list[AllocationContribution]:
         allocation_contributions: list[AllocationContribution] = []
         if len(payload_allocation_contributions) > 0:
             for payload_contribution in payload_allocation_contributions:
+                payload_contribution_description = payload_contribution.description
                 payload_contribution_months = merge_months_by_reference_month(
                     payload_contribution.months or []
                 )
+
+                months: list[PayloadAllocationContributionMonthPersistSchema] = []
                 if len(payload_contribution_months) > 0:
                     for payload_contribution_month in payload_contribution_months:
-                        payload_contribution_month_description = generate_description(
+                        received_at = get_received_at(
+                            year=reference_year,
                             month=payload_contribution_month.reference_month,
-                            source=payload_contribution.contributor_name,
+                            day=payload_contribution_month.reference_day
+                            or reference_day,
                         )
-                        allocation_contribution = await self.persist(
-                            finance=finance,
-                            account=account,
-                            allocation=allocation,
-                            payload=PayloadAllocationContributionCreateSchema(
-                                amount=payload_contribution_month.amount,
-                                account_id=account.id,
-                                allocation_id=allocation.id,
-                                reference_year=reference_year,
-                                reference_month=payload_contribution_month.reference_month,
-                                contributor_name=payload_contribution.contributor_name,
-                                description=payload_contribution_month_description,
-                            ),
-                            with_throw=False,
+                        month = PayloadAllocationContributionMonthPersistSchema(
+                            id=payload_contribution_month.id,
+                            amount=payload_contribution_month.amount,
+                            received_at=received_at,
+                            reference_day=payload_contribution_month.reference_day,
+                            reference_year=payload_contribution_month.reference_year,
+                            reference_month=payload_contribution_month.reference_month,
                         )
-                        allocation_contributions.append(allocation_contribution)
+                        months.append(month)
+
+                allocation_contribution = await self.persist(
+                    finance=finance,
+                    account=account,
+                    payload=PayloadAllocationContributionCreateSchema(
+                        months=months,
+                        account_id=account.id,
+                        description=payload_contribution_description
+                        or payload_contribution.contributor_name,
+                        allocation_id=allocation.id,
+                        reference_day=reference_day,
+                        reference_year=reference_year,
+                        contributor_name=payload_contribution.contributor_name,
+                    ),
+                    allocation=allocation,
+                    with_throw=False,
+                )
+                allocation_contributions.append(allocation_contribution)
 
         return allocation_contributions

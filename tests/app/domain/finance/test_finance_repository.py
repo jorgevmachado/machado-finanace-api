@@ -50,9 +50,7 @@ class TestFinanceRepository:
         mock_finance = MagicMock(spec=Finance)
         mock_finance.id = uuid4()
 
-        session.scalar = AsyncMock(
-            side_effect=[1, 0, 0, mock_finance]
-        )
+        session.scalar = AsyncMock(side_effect=[1, 0, 0, mock_finance])
 
         finance_id = uuid4()
 
@@ -174,5 +172,3 @@ class TestFinanceRepository:
         )
 
         assert result == mock_finance
-
-

@@ -26,14 +26,14 @@ def account_service_mock():
 def income_month_service_mock():
     return AsyncMock()
 
-
-class TestFinanceIncomeService:
+class TestFinanceIncomeFromSessionService:
     @staticmethod
     def test_from_session_builds_service(income_repository_mock: AsyncMock):
         service = IncomeService(repository=income_repository_mock)
         assert isinstance(service, IncomeService)
         assert service.repository is income_repository_mock
 
+class TestFinanceIncomeFindByService:
     @staticmethod
     @pytest.mark.asyncio
     async def test_find_by_success(income_repository_mock, account_service_mock):
@@ -61,7 +61,8 @@ class TestFinanceIncomeService:
         result = await service.find_by(id=uuid4(), without_throw=True)
 
         assert result is None
-
+        
+class TestFinanceIncomeCreateService:
     @staticmethod
     @pytest.mark.asyncio
     async def test_create_validates_account_not_found(
@@ -155,6 +156,7 @@ class TestFinanceIncomeService:
 
         assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
 
+class TestFinanceIncomeCreateByAccountService:
     @staticmethod
     @pytest.mark.asyncio
     async def test_create_by_account_empty_list(
@@ -182,60 +184,14 @@ class TestFinanceIncomeService:
 
     @staticmethod
     @pytest.mark.asyncio
-    async def test_persist_with_existing_income_no_throw_updates(
-        income_repository_mock, account_service_mock, income_month_service_mock
-    ):
-        finance = SimpleNamespace(id=uuid4())
-        account = SimpleNamespace(id=uuid4())
-        existing_income = SimpleNamespace(
-            id=uuid4(), 
-            source="Test Income",
-            description="Old Description"
-        )
-        updated_income = SimpleNamespace(
-            id=existing_income.id,
-            source="Test Income", 
-            description="New Description"
-        )
-
-        payload = PayloadIncomeCreateSchema(
-            months=[],
-            source="Test Income",
-            account_id=account.id,
-            description="New Description",
-            reference_year=2026,
-        )
-
-        income_repository_mock.find_by.return_value = existing_income
-        income_repository_mock.update.return_value = updated_income
-        income_month_service_mock.persist_list.return_value = []
-
-        service = IncomeService(
-            repository=income_repository_mock,
-            account_service=account_service_mock,
-            income_month_service=income_month_service_mock,
-        )
-
-        result = await service._persist(
-            payload=payload,
-            account=account,
-            finance=finance,
-            with_throw=False,
-        )
-
-        assert result == updated_income
-        assert result.description == "New Description"
-        income_repository_mock.update.assert_awaited_once()
-        income_month_service_mock.persist_list.assert_awaited_once()
-
-    @staticmethod
-    @pytest.mark.asyncio
     async def test_create_by_account_with_single_payload_income(
         income_repository_mock, account_service_mock, income_month_service_mock
     ):
         from app.domain.finance.schema import FinanceCreateIncomeSchema
-        from app.domain.finance.expense_month.schema import PayloadExpenseMonthPersistSchema
-        
+        from app.domain.finance.expense_month.schema import (
+            PayloadExpenseMonthPersistSchema,
+        )
+
         finance = SimpleNamespace(id=uuid4())
         account = SimpleNamespace(id=uuid4())
         created_income = SimpleNamespace(id=uuid4(), source="Salary")
@@ -280,8 +236,10 @@ class TestFinanceIncomeService:
         income_repository_mock, account_service_mock, income_month_service_mock
     ):
         from app.domain.finance.schema import FinanceCreateIncomeSchema
-        from app.domain.finance.expense_month.schema import PayloadExpenseMonthPersistSchema
-        
+        from app.domain.finance.expense_month.schema import (
+            PayloadExpenseMonthPersistSchema,
+        )
+
         finance = SimpleNamespace(id=uuid4())
         account = SimpleNamespace(id=uuid4())
         income1 = SimpleNamespace(id=uuid4(), source="Salary")
@@ -299,7 +257,7 @@ class TestFinanceIncomeService:
                     PayloadExpenseMonthPersistSchema(
                         amount=5000,
                         reference_month=2,
-                    )
+                    ),
                 ],
             ),
             FinanceCreateIncomeSchema(
@@ -340,10 +298,10 @@ class TestFinanceIncomeService:
     @staticmethod
     @pytest.mark.asyncio
     async def test_create_by_account_with_no_months_in_payload(
-        income_repository_mock, account_service_mock, income_month_service_mock
+            income_repository_mock, account_service_mock, income_month_service_mock
     ):
         from app.domain.finance.schema import FinanceCreateIncomeSchema
-        
+
         finance = SimpleNamespace(id=uuid4())
         account = SimpleNamespace(id=uuid4())
         created_income = SimpleNamespace(id=uuid4(), source="Freelance")
@@ -378,3 +336,48 @@ class TestFinanceIncomeService:
         assert result[0] == created_income
 
 
+
+class TestFinanceIncomePersistService:
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_persist_with_existing_income_no_throw_updates(
+        income_repository_mock, account_service_mock, income_month_service_mock
+    ):
+        finance = SimpleNamespace(id=uuid4())
+        account = SimpleNamespace(id=uuid4())
+        existing_income = SimpleNamespace(
+            id=uuid4(), source="Test Income", description="Old Description"
+        )
+        updated_income = SimpleNamespace(
+            id=existing_income.id, source="Test Income", description="New Description"
+        )
+
+        payload = PayloadIncomeCreateSchema(
+            months=[],
+            source="Test Income",
+            account_id=account.id,
+            description="New Description",
+            reference_year=2026,
+        )
+
+        income_repository_mock.find_by.return_value = existing_income
+        income_repository_mock.update.return_value = updated_income
+        income_month_service_mock.persist_list.return_value = []
+
+        service = IncomeService(
+            repository=income_repository_mock,
+            account_service=account_service_mock,
+            income_month_service=income_month_service_mock,
+        )
+
+        result = await service._persist(
+            payload=payload,
+            account=account,
+            finance=finance,
+            with_throw=False,
+        )
+
+        assert result == updated_income
+        assert result.description == "New Description"
+        income_repository_mock.update.assert_awaited_once()
+        income_month_service_mock.persist_list.assert_awaited_once()

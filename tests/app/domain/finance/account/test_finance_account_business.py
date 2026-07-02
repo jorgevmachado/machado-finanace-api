@@ -20,9 +20,7 @@ def test_sum_expenses_by_status_filters_by_paid() -> None:
         SimpleNamespace(
             months=[
                 SimpleNamespace(amount=Decimal("10.00"), status=MonthStatusEnum.PAID),
-                SimpleNamespace(
-                    amount=Decimal("5.00"), status=MonthStatusEnum.PENDING
-                ),
+                SimpleNamespace(amount=Decimal("5.00"), status=MonthStatusEnum.PENDING),
             ]
         ),
         SimpleNamespace(
@@ -48,9 +46,7 @@ def test_sum_expenses_by_status_filters_by_pending() -> None:
         SimpleNamespace(
             months=[
                 SimpleNamespace(amount=Decimal("10.00"), status=MonthStatusEnum.PAID),
-                SimpleNamespace(
-                    amount=Decimal("5.00"), status=MonthStatusEnum.PENDING
-                ),
+                SimpleNamespace(amount=Decimal("5.00"), status=MonthStatusEnum.PENDING),
             ]
         ),
         SimpleNamespace(

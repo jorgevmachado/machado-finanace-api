@@ -59,7 +59,6 @@ def upgrade() -> None:
     )
     op.create_index("expenses_month_expense_id_idx", "expense_months", ["expense_id"])
 
-
     op.drop_column("expenses", "status")
     op.drop_column("expenses", "amount")
     op.drop_column("expenses", "paid_at")
