@@ -72,7 +72,7 @@ async def test_finance_allocation_contribution_route_create() -> None:
     )
     expected = SimpleNamespace(
         id=uuid4(),
-        contributor_name=payload.contributor_name,        
+        contributor_name=payload.contributor_name,
         account_id=payload.account_id,
         allocation_id=payload.allocation_id,
         description=payload.description,

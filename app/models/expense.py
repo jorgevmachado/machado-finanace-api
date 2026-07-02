@@ -68,6 +68,12 @@ class Expense:
 
     description: Mapped[str] = mapped_column(Text, nullable=False)
 
+    parent_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("expenses.id"), nullable=True, default=None
+    )
+
+    parent: Mapped["Expense | None"] = relationship(lazy=default_lazy, init=False)
+
     # Auto-generated / server-managed — excluded from __init__
     id: Mapped[UUID] = mapped_column(
         primary_key=True, default_factory=uuid4, init=False

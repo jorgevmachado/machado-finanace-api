@@ -22,6 +22,7 @@ class PayloadExpenseCreateSchema(BaseModel):
     reference_year: int
     reference_day: int | None = None
     reference_month: int | None = None
+    parent_id: UUID | None = None
 
 
 class PayloadExpenseUpdateSchema(BaseModel):
@@ -30,6 +31,15 @@ class PayloadExpenseUpdateSchema(BaseModel):
     category_id: UUID | None = None
     description: str | None = None
     allocation_id: UUID | None = None
+
+
+class ExpenseParentSchema(BaseModel):
+    """Simplified expense schema for parent references, preventing infinite recursion."""
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    description: str
+    created_at: datetime
 
 
 class ExpenseSchema(BaseModel):
@@ -42,9 +52,12 @@ class ExpenseSchema(BaseModel):
     account_id: UUID
     allocation: AllocationRelationSchema
     description: str
+    parent_id: UUID | None = None
     created_at: datetime
     updated_at: datetime | None = None
     deleted_at: datetime | None = None
 
+
+ExpenseSchema.model_rebuild()
 
 AllocationSchema.model_rebuild(_types_namespace={"ExpenseSchema": ExpenseSchema})

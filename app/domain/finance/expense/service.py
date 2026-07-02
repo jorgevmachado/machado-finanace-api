@@ -156,6 +156,7 @@ class ExpenseService(BaseService[ExpenseRepository, Expense]):
                 )
             else:
                 expense.description = payload.description
+                expense.parent_id = payload.parent_id
                 await self.expense_month_service.persist_list(
                     expense=expense,
                     reference_year=payload.reference_year,
@@ -171,6 +172,7 @@ class ExpenseService(BaseService[ExpenseRepository, Expense]):
                     category_id=payload.category_id,
                     description=payload.description,
                     allocation_id=payload.allocation_id,
+                    parent_id=payload.parent_id,
                 )
             )
             await self.expense_month_service.persist_list(

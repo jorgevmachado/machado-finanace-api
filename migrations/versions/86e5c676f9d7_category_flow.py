@@ -24,7 +24,7 @@ def upgrade() -> None:
     """Upgrade schema."""
     op.execute("""
                             DO $$ BEGIN
-                                CREATE TYPE categorytypeenum AS ENUM ('FOOD', 'OTHER', 'STUDIES', 'UTILITY', 'HEALTH', 'PERSONAL', 'TRANSPORT', 'ENTERTAINMENT', 'GOVERNMENT_FEES');
+                                CREATE TYPE categorytypeenum AS ENUM ('FOOD', 'OTHER', 'STUDIES', 'UTILITY', 'HEALTH', 'PERSONAL', 'TRANSPORT', 'CREDIT_CARD', 'ENTERTAINMENT', 'GOVERNMENT_FEES');
                             EXCEPTION
                                 WHEN duplicate_object THEN null;
                             END $$;
@@ -46,6 +46,7 @@ def upgrade() -> None:
                 "HEALTH",
                 "PERSONAL",
                 "TRANSPORT",
+                "CREDIT_CARD",
                 "ENTERTAINMENT",
                 "GOVERNMENT_FEES",
                 name="categorytypeenum",

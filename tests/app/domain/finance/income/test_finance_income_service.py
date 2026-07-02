@@ -26,12 +26,14 @@ def account_service_mock():
 def income_month_service_mock():
     return AsyncMock()
 
+
 class TestFinanceIncomeFromSessionService:
     @staticmethod
     def test_from_session_builds_service(income_repository_mock: AsyncMock):
         service = IncomeService(repository=income_repository_mock)
         assert isinstance(service, IncomeService)
         assert service.repository is income_repository_mock
+
 
 class TestFinanceIncomeFindByService:
     @staticmethod
@@ -61,7 +63,8 @@ class TestFinanceIncomeFindByService:
         result = await service.find_by(id=uuid4(), without_throw=True)
 
         assert result is None
-        
+
+
 class TestFinanceIncomeCreateService:
     @staticmethod
     @pytest.mark.asyncio
@@ -155,6 +158,7 @@ class TestFinanceIncomeCreateService:
             await service.create(finance=finance, payload=payload)
 
         assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
+
 
 class TestFinanceIncomeCreateByAccountService:
     @staticmethod
@@ -298,7 +302,7 @@ class TestFinanceIncomeCreateByAccountService:
     @staticmethod
     @pytest.mark.asyncio
     async def test_create_by_account_with_no_months_in_payload(
-            income_repository_mock, account_service_mock, income_month_service_mock
+        income_repository_mock, account_service_mock, income_month_service_mock
     ):
         from app.domain.finance.schema import FinanceCreateIncomeSchema
 
@@ -334,7 +338,6 @@ class TestFinanceIncomeCreateByAccountService:
 
         assert len(result) == 1
         assert result[0] == created_income
-
 
 
 class TestFinanceIncomePersistService:

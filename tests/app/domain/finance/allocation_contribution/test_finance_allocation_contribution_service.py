@@ -349,7 +349,8 @@ class TestFinanceAllocationContributionPersistService:
             with_throw=False,
         )
         assert result == saved_allocation_contribution
-        
+
+
 class TestFinanceAllocationContributionCreateByAccountService:
     @staticmethod
     @pytest.mark.asyncio
@@ -360,7 +361,9 @@ class TestFinanceAllocationContributionCreateByAccountService:
         account = SimpleNamespace(id=uuid4())
         allocation = SimpleNamespace(id=uuid4())
 
-        service = AllocationContributionService(repository=allocation_contribution_repository_mock)
+        service = AllocationContributionService(
+            repository=allocation_contribution_repository_mock
+        )
 
         result = await service.create_by_account(
             finance=finance,
@@ -382,15 +385,19 @@ class TestFinanceAllocationContributionCreateByAccountService:
         finance = SimpleNamespace(id=uuid4())
         account = SimpleNamespace(id=uuid4())
         allocation = SimpleNamespace(id=uuid4())
-        
-        created_allocation_contribution = SimpleNamespace(id=uuid4(), contributor_name="Test Contributor")
-        
+
+        created_allocation_contribution = SimpleNamespace(
+            id=uuid4(), contributor_name="Test Contributor"
+        )
+
         payload_allocation_contributions = [
             FinanceCreateContributionsSchema(
-                months=[PayloadExpenseMonthPersistSchema(
-                    amount=5000,
-                    reference_month=1,
-                )],
+                months=[
+                    PayloadExpenseMonthPersistSchema(
+                        amount=5000,
+                        reference_month=1,
+                    )
+                ],
                 description="Test Description",
                 contributor_name="Test Contributor",
             )
@@ -399,11 +406,17 @@ class TestFinanceAllocationContributionCreateByAccountService:
         service = AllocationContributionService(
             repository=allocation_contribution_repository_mock
         )
-        
-        allocation_contribution_repository_mock.find_by.side_effect = [None, created_allocation_contribution]
-        allocation_contribution_repository_mock.save.return_value = created_allocation_contribution
-        service.allocation_contribution_month_service.persist_list = AsyncMock(return_value=[])
 
+        allocation_contribution_repository_mock.find_by.side_effect = [
+            None,
+            created_allocation_contribution,
+        ]
+        allocation_contribution_repository_mock.save.return_value = (
+            created_allocation_contribution
+        )
+        service.allocation_contribution_month_service.persist_list = AsyncMock(
+            return_value=[]
+        )
 
         result = await service.create_by_account(
             finance=finance,
@@ -469,7 +482,7 @@ class TestFinanceAllocationContributionCreateByAccountService:
             None,
             created_allocation_contribution_1,
             None,
-            created_allocation_contribution_2
+            created_allocation_contribution_2,
         ]
         allocation_contribution_repository_mock.save.side_effect = [
             created_allocation_contribution_1,
@@ -522,7 +535,9 @@ class TestFinanceAllocationContributionCreateByAccountService:
             None,
             created_allocation_contribution,
         ]
-        allocation_contribution_repository_mock.save.return_value = created_allocation_contribution
+        allocation_contribution_repository_mock.save.return_value = (
+            created_allocation_contribution
+        )
         service.allocation_contribution_month_service.persist_list = AsyncMock(
             return_value=[]
         )
@@ -539,4 +554,3 @@ class TestFinanceAllocationContributionCreateByAccountService:
         assert len(result) == 1
         assert result[0] == created_allocation_contribution
         assert allocation_contribution_repository_mock.save.await_count == 1
-

@@ -59,3 +59,9 @@ class FinanceCreateSchema(BaseModel):
     reference_day: int | None = None
     reference_year: int
     initialize_balance: int | None = None
+
+
+class PayloadFinanceMonthPersistSchema(BaseModel):
+    amount: float
+    reference_day: int | None = None
+    reference_month: int

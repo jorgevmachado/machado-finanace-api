@@ -21,6 +21,7 @@ from app.domain.finance.repository import FinanceRepository
 from app.domain.finance.schema import FinanceCreateSchema, FinanceSchema
 from app.domain.finance.service import FinanceService
 from app.domain.finance.transfer.route import router as transfer_route
+from app.domain.finance.plan.route import router as plan_route
 from app.models import User
 from app.shared.schemas import FilterPage
 
@@ -45,6 +46,8 @@ router.include_router(category_route, prefix="/categories", tags=["FinanceCatego
 router.include_router(expense_route, prefix="/expenses", tags=["FinanceExpense"])
 
 router.include_router(transfer_route, prefix="/transfers", tags=["TransferExpense"])
+
+router.include_router(plan_route, prefix="/plans", tags=["FinancePlan"])
 
 Session = Annotated[AsyncSession, Depends(get_session)]
 

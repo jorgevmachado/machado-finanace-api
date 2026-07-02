@@ -26,7 +26,8 @@ class TestUtilsValidateYearValidator:
         current_year = utcnow().year - 1
         result = validate_year(current_year)
         assert result == current_year
-        
+
+
 class TestUtilsValidateMonthValidator:
     @staticmethod
     def test_utils_validate_month_with_month_less_than_1():
@@ -34,7 +35,9 @@ class TestUtilsValidateMonthValidator:
         with pytest.raises(HTTPException) as exc_info:
             validate_month(month)
         assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
-        assert exc_info.value.detail == f"Reference month {month} must be between 1 and 12"
+        assert (
+            exc_info.value.detail == f"Reference month {month} must be between 1 and 12"
+        )
 
     @staticmethod
     def test_utils_validate_month_with_month_greater_than_12():
