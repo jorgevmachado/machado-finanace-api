@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
-from sqlalchemy import Date, DateTime, ForeignKey, String, Integer, Text, Numeric
+from sqlalchemy import DateTime, ForeignKey, String, Text, Numeric
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import default_lazy, table_registry
@@ -14,6 +14,7 @@ from app.models import utcnow
 if TYPE_CHECKING:
     from app.models.finance import Finance
     from app.models.account import Account
+    from app.models.income_month import IncomeMonth
 
 
 @table_registry.mapped_as_dataclass
@@ -36,17 +37,19 @@ class Income:
         back_populates="incomes",
     )
 
+    months: Mapped[list["IncomeMonth"]] = relationship(
+        lazy=default_lazy,
+        default_factory=list,
+        init=False,
+        repr=False,
+        back_populates="income",
+    )
+
     source: Mapped[str] = mapped_column(String, nullable=False)
 
     source_code: Mapped[str] = mapped_column(String, nullable=False)
 
     description: Mapped[str] = mapped_column(Text, nullable=False)
-
-    reference_month: Mapped[int] = mapped_column(Integer, nullable=False)
-
-    reference_year: Mapped[int] = mapped_column(Integer, nullable=False)
-
-    received_at: Mapped[date] = mapped_column(Date, nullable=False)
 
     amount: Mapped[Decimal] = mapped_column(
         Numeric(12, 2),

@@ -57,6 +57,8 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id"),
     )
+    op.create_index("expenses_month_expense_id_idx", "expense_months", ["expense_id"])
+
 
     op.drop_column("expenses", "status")
     op.drop_column("expenses", "amount")

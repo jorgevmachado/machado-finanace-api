@@ -3,7 +3,6 @@ from __future__ import annotations
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 from uuid import uuid4
-from datetime import date
 
 import pytest
 
@@ -60,23 +59,20 @@ async def test_finance_income_route_create() -> None:
     account_id = uuid4()
     payload = PayloadIncomeCreateSchema(
         source="Source Name",
-        amount=100.00,
         account_id=account_id,
         description="Some Description",
         reference_year=2026,
+        reference_day=1,
         reference_month=1,
-        received_at=date(2026, 1, 1),
+        months=[],
     )
     expected = SimpleNamespace(
         id="income-id",
         source="Source Name",
-        amount=100.00,
         account_id=account_id,
-        source_name="source_name",
         description="Some Description",
         reference_year=2026,
         reference_month=1,
-        received_at=date(2026, 1, 1),
     )
     service.create.return_value = expected
     current_user = SimpleNamespace(
@@ -126,12 +122,9 @@ async def test_finance_income_route_find_one() -> None:
     expected = SimpleNamespace(
         id="income-id",
         source="Source Name",
-        amount=100.00,
-        source_name="source_name",
         description="Some Description",
         reference_year=2026,
         reference_month=1,
-        received_at=date(2026, 1, 1),
     )
     service.find_one_cached.return_value = expected
     current_user = SimpleNamespace(
@@ -160,18 +153,15 @@ async def test_finance_income_route_update() -> None:
     expected = SimpleNamespace(
         id="income-id",
         source="Source Name",
-        amount=100.00,
-        source_name="source_name",
         description="Some Description",
         reference_year=2026,
-        reference_month=1,
-        received_at=date(2026, 1, 1),
+        reference_month=2,
     )
     service.update.return_value = expected
     current_user = SimpleNamespace(
         id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
     )
-    payload = PayloadIncomeUpdateSchema(reference_month=2)
+    payload = PayloadIncomeUpdateSchema(reference_month=2, months=[])
     result = await update(
         param="income-id", current_user=current_user, service=service, payload=payload
     )

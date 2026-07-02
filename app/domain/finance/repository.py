@@ -14,6 +14,7 @@ from app.models import (
     ExpenseMonth,
     Finance,
     Income,
+    IncomeMonth,
 )
 
 
@@ -26,7 +27,7 @@ class FinanceRepository(BaseRepository[Finance]):
         reference_year: int,
         with_deleted: bool = False,
     ) -> Finance | None:
-        income_year_predicate = Income.reference_year == reference_year
+        income_month_year_predicate = IncomeMonth.reference_year == reference_year
         contribution_year_predicate = (
             AllocationContribution.reference_year == reference_year
         )
@@ -34,9 +35,9 @@ class FinanceRepository(BaseRepository[Finance]):
         expense_year_predicate = ExpenseMonth.reference_year == reference_year
 
         if not with_deleted:
-            income_year_predicate = and_(
-                Income.deleted_at.is_(None),
-                income_year_predicate,
+            income_month_year_predicate = and_(
+                IncomeMonth.deleted_at.is_(None),
+                income_month_year_predicate,
             )
             contribution_year_predicate = and_(
                 AllocationContribution.deleted_at.is_(None),
@@ -47,9 +48,9 @@ class FinanceRepository(BaseRepository[Finance]):
                 expense_year_predicate,
             )
 
-        # Updated to use ExpenseMonth relationship
+        # Updated to use IncomeMonth and ExpenseMonth relationships
         account_year_predicate = or_(
-            Account.incomes.any(income_year_predicate),
+            Account.incomes.any(Income.months.any(income_month_year_predicate)),
             Account.expenses.any(Expense.months.any(expense_year_predicate)),
             Account.allocation_contributions.any(contribution_year_predicate),
         )
@@ -68,10 +69,11 @@ class FinanceRepository(BaseRepository[Finance]):
                 allocation_year_predicate,
             )
 
-        income_count = await self.session.scalar(
+        income_month_count = await self.session.scalar(
             select(func.count())
-            .select_from(Income)
-            .where(Income.finance_id == finance_id, income_year_predicate)
+            .select_from(IncomeMonth)
+            .join(Income)
+            .where(Income.finance_id == finance_id, income_month_year_predicate)
         )
         expense_count = await self.session.scalar(
             select(func.count())
@@ -89,7 +91,7 @@ class FinanceRepository(BaseRepository[Finance]):
         )
 
         yearly_total = (
-            int(income_count or 0)
+            int(income_month_count or 0)
             + int(expense_count or 0)
             + int(contribution_count or 0)
         )
@@ -102,7 +104,7 @@ class FinanceRepository(BaseRepository[Finance]):
             .execution_options(populate_existing=True)
             .options(
                 with_loader_criteria(
-                    Income, income_year_predicate, include_aliases=True
+                    IncomeMonth, income_month_year_predicate, include_aliases=True
                 ),
                 with_loader_criteria(
                     ExpenseMonth, expense_year_predicate, include_aliases=True

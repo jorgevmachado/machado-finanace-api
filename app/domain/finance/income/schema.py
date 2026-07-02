@@ -1,40 +1,40 @@
 from pydantic import BaseModel, ConfigDict
 from uuid import UUID
-from datetime import datetime, date
+from datetime import datetime
+
+from app.domain.finance.income_month.schema import (
+    IncomeMonthSchema,
+    PayloadIncomeMonthPersistSchema,
+)
 
 
 class PayloadIncomeCreateSchema(BaseModel):
+    months: list[PayloadIncomeMonthPersistSchema]
     source: str
-    amount: float
     account_id: UUID
-    received_at: date
     description: str
     reference_year: int
-    reference_month: int
+    reference_day: int | None = None
+    reference_month: int | None = None
 
 
 class PayloadIncomeUpdateSchema(BaseModel):
+    months: list[PayloadIncomeMonthPersistSchema]
     source: str | None = None
-    amount: float | None = None
-    received_at: date | None = None
+    account_id: UUID | None = None
     description: str | None = None
-    reference_year: int | None = None
-    reference_month: int | None = None
 
 
 class IncomeSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
+    months: list[IncomeMonthSchema] = []
     source: str
-    amount: float
     source_code: str
     finance_id: UUID
     account_id: UUID
-    received_at: date
     description: str
-    reference_year: int
-    reference_month: int
     created_at: datetime
     updated_at: datetime | None = None
     deleted_at: datetime | None = None

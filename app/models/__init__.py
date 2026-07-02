@@ -17,6 +17,7 @@ from app.models.category import Category
 from app.models.expense import Expense
 from app.models.transfer import Transfer
 from app.models.expense_month import ExpenseMonth
+from app.models.income_month import IncomeMonth
 
 __all__ = [
     "User",
@@ -29,6 +30,7 @@ __all__ = [
     "Expense",
     "Transfer",
     "ExpenseMonth",
+    "IncomeMonth",
     "RoleEnum",
     "StatusEnum",
     "AccountTypeEnum",
