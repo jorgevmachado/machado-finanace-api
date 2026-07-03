@@ -16,6 +16,7 @@ from app.domain.finance.expense.schema import (
     ExpenseSchema,
     PayloadExpenseCreateSchema,
     PayloadExpenseUpdateSchema,
+    ExpenseDetailSchema,
 )
 from app.domain.finance.expense.service import ExpenseService
 from app.models import User
@@ -60,7 +61,7 @@ def expense_filter(
 
 @router.get(
     "",
-    response_model=CustomLimitOffsetPage[ExpenseSchema] | list[ExpenseSchema],
+    response_model=CustomLimitOffsetPage[ExpenseDetailSchema] | list[ExpenseDetailSchema],
     status_code=HTTPStatus.OK,
 )
 async def list_all(
@@ -77,7 +78,7 @@ async def list_all(
     )
 
 
-@router.get("/{param}", response_model=ExpenseSchema, status_code=HTTPStatus.OK)
+@router.get("/{param}", response_model=ExpenseDetailSchema, status_code=HTTPStatus.OK)
 async def find_one(
     param: str,
     service: Service,
