@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-from datetime import date
 from http import HTTPStatus
 
 from fastapi import HTTPException
@@ -14,8 +13,9 @@ from app.domain.finance.allocation_contribution_month.repository import (
 )
 from app.domain.finance.allocation_contribution_month.schema import (
     AllocationContributionMonthSchema,
-    PayloadAllocationContributionMonthPersistSchema,
 )
+from app.domain.finance.months.business import complete_months_in_year
+from app.domain.finance.months.schema import PayloadMonthPersistSchema
 from app.models import AllocationContribution, AllocationContributionMonth
 from app.shared.utils.date import validate_received_at
 
@@ -47,32 +47,22 @@ class AllocationContributionMonthService(
 
     async def persist_list(
         self,
-        payload: list[PayloadAllocationContributionMonthPersistSchema],
+        months: list[PayloadMonthPersistSchema],
         reference_day: int,
         reference_year: int,
         allocation_contribution: AllocationContribution,
     ) -> list[AllocationContributionMonth]:
-        print("# => persist_list => payload => len => ", len(payload))
-        months_provided = {item.reference_month for item in payload}
-        all_months = set(range(1, 13))
-        missing_months = all_months - months_provided
-
-        for month in missing_months:
-            payload.append(
-                PayloadAllocationContributionMonthPersistSchema(
-                    amount=0.0,
-                    received_at=date(reference_year, month, reference_day),
-                    reference_month=month,
-                )
-            )
-
-        payload.sort(key=lambda x: x.reference_month)
+        persist_months = complete_months_in_year(
+            months=months,
+            reference_day=reference_day,
+            reference_year=reference_year,
+        )
 
         allocation_contribution_months: list[AllocationContributionMonth] = []
 
-        for item in payload:
+        for month in persist_months:
             allocation_contribution_month = await self.persist(
-                payload=item,
+                month=month,
                 with_throw=False,
                 reference_day=reference_day,
                 reference_year=reference_year,
@@ -84,26 +74,24 @@ class AllocationContributionMonthService(
 
     async def persist(
         self,
+        month: PayloadMonthPersistSchema,
         reference_day: int,
         reference_year: int,
         allocation_contribution: AllocationContribution,
-        payload: PayloadAllocationContributionMonthPersistSchema,
         with_throw: bool = True,
     ) -> AllocationContributionMonth:
 
-        current_reference_year = payload.reference_year or reference_year
-
         received_at = validate_received_at(
-            year=current_reference_year,
             day=reference_day,
-            month=payload.reference_month,
-            received_at=payload.received_at,
+            year=reference_year,
+            month=month.reference_month,
+            received_at=month.transaction_date,
         )
 
         allocation_contribution_month = await self.find_by(
             without_throw=True,
-            reference_year=current_reference_year,
-            reference_month=payload.reference_month,
+            reference_year=reference_year,
+            reference_month=month.reference_month,
             allocation_contribution_id=allocation_contribution.id,
         )
 
@@ -111,10 +99,10 @@ class AllocationContributionMonthService(
             if with_throw:
                 raise HTTPException(
                     status_code=HTTPStatus.BAD_REQUEST,
-                    detail=f"Allocation Contribution Month with this year {current_reference_year}, month {payload.reference_month} already exists",
+                    detail=f"Allocation Contribution Month with this year {reference_year}, month {month.reference_month} already exists",
                 )
             else:
-                allocation_contribution_month.amount = payload.amount
+                allocation_contribution_month.amount = month.amount
                 allocation_contribution_month.received_at = received_at
                 return await self.repository.update(
                     entity=allocation_contribution_month
@@ -122,10 +110,10 @@ class AllocationContributionMonthService(
         else:
             return await self.repository.save(
                 entity=AllocationContributionMonth(
-                    amount=payload.amount,
+                    amount=month.amount,
                     received_at=received_at,
-                    reference_year=current_reference_year,
-                    reference_month=payload.reference_month,
+                    reference_year=reference_year,
+                    reference_month=month.reference_month,
                     allocation_contribution_id=allocation_contribution.id,
                 )
             )

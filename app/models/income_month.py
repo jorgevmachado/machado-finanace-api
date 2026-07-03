@@ -39,10 +39,6 @@ class IncomeMonth:
         default=Decimal("0.00"),
     )
 
-    paid_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True, default=None
-    )
-
     # Auto-generated / server-managed — excluded from __init__
     id: Mapped[UUID] = mapped_column(
         primary_key=True, default_factory=uuid4, init=False

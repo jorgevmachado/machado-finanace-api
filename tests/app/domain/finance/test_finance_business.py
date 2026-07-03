@@ -3,7 +3,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 from app.domain.finance.business import has_yearly_data, merge_months_by_reference_month
-from app.domain.finance.schema import PayloadExpenseMonthPersistSchema
+from app.domain.finance.expense_month.schema import PayloadExpenseMonthPersistSchema
 
 
 class TestFinanceMergeMonthsByReferenceMonth:

@@ -28,7 +28,6 @@ def upgrade() -> None:
         sa.Column("reference_month", sa.Integer(), nullable=False),
         sa.Column("received_at", sa.Date(), nullable=False),
         sa.Column("amount", sa.Numeric(precision=12, scale=2), nullable=False),
-        sa.Column("paid_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("id", sa.Uuid(), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("updated_at", sa.DateTime(timezone=True), nullable=True),

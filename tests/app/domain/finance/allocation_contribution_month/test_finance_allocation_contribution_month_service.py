@@ -11,12 +11,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.domain.finance.allocation_contribution.repository import (
     AllocationContributionRepository,
 )
-from app.domain.finance.allocation_contribution_month.schema import (
-    PayloadAllocationContributionMonthPersistSchema,
-)
+
 from app.domain.finance.allocation_contribution_month.service import (
     AllocationContributionMonthService,
 )
+from app.domain.finance.months.schema import PayloadMonthPersistSchema
 from app.models import AllocationContributionMonth, AllocationContribution
 
 
@@ -46,16 +45,14 @@ class TestAllocationContributionMonthServicePersistList:
         allocation_contribution_month_service,
         allocation_contribution,
     ):
-        payload = [
-            PayloadAllocationContributionMonthPersistSchema(
-                amount=100.00,
-                received_at=None,
-                reference_month=1,
+        months = [
+            PayloadMonthPersistSchema(
+                amount=100.00, reference_month=1, transaction_date=None
             ),
-            PayloadAllocationContributionMonthPersistSchema(
+            PayloadMonthPersistSchema(
                 amount=150.00,
-                received_at=None,
                 reference_month=6,
+                transaction_date=None,
             ),
         ]
 
@@ -64,10 +61,10 @@ class TestAllocationContributionMonthServicePersistList:
         ) as mock_persist:
             mock_persist.return_value = MagicMock(spec=AllocationContributionMonth)
             result = await allocation_contribution_month_service.persist_list(
-                allocation_contribution=allocation_contribution,
-                payload=payload,
+                months=months,
                 reference_day=10,
                 reference_year=2026,
+                allocation_contribution=allocation_contribution,
             )
 
             # Should have 12 months (original 2 + 10 missing)
@@ -80,11 +77,11 @@ class TestAllocationContributionMonthServicePersistList:
         allocation_contribution_month_service,
         allocation_contribution,
     ):
-        payload = [
-            PayloadAllocationContributionMonthPersistSchema(
-                reference_month=i,
+        months = [
+            PayloadMonthPersistSchema(
                 amount=100.00,
-                received_at=date(2026, i, 10),
+                reference_month=i,
+                transaction_date=date(2026, i, 10),
             )
             for i in range(1, 13)
         ]
@@ -94,7 +91,7 @@ class TestAllocationContributionMonthServicePersistList:
         ) as mock_persist:
             mock_persist.return_value = MagicMock(spec=AllocationContributionMonth)
             result = await allocation_contribution_month_service.persist_list(
-                payload=payload,
+                months=months,
                 reference_day=10,
                 reference_year=2026,
                 allocation_contribution=allocation_contribution,
@@ -112,10 +109,10 @@ class TestAllocationContributionMonthServicePersist:
         allocation_contribution,
     ):
 
-        payload = PayloadAllocationContributionMonthPersistSchema(
+        month = PayloadMonthPersistSchema(
             amount=100.00,
-            received_at=None,
             reference_month=1,
+            transaction_date=None,
         )
 
         existing_allocation_contribution_month = MagicMock(
@@ -128,7 +125,7 @@ class TestAllocationContributionMonthServicePersist:
             mock_find.return_value = existing_allocation_contribution_month
             try:
                 await allocation_contribution_month_service.persist(
-                    payload=payload,
+                    month=month,
                     with_throw=True,
                     reference_day=10,
                     reference_year=2026,
@@ -145,10 +142,10 @@ class TestAllocationContributionMonthServicePersist:
         allocation_contribution_month_service,
         allocation_contribution,
     ):
-        payload = PayloadAllocationContributionMonthPersistSchema(
-            reference_month=1,
+        month = PayloadMonthPersistSchema(
             amount=150.00,
-            received_at=None,
+            reference_month=1,
+            transaction_date=None,
         )
 
         existing_allocation_contribution_month = MagicMock(
@@ -168,11 +165,11 @@ class TestAllocationContributionMonthServicePersist:
                 mock_update.return_value = existing_allocation_contribution_month
 
                 result = await allocation_contribution_month_service.persist(
-                    allocation_contribution=allocation_contribution,
-                    payload=payload,
-                    reference_year=2026,
-                    reference_day=10,
+                    month=month,
                     with_throw=False,
+                    reference_day=10,
+                    reference_year=2026,
+                    allocation_contribution=allocation_contribution,
                 )
 
                 assert result == existing_allocation_contribution_month
@@ -184,10 +181,10 @@ class TestAllocationContributionMonthServicePersist:
         allocation_contribution_month_service,
         allocation_contribution,
     ):
-        payload = PayloadAllocationContributionMonthPersistSchema(
+        month = PayloadMonthPersistSchema(
             amount=150.00,
-            received_at=date(2026, 1, 10),
             reference_month=1,
+            transaction_date=date(2026, 1, 10),
         )
 
         created_allocation_contribution_month = MagicMock(
@@ -207,11 +204,11 @@ class TestAllocationContributionMonthServicePersist:
                 mock_save.return_value = created_allocation_contribution_month
 
                 result = await allocation_contribution_month_service.persist(
-                    allocation_contribution=allocation_contribution,
-                    payload=payload,
+                    month=month,
                     reference_year=2026,
                     reference_day=10,
                     with_throw=False,
+                    allocation_contribution=allocation_contribution,
                 )
 
                 assert result == created_allocation_contribution_month

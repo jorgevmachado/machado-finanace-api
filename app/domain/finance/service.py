@@ -11,30 +11,32 @@ from app.core.logging import LoggingParams
 from app.core.service import BaseService
 from app.domain.finance.account.schema import PayloadAccountCreateSchema
 from app.domain.finance.account.service import AccountService
-from app.domain.finance.allocation.schema import PayloadAllocationCreateSchema
-
+from app.domain.finance.allocation.schema import (
+    PayloadAllocationCreateSchema,
+)
 from app.domain.finance.allocation.service import AllocationService
-
 from app.domain.finance.allocation_contribution.service import (
     AllocationContributionService,
 )
 from app.domain.finance.business import has_yearly_data
 
 from app.domain.finance.category.service import CategoryService
-
 from app.domain.finance.expense.service import ExpenseService
 from app.domain.finance.income.service import IncomeService
 from app.domain.finance.repository import FinanceRepository
 from app.domain.finance.schema import (
+    FinancePersistResultSchema,
     FinanceSchema,
-    FinanceCreateSchema,
-    FinanceCreateAllocationSchema,
+    PayloadFinancePersistSchema,
 )
-
 from app.models import (
-    User,
-    Finance,
     Account,
+    Finance,
+    User,
+    Expense,
+    Category,
+    Allocation,
+    Income,
 )
 from app.shared.schemas import FilterPage
 from app.shared.utils.validator import validate_year
@@ -118,51 +120,43 @@ class FinanceService(BaseService[FinanceRepository, Finance]):
 
         return await self.find_one(param=str(finance.id))
 
-    async def create(
-        self, finance: Finance, payloads: list[FinanceCreateSchema]
-    ) -> Finance:
+    async def persist(
+        self, finance: Finance, payloads: list[PayloadFinancePersistSchema]
+    ) -> FinancePersistResultSchema:
+        incomes: list[Income] = []
+        accounts: list[Account] = []
+        expenses: list[Expense] = []
+        categories: list[Category] = []
+        allocations: list[Allocation] = []
+
         for payload in payloads:
             account = await self.account_service.persist(
                 finance=finance,
                 payload=PayloadAccountCreateSchema(
                     name=payload.name,
                     type=payload.type,
-                    initial_balance=payload.initialize_balance or 0,
+                    initial_balance=payload.initial_balance or 0,
                 ),
                 with_throw=False,
             )
+            accounts.append(account)
+            reference_day = payload.reference_day or 10
             reference_year = payload.reference_year
-            reference_day = payload.reference_day or 1
-            await self.income_service.create_by_account(
-                finance=finance,
-                account=account,
-                reference_day=reference_day,
-                reference_year=reference_year,
-                payload_incomes=payload.incomes,
-            )
 
-            await self.create_allocations_by_account(
-                finance=finance,
-                account=account,
-                reference_day=reference_day,
-                reference_year=reference_year,
-                payload_allocations=payload.allocations,
-            )
+            for payload_income in payload.incomes:
+                income = await self.income_service.persist(
+                    months=payload_income.months,
+                    source=payload_income.source,
+                    finance=finance,
+                    account=account,
+                    with_throw=False,
+                    description=payload_income.description,
+                    reference_day=reference_day,
+                    reference_year=reference_year,
+                )
+                incomes.append(income)
 
-        return await self.find_one(
-            param=str(finance.id), user_request=finance.user.username
-        )
-
-    async def create_allocations_by_account(
-        self,
-        finance: Finance,
-        account: Account,
-        reference_day: int,
-        reference_year: int,
-        payload_allocations: list[FinanceCreateAllocationSchema],
-    ):
-        if len(payload_allocations) > 0:
-            for payload_allocation in payload_allocations:
+            for payload_allocation in payload.allocations:
                 allocation = await self.allocation_service.persist(
                     finance=finance,
                     payload=PayloadAllocationCreateSchema(
@@ -173,20 +167,28 @@ class FinanceService(BaseService[FinanceRepository, Finance]):
                     ),
                     with_throw=False,
                 )
-                await self.expense_service.create_by_account(
-                    finance=finance,
-                    account=account,
-                    allocation=allocation,
-                    reference_day=reference_day,
-                    reference_year=reference_year,
-                    payload_categories=payload_allocation.categories or [],
-                )
-                await self.allocation_contribution_service.create_by_account(
-                    finance=finance,
-                    account=account,
-                    allocation=allocation,
-                    reference_day=reference_day,
-                    reference_year=reference_year,
-                    payload_allocation_contributions=payload_allocation.contributions
-                    or [],
-                )
+                allocations.append(allocation)
+
+                for payload_category in payload_allocation.categories:
+                    expenses_persisted: list[
+                        Expense
+                    ] = await self.expense_service.persist_by_category(
+                        finance=finance,
+                        account=account,
+                        payload=payload_category,
+                        allocation=allocation,
+                        reference_day=reference_day,
+                        reference_year=reference_year,
+                    )
+                    for expense_persisted in expenses_persisted:
+                        if expense_persisted.category:
+                            categories.append(expense_persisted.category)
+                    expenses.extend(expenses_persisted)
+
+        return FinancePersistResultSchema(
+            incomes=len(incomes),
+            accounts=len(accounts),
+            expenses=len(expenses),
+            categories=len(categories),
+            allocations=len(allocations),
+        )

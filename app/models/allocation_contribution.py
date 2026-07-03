@@ -57,6 +57,8 @@ class AllocationContribution:
 
     contributor_name: Mapped[str] = mapped_column(String, nullable=False)
 
+    contributor_name_code: Mapped[str] = mapped_column(String, nullable=False)
+
     description: Mapped[str] = mapped_column(Text, nullable=False)
 
     # Auto-generated / server-managed — excluded from __init__

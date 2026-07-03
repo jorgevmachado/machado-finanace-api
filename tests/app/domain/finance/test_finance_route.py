@@ -6,7 +6,6 @@ from unittest.mock import AsyncMock
 import pytest
 
 from app.domain.finance.route import (
-    create,
     onboarding,
     finance_service,
     find_by_user,
@@ -62,17 +61,33 @@ async def test_finance_route_find_by_user() -> None:
 
 
 @pytest.mark.asyncio
-async def test_finance_route_create() -> None:
+async def test_finance_route_persist_success() -> None:
+    from app.domain.finance.route import persist
+
     service = AsyncMock()
+    expected = SimpleNamespace(
+        incomes=1,
+        accounts=1,
+        expenses=1,
+        categories=1,
+        allocations=1,
+    )
+    service.persist.return_value = expected
     finance = SimpleNamespace(id="finance-id")
-    expected = SimpleNamespace(id="finance-id")
-    service.create.return_value = expected
     current_user = SimpleNamespace(
         id="user-id", username="Finance User", finance=finance
     )
-    payloads = [SimpleNamespace(name="Account 1")]
+    payloads = [
+        SimpleNamespace(
+            name="Test Account",
+            type="BANK",
+            initial_balance=1000,
+        )
+    ]
 
-    result = await create(service=service, current_user=current_user, payloads=payloads)
+    result = await persist(
+        service=service, current_user=current_user, payloads=payloads
+    )
 
     assert result is expected
-    service.create.assert_awaited_once_with(finance=finance, payloads=payloads)
+    service.persist.assert_awaited_once_with(finance=finance, payloads=payloads)

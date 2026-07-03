@@ -3,15 +3,6 @@ from uuid import UUID
 from datetime import datetime, date
 
 
-class PayloadIncomeMonthPersistSchema(BaseModel):
-    id: UUID | None = None
-    amount: float
-    received_at: date | None = None
-    reference_day: int | None = None
-    reference_year: int | None = None
-    reference_month: int
-
-
 class IncomeMonthSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

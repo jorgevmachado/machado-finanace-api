@@ -2,14 +2,16 @@ from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from datetime import datetime
 
-from app.domain.finance.account.schema import AccountSchema
-from app.domain.finance.allocation.schema import AllocationSchema
-from app.domain.finance.expense_month.schema import PayloadExpenseMonthPersistSchema
-from app.models import (
-    AccountTypeEnum,
-    AllocationTypeEnum,
-    CategoryTypeEnum,
+from app.domain.finance.account.schema import AccountSchema, PayloadAccountCreateSchema
+from app.domain.finance.allocation.schema import (
+    AllocationSchema,
+    PayloadAllocationCreateSchema,
 )
+from app.domain.finance.category.schema import (
+    PayloadCategoryCreateSchema,
+)
+
+from app.domain.finance.months.schema import PayloadMonthPersistSchema
 
 
 class FinanceSchema(BaseModel):
@@ -24,44 +26,42 @@ class FinanceSchema(BaseModel):
     deleted_at: datetime | None = None
 
 
-class FinanceCreateIncomeSchema(BaseModel):
-    source: str
-    months: list[PayloadExpenseMonthPersistSchema]
-    description: str | None = None
-
-
-class FinanceCreateCategorySchema(BaseModel):
-    name: str
-    type: CategoryTypeEnum
-    months: list[PayloadExpenseMonthPersistSchema]
-    description: str | None = None
-
-
-class FinanceCreateContributionsSchema(BaseModel):
-    months: list[PayloadExpenseMonthPersistSchema]
-    description: str | None = None
-    contributor_name: str
-
-
-class FinanceCreateAllocationSchema(BaseModel):
-    name: str
-    type: AllocationTypeEnum
-    categories: list[FinanceCreateCategorySchema]
-    description: str | None = None
-    contributions: list[FinanceCreateContributionsSchema] = []
-
-
-class FinanceCreateSchema(BaseModel):
-    name: str
-    type: AccountTypeEnum
-    incomes: list[FinanceCreateIncomeSchema] = []
-    allocations: list[FinanceCreateAllocationSchema] = []
-    reference_day: int | None = None
-    reference_year: int
-    initialize_balance: int | None = None
-
-
-class PayloadFinanceMonthPersistSchema(BaseModel):
+# PERSIST ALL
+class PayloadFinanceChildrenExpensePersistSchema(PayloadCategoryCreateSchema):
     amount: float
     reference_day: int | None = None
-    reference_month: int
+    reference_month: int | None = None
+
+
+class PayloadFinanceExpensePersistSchema(PayloadMonthPersistSchema):
+    children: list[PayloadFinanceChildrenExpensePersistSchema] | None = []
+    reference_month: int | None = None
+
+
+class PayloadFinanceCategoryPersistSchema(PayloadCategoryCreateSchema):
+    expenses: list[PayloadFinanceExpensePersistSchema]
+
+
+class PayloadFinanceAllocationPersistSchema(PayloadAllocationCreateSchema):
+    categories: list[PayloadFinanceCategoryPersistSchema]
+
+
+class PayloadFinanceIncomePersistSchema(BaseModel):
+    months: list[PayloadMonthPersistSchema]
+    source: str
+    description: str
+
+
+class PayloadFinancePersistSchema(PayloadAccountCreateSchema):
+    incomes: list[PayloadFinanceIncomePersistSchema] = []
+    allocations: list[PayloadFinanceAllocationPersistSchema] = []
+    reference_day: int | None = None
+    reference_year: int
+
+
+class FinancePersistResultSchema(BaseModel):
+    incomes: int
+    accounts: int
+    expenses: int
+    categories: int
+    allocations: int

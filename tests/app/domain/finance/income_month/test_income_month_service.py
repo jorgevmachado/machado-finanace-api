@@ -6,8 +6,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.finance.income_month.repository import IncomeMonthRepository
-from app.domain.finance.income_month.schema import PayloadIncomeMonthPersistSchema
 from app.domain.finance.income_month.service import IncomeMonthService
+from app.domain.finance.months.schema import PayloadMonthPersistSchema
 from app.models import Income, IncomeMonth
 
 
@@ -39,16 +39,16 @@ class TestIncomeMonthServicePersistList:
     async def test_income_month_persist_list_fills_missing_months(
         self, income_month_service, income
     ):
-        payload = [
-            PayloadIncomeMonthPersistSchema(
-                reference_month=1,
+        months = [
+            PayloadMonthPersistSchema(
                 amount=100.00,
-                received_at=None,
+                reference_month=1,
+                transaction_date=None,
             ),
-            PayloadIncomeMonthPersistSchema(
-                reference_month=6,
+            PayloadMonthPersistSchema(
                 amount=150.00,
-                received_at=None,
+                reference_month=6,
+                transaction_date=None,
             ),
         ]
 
@@ -57,7 +57,7 @@ class TestIncomeMonthServicePersistList:
         ) as mock_persist:
             mock_persist.return_value = MagicMock(spec=IncomeMonth)
             result = await income_month_service.persist_list(
-                income=income, reference_day=10, reference_year=2026, payload=payload
+                months=months, income=income, reference_day=10, reference_year=2026
             )
 
             # Should have 12 months (original 2 + 10 missing)
@@ -68,11 +68,11 @@ class TestIncomeMonthServicePersistList:
     async def test_income_month_persist_list_all_months_provided(
         self, income_month_service, income
     ):
-        payload = [
-            PayloadIncomeMonthPersistSchema(
-                reference_month=i,
+        months = [
+            PayloadMonthPersistSchema(
                 amount=100.00,
-                received_at=date(2026, i, 10),
+                reference_month=i,
+                transaction_date=date(2026, i, 10),
             )
             for i in range(1, 13)
         ]
@@ -82,7 +82,7 @@ class TestIncomeMonthServicePersistList:
         ) as mock_persist:
             mock_persist.return_value = MagicMock(spec=IncomeMonth)
             result = await income_month_service.persist_list(
-                income=income, reference_day=10, reference_year=2026, payload=payload
+                months=months, income=income, reference_day=10, reference_year=2026
             )
 
             assert len(result) == 12
@@ -97,10 +97,10 @@ class TestIncomeMonthServicePersist:
         from http import HTTPStatus
         from fastapi import HTTPException
 
-        payload = PayloadIncomeMonthPersistSchema(
-            reference_month=1,
+        month = PayloadMonthPersistSchema(
             amount=100.00,
-            received_at=None,
+            reference_month=1,
+            transaction_date=None,
         )
 
         existing_income_month = MagicMock(spec=IncomeMonth)
@@ -112,11 +112,11 @@ class TestIncomeMonthServicePersist:
 
             try:
                 await income_month_service.persist(
+                    month=month,
                     income=income,
-                    payload=payload,
-                    reference_year=2026,
-                    reference_day=10,
                     with_throw=True,
+                    reference_day=10,
+                    reference_year=2026,
                 )
                 assert False, "Should raise HTTPException"
             except HTTPException as e:
@@ -127,10 +127,10 @@ class TestIncomeMonthServicePersist:
     async def test_income_month_persist_already_exists_without_throw(
         self, income_month_service, income
     ):
-        payload = PayloadIncomeMonthPersistSchema(
-            reference_month=1,
+        month = PayloadMonthPersistSchema(
             amount=150.00,
-            received_at=None,
+            reference_month=1,
+            transaction_date=None,
         )
 
         existing_income_month = MagicMock(spec=IncomeMonth)
@@ -146,11 +146,11 @@ class TestIncomeMonthServicePersist:
                 mock_update.return_value = existing_income_month
 
                 result = await income_month_service.persist(
+                    month=month,
                     income=income,
-                    payload=payload,
-                    reference_year=2026,
-                    reference_day=10,
                     with_throw=False,
+                    reference_day=10,
+                    reference_year=2026,
                 )
 
                 assert result == existing_income_month
@@ -160,10 +160,10 @@ class TestIncomeMonthServicePersist:
     async def test_income_month_persist_creates_new(self, income_month_service, income):
         from datetime import date
 
-        payload = PayloadIncomeMonthPersistSchema(
-            reference_month=1,
+        month = PayloadMonthPersistSchema(
             amount=200.00,
-            received_at=date(2026, 1, 10),
+            reference_month=1,
+            transaction_date=date(2026, 1, 10),
         )
 
         created_income_month = MagicMock(spec=IncomeMonth)
@@ -179,10 +179,10 @@ class TestIncomeMonthServicePersist:
                 mock_save.return_value = created_income_month
 
                 result = await income_month_service.persist(
+                    month=month,
                     income=income,
-                    payload=payload,
-                    reference_year=2026,
                     reference_day=10,
+                    reference_year=2026,
                 )
 
                 assert result == created_income_month

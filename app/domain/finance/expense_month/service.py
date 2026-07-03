@@ -8,15 +8,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import LoggingParams
 from app.core.service import BaseService
-from app.domain.finance.expense_month.business import get_status, validate_paid_at
 
 from app.domain.finance.expense_month.repository import (
     ExpenseMonthRepository,
 )
-from app.domain.finance.expense_month.schema import (
-    ExpenseMonthSchema,
-    PayloadExpenseMonthPersistSchema,
+from app.domain.finance.expense_month.schema import ExpenseMonthSchema
+from app.domain.finance.months.business import (
+    get_month_status,
+    get_paid_at,
+    complete_months_in_year,
 )
+from app.domain.finance.months.schema import PayloadMonthPersistSchema
 
 from app.models import (
     Expense,
@@ -49,33 +51,22 @@ class ExpenseMonthService(BaseService[ExpenseMonthRepository, ExpenseMonth]):
 
     async def persist_list(
         self,
+        months: list[PayloadMonthPersistSchema],
         expense: Expense,
+        reference_day: int,
         reference_year: int,
-        payload: list[PayloadExpenseMonthPersistSchema],
     ) -> list[ExpenseMonth]:
-        months_provided = {item.reference_month for item in payload}
-        all_months = set(range(1, 13))
-        missing_months = all_months - months_provided
-
-        # Create missing months with default values
-        for month in missing_months:
-            payload.append(
-                PayloadExpenseMonthPersistSchema(
-                    reference_month=month,
-                    amount=0.0,
-                    paid_at=None,
-                    status=None,
-                )
-            )
-
-        # Sort by month for consistency
-        payload.sort(key=lambda x: x.reference_month)
+        persist_months = complete_months_in_year(
+            months=months,
+            reference_day=reference_day,
+            reference_year=reference_year,
+        )
 
         expense_months = []
-        for item in payload:
+        for month in persist_months:
             expense_month = await self.persist(
+                month=month,
                 expense=expense,
-                payload=item,
                 with_throw=False,
                 reference_year=reference_year,
             )
@@ -84,25 +75,20 @@ class ExpenseMonthService(BaseService[ExpenseMonthRepository, ExpenseMonth]):
 
     async def persist(
         self,
+        month: PayloadMonthPersistSchema,
         expense: Expense,
-        payload: PayloadExpenseMonthPersistSchema,
         reference_year: int,
         with_throw: bool = True,
     ) -> ExpenseMonth:
-        status = get_status(
-            status=payload.status,
-            paid_at=payload.paid_at,
-            reference_month=payload.reference_month,
-        )
-        paid_at = validate_paid_at(status, payload.paid_at)
+        status = get_month_status(month=month)
 
-        current_reference_year = payload.reference_year or reference_year
+        paid_at = get_paid_at(status, month.transaction_date)
 
         expense_month = await self.find_by(
             expense_id=expense.id,
-            reference_year=current_reference_year,
-            reference_month=payload.reference_month,
+            reference_year=reference_year,
             without_throw=True,
+            reference_month=month.reference_month,
         )
         if expense_month:
             if with_throw:
@@ -112,7 +98,7 @@ class ExpenseMonthService(BaseService[ExpenseMonthRepository, ExpenseMonth]):
                 )
             else:
                 expense.status = status
-                expense.amount = payload.amount
+                expense.amount = month.amount
                 expense.paid_at = paid_at
                 return await self.repository.update(entity=expense_month)
 
@@ -120,10 +106,10 @@ class ExpenseMonthService(BaseService[ExpenseMonthRepository, ExpenseMonth]):
             return await self.repository.save(
                 entity=ExpenseMonth(
                     status=status,
-                    amount=payload.amount,
+                    amount=month.amount,
                     paid_at=paid_at,
                     expense_id=expense.id,
-                    reference_year=current_reference_year,
-                    reference_month=payload.reference_month,
+                    reference_year=reference_year,
+                    reference_month=month.reference_month,
                 )
             )

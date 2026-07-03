@@ -6,15 +6,27 @@ from app.domain.finance.allocation.schema import (
     AllocationRelationSchema,
     AllocationSchema,
 )
-from app.domain.finance.category.schema import CategorySchema
-from app.domain.finance.expense_month.schema import (
-    ExpenseMonthSchema,
-    PayloadExpenseMonthPersistSchema,
+from app.domain.finance.category.schema import (
+    CategorySchema,
+    PayloadCategoryCreateSchema,
 )
+from app.domain.finance.expense_month.schema import ExpenseMonthSchema
+from app.domain.finance.months.schema import PayloadMonthPersistSchema
+
+
+class PayloadFinanceExpensePersistChildrenRequiredSchema(PayloadCategoryCreateSchema):
+    amount: float
+    reference_day: int | None = None
+    reference_month: int
+
+
+class PayloadFinanceExpensePersistRequiredSchema(BaseModel):
+    children: list[PayloadFinanceExpensePersistChildrenRequiredSchema]
+    reference_month: int
 
 
 class PayloadExpenseCreateSchema(BaseModel):
-    months: list[PayloadExpenseMonthPersistSchema]
+    months: list[PayloadMonthPersistSchema]
     account_id: UUID
     category_id: UUID
     description: str
@@ -35,6 +47,7 @@ class PayloadExpenseUpdateSchema(BaseModel):
 
 class ExpenseParentSchema(BaseModel):
     """Simplified expense schema for parent references, preventing infinite recursion."""
+
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
@@ -60,6 +73,7 @@ class ExpenseSchema(BaseModel):
 
 class ExpenseDetailSchema(BaseModel):
     """Expense schema with parent and children relationships."""
+
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
@@ -75,7 +89,6 @@ class ExpenseDetailSchema(BaseModel):
     created_at: datetime
     updated_at: datetime | None = None
     deleted_at: datetime | None = None
-
 
 
 ExpenseSchema.model_rebuild()

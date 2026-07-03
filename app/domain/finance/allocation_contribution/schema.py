@@ -5,12 +5,12 @@ from datetime import datetime
 from app.domain.finance.allocation.schema import AllocationSchema
 from app.domain.finance.allocation_contribution_month.schema import (
     AllocationContributionMonthSchema,
-    PayloadAllocationContributionMonthPersistSchema,
 )
+from app.domain.finance.months.schema import PayloadMonthPersistSchema
 
 
 class PayloadAllocationContributionCreateSchema(BaseModel):
-    months: list[PayloadAllocationContributionMonthPersistSchema]
+    months: list[PayloadMonthPersistSchema]
     account_id: UUID
     description: str
     allocation_id: UUID
@@ -21,7 +21,7 @@ class PayloadAllocationContributionCreateSchema(BaseModel):
 
 
 class PayloadAllocationContributionUpdateSchema(BaseModel):
-    months: list[PayloadAllocationContributionMonthPersistSchema] = []
+    months: list[PayloadMonthPersistSchema] = []
     description: str | None = None
     reference_day: int | None = None
     reference_year: int | None = None

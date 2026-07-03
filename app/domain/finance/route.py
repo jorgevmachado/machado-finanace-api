@@ -18,10 +18,13 @@ from app.domain.finance.category.route import router as category_route
 from app.domain.finance.expense.route import router as expense_route
 from app.domain.finance.income.route import router as income_route
 from app.domain.finance.repository import FinanceRepository
-from app.domain.finance.schema import FinanceCreateSchema, FinanceSchema
+from app.domain.finance.schema import (
+    FinanceSchema,
+    FinancePersistResultSchema,
+    PayloadFinancePersistSchema,
+)
 from app.domain.finance.service import FinanceService
 from app.domain.finance.transfer.route import router as transfer_route
-from app.domain.finance.plan.route import router as plan_route
 from app.models import User
 from app.shared.schemas import FilterPage
 
@@ -47,8 +50,6 @@ router.include_router(expense_route, prefix="/expenses", tags=["FinanceExpense"]
 
 router.include_router(transfer_route, prefix="/transfers", tags=["TransferExpense"])
 
-router.include_router(plan_route, prefix="/plans", tags=["FinancePlan"])
-
 Session = Annotated[AsyncSession, Depends(get_session)]
 
 
@@ -70,15 +71,18 @@ def finance_filter(
     )
 
 
-@router.post("", response_model=FinanceSchema, status_code=HTTPStatus.CREATED)
-async def create(
-    service: Service, current_user: CurrentUser, payloads: list[FinanceCreateSchema]
+@router.post(
+    "",
+    response_model=FinancePersistResultSchema,
+    status_code=HTTPStatus.CREATED,
+)
+async def persist(
+    service: Service,
+    current_user: CurrentUser,
+    payloads: list[PayloadFinancePersistSchema],
 ):
     finance = validate_finance(current_user.finance)
-    return await service.create(
-        finance=finance,
-        payloads=payloads,
-    )
+    return await service.persist(finance=finance, payloads=payloads)
 
 
 @router.get("", response_model=FinanceSchema, status_code=HTTPStatus.OK)

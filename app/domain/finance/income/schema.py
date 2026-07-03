@@ -2,14 +2,12 @@ from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from datetime import datetime
 
-from app.domain.finance.income_month.schema import (
-    IncomeMonthSchema,
-    PayloadIncomeMonthPersistSchema,
-)
+from app.domain.finance.income_month.schema import IncomeMonthSchema
+from app.domain.finance.months.schema import PayloadMonthPersistSchema
 
 
 class PayloadIncomeCreateSchema(BaseModel):
-    months: list[PayloadIncomeMonthPersistSchema]
+    months: list[PayloadMonthPersistSchema]
     source: str
     account_id: UUID
     description: str
@@ -19,7 +17,7 @@ class PayloadIncomeCreateSchema(BaseModel):
 
 
 class PayloadIncomeUpdateSchema(BaseModel):
-    months: list[PayloadIncomeMonthPersistSchema]
+    months: list[PayloadMonthPersistSchema]
     source: str | None = None
     account_id: UUID | None = None
     description: str | None = None

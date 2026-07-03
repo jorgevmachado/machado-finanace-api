@@ -12,6 +12,7 @@ from app.core.service import BaseService
 from app.domain.finance.account.service import AccountService
 
 from app.domain.finance.allocation.service import AllocationService
+from app.domain.finance.expense.business import get_expense_months, get_expense_children
 from app.domain.finance.category.schema import PayloadCategoryCreateSchema
 from app.domain.finance.category.service import CategoryService
 
@@ -21,9 +22,11 @@ from app.domain.finance.expense.repository import (
 from app.domain.finance.expense.schema import (
     ExpenseSchema,
     PayloadExpenseCreateSchema,
+    PayloadFinanceExpensePersistChildrenRequiredSchema,
 )
 from app.domain.finance.expense_month.service import ExpenseMonthService
-from app.domain.finance.schema import FinanceCreateCategorySchema
+from app.domain.finance.months.schema import PayloadMonthPersistSchema
+from app.domain.finance.schema import PayloadFinanceCategoryPersistSchema
 
 from app.models import (
     Expense,
@@ -32,6 +35,7 @@ from app.models import (
     Allocation,
     Category,
 )
+from app.shared.utils.validator import validate_year
 
 logger = logging.getLogger(__name__)
 
@@ -85,12 +89,15 @@ class ExpenseService(BaseService[ExpenseRepository, Expense]):
         category = await self._validate_category(payload.category_id, finance.id)
 
         return await self.persist(
-            finance=finance,
+            months=payload.months,
             account=account,
-            allocation=allocation,
+            finance=finance,
             category=category,
-            payload=payload,
+            allocation=allocation,
             with_throw=True,
+            description=payload.description,
+            reference_day=payload.reference_day or 10,
+            reference_year=payload.reference_year,
         )
 
     async def _validate_relations(
@@ -130,22 +137,117 @@ class ExpenseService(BaseService[ExpenseRepository, Expense]):
             )
         return category
 
-    async def persist(
+    async def persist_by_category(
         self,
         finance: Finance,
         account: Account,
+        payload: PayloadFinanceCategoryPersistSchema,
+        allocation: Allocation,
+        reference_day: int,
+        reference_year: int,
+    ) -> list[Expense]:
+        expenses: list[Expense] = []
+        category = await self.category_service.persist(
+            finance=finance,
+            payload=payload,
+            with_throw=False,
+        )
+        merged_expenses_months = get_expense_months(
+            payloads=payload.expenses or [], category_type=payload.type
+        )
+
+        if len(merged_expenses_months) > 0:
+            expense = await self.persist(
+                months=merged_expenses_months,
+                account=account,
+                finance=finance,
+                category=category,
+                allocation=allocation,
+                description=category.description,
+                reference_day=reference_day,
+                reference_year=reference_year,
+                with_throw=False,
+            )
+            expenses.append(expense)
+
+            payload_expenses = get_expense_children(
+                payloads=payload.expenses or [], category_type=payload.type
+            )
+
+            if len(payload_expenses) > 0:
+                for payload_expense in payload_expenses:
+                    children_expenses = await self.persist_children(
+                        parent=expense,
+                        children=payload_expense.children,
+                        reference_day=reference_day,
+                        reference_year=reference_year,
+                        reference_month=payload_expense.reference_month,
+                    )
+                    expenses.extend(children_expenses)
+
+        return expenses
+
+    async def persist_children(
+        self,
+        parent: Expense,
+        children: list[PayloadFinanceExpensePersistChildrenRequiredSchema],
+        reference_day: int,
+        reference_year: int,
+        reference_month: int,
+    ) -> list[Expense]:
+        expenses: list[Expense] = []
+        for payload_category in children:
+            category = await self.category_service.persist(
+                finance=parent.finance,
+                payload=PayloadCategoryCreateSchema(
+                    name=payload_category.name,
+                    type=payload_category.type,
+                    description=payload_category.description or payload_category.name,
+                ),
+                with_throw=False,
+            )
+            expense = await self.persist(
+                months=[
+                    PayloadMonthPersistSchema(
+                        amount=payload_category.amount,
+                        reference_month=reference_month,
+                    )
+                ],
+                account=parent.account,
+                finance=parent.finance,
+                category=category,
+                parent_id=parent.id,
+                allocation=parent.allocation,
+                description=category.description,
+                reference_day=reference_day,
+                reference_year=reference_year,
+                with_throw=False,
+            )
+            expenses.append(expense)
+        return expenses
+
+    async def persist(
+        self,
+        months: list[PayloadMonthPersistSchema],
+        account: Account,
+        finance: Finance,
         category: Category,
         allocation: Allocation,
-        payload: PayloadExpenseCreateSchema,
+        description: str,
+        reference_day: int,
+        reference_year: int,
+        parent_id: UUID | None = None,
         with_throw: bool = True,
     ) -> Expense:
+
+        year = validate_year(reference_year)
 
         expense = await self.find_by(
             finance_id=finance.id,
             account_id=account.id,
             allocation_id=allocation.id,
             category_id=category.id,
-            description=payload.description,
+            description=description,
             without_throw=True,
         )
         if expense:
@@ -155,74 +257,32 @@ class ExpenseService(BaseService[ExpenseRepository, Expense]):
                     detail="Expense already exists",
                 )
             else:
-                expense.description = payload.description
-                expense.parent_id = payload.parent_id
+                expense.description = description
+                expense.parent_id = parent_id
                 await self.expense_month_service.persist_list(
+                    months=months,
                     expense=expense,
-                    reference_year=payload.reference_year,
-                    payload=payload.months,
+                    reference_year=year,
+                    reference_day=reference_day,
                 )
                 return await self.repository.update(entity=expense)
 
         else:
             created_expense = await self.repository.save(
                 entity=Expense(
+                    parent_id=parent_id,
                     finance_id=finance.id,
-                    account_id=payload.account_id,
-                    category_id=payload.category_id,
-                    description=payload.description,
-                    allocation_id=payload.allocation_id,
-                    parent_id=payload.parent_id,
+                    account_id=account.id,
+                    category_id=category.id,
+                    description=description,
+                    allocation_id=allocation.id,
                 )
             )
             await self.expense_month_service.persist_list(
+                months=months,
                 expense=created_expense,
-                reference_year=payload.reference_year,
-                payload=payload.months,
+                reference_day=reference_day,
+                reference_year=year,
             )
 
             return await self.find_by(id=created_expense.id)
-
-    async def create_by_account(
-        self,
-        finance: Finance,
-        account: Account,
-        allocation: Allocation,
-        reference_day: int,
-        reference_year: int,
-        payload_categories: list[FinanceCreateCategorySchema],
-    ) -> list[Expense]:
-        expenses: list[Expense] = []
-        if len(payload_categories) > 0:
-            for payload_category in payload_categories:
-                category = await self.category_service.persist(
-                    finance=finance,
-                    payload=PayloadCategoryCreateSchema(
-                        name=payload_category.name,
-                        type=payload_category.type,
-                        description=payload_category.description
-                        or payload_category.name,
-                    ),
-                    with_throw=False,
-                )
-                payload_months = payload_category.months or []
-
-                expense = await self.persist(
-                    finance=finance,
-                    account=account,
-                    category=category,
-                    allocation=allocation,
-                    payload=PayloadExpenseCreateSchema(
-                        months=payload_months,
-                        account_id=account.id,
-                        description=payload_category.description
-                        or payload_category.name,
-                        category_id=category.id,
-                        allocation_id=allocation.id,
-                        reference_day=reference_day,
-                        reference_year=reference_year,
-                    ),
-                    with_throw=False,
-                )
-                expenses.append(expense)
-        return expenses

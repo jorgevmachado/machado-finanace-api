@@ -28,6 +28,7 @@ def upgrade() -> None:
         sa.Column("account_id", sa.Uuid(), nullable=False),
         sa.Column("allocation_id", sa.Uuid(), nullable=False),
         sa.Column("contributor_name", sa.String(), nullable=False),
+        sa.Column("contributor_name_code", sa.String(), nullable=False),
         sa.Column("description", sa.Text(), nullable=False),
         sa.Column("reference_year", sa.Integer(), nullable=False),
         sa.Column("reference_month", sa.Integer(), nullable=False),

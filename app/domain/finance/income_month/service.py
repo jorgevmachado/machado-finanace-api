@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-from datetime import date
 from decimal import Decimal
 from http import HTTPStatus
 
@@ -10,6 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import LoggingParams
 from app.core.service import BaseService
+from app.domain.finance.months.business import complete_months_in_year
+from app.domain.finance.months.schema import PayloadMonthPersistSchema
 from app.shared.utils.date import validate_received_at
 
 from app.domain.finance.income_month.repository import (
@@ -17,7 +18,6 @@ from app.domain.finance.income_month.repository import (
 )
 from app.domain.finance.income_month.schema import (
     IncomeMonthSchema,
-    PayloadIncomeMonthPersistSchema,
 )
 
 from app.models import (
@@ -51,33 +51,23 @@ class IncomeMonthService(BaseService[IncomeMonthRepository, IncomeMonth]):
 
     async def persist_list(
         self,
+        months: list[PayloadMonthPersistSchema],
         income: Income,
         reference_day: int,
         reference_year: int,
-        payload: list[PayloadIncomeMonthPersistSchema],
     ) -> list[IncomeMonth]:
-        months_provided = {item.reference_month for item in payload}
-        all_months = set(range(1, 13))
-        missing_months = all_months - months_provided
-
-        # Create missing months with default values
-        for month in missing_months:
-            payload.append(
-                PayloadIncomeMonthPersistSchema(
-                    reference_month=month,
-                    amount=0.0,
-                    received_at=date(reference_year, month, reference_day),
-                )
-            )
-
-        # Sort by month for consistency
-        payload.sort(key=lambda x: x.reference_month)
+        print("# => len => months => ", len(months))
+        persist_months = complete_months_in_year(
+            months=months,
+            reference_day=reference_day,
+            reference_year=reference_year,
+        )
 
         income_months: list[IncomeMonth] = []
-        for item in payload:
+        for month in persist_months:
             income_month = await self.persist(
                 income=income,
-                payload=item,
+                month=month,
                 with_throw=False,
                 reference_day=reference_day,
                 reference_year=reference_year,
@@ -87,27 +77,25 @@ class IncomeMonthService(BaseService[IncomeMonthRepository, IncomeMonth]):
 
     async def persist(
         self,
+        month: PayloadMonthPersistSchema,
         income: Income,
-        payload: PayloadIncomeMonthPersistSchema,
-        reference_year: int,
         reference_day: int,
+        reference_year: int,
         with_throw: bool = True,
     ) -> IncomeMonth:
-
-        current_reference_year = payload.reference_year or reference_year
-
+        print("# => income => id => ", income.id)
         received_at = validate_received_at(
-            year=current_reference_year,
+            year=reference_year,
             day=reference_day,
-            month=payload.reference_month,
-            received_at=payload.received_at,
+            month=month.reference_month,
+            received_at=month.transaction_date,
         )
 
         income_month = await self.find_by(
             income_id=income.id,
-            reference_year=current_reference_year,
-            reference_month=payload.reference_month,
+            reference_year=reference_year,
             without_throw=True,
+            reference_month=month.reference_month,
         )
         if income_month:
             if with_throw:
@@ -116,17 +104,17 @@ class IncomeMonthService(BaseService[IncomeMonthRepository, IncomeMonth]):
                     detail="Income Month already exists",
                 )
             else:
-                income.amount = Decimal(str(payload.amount))
+                income.amount = Decimal(str(month.amount))
                 income.received_at = received_at
                 return await self.repository.update(entity=income_month)
 
         else:
             return await self.repository.save(
                 entity=IncomeMonth(
-                    amount=payload.amount,
+                    amount=month.amount,
                     income_id=income.id,
                     received_at=received_at,
-                    reference_year=current_reference_year,
-                    reference_month=payload.reference_month,
+                    reference_year=reference_year,
+                    reference_month=month.reference_month,
                 )
             )
