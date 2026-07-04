@@ -40,6 +40,7 @@ def expense_filter(
     limit: int | None = 12,
     status: str | None = None,
     offset: int | None = None,
+    parent_id: str | None = None,
     account_id: str | None = None,
     category_id: str | None = None,
     allocation_id: str | None = None,
@@ -51,6 +52,7 @@ def expense_filter(
         limit=limit,
         status=status,
         offset=offset,
+        parent_id="FALSE" if parent_id is None else parent_id,
         account_id=account_id,
         category_id=category_id,
         allocation_id=allocation_id,
@@ -61,7 +63,8 @@ def expense_filter(
 
 @router.get(
     "",
-    response_model=CustomLimitOffsetPage[ExpenseDetailSchema] | list[ExpenseDetailSchema],
+    response_model=CustomLimitOffsetPage[ExpenseDetailSchema]
+    | list[ExpenseDetailSchema],
     status_code=HTTPStatus.OK,
 )
 async def list_all(

@@ -79,3 +79,12 @@ class TestExpenseFilter:
         assert result.allocation_id == allocation_id
         assert result.clean_cache is True
         assert result.with_deleted is True
+
+    def test_expense_filter_with_parent_id_is_none(self):
+        result = expense_filter(parent_id=None)
+        assert result.parent_id == "FALSE"
+
+    def test_expense_filter_with_parent_id_is_not_none(self):
+        value = uuid4()
+        result = expense_filter(parent_id=str(value))
+        assert result.parent_id == str(value)

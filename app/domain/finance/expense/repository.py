@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sqlalchemy.orm import  selectinload
+from sqlalchemy.orm import selectinload
 
 from app.core.repository.base import BaseRepository
 from app.models import (
@@ -10,7 +10,7 @@ from app.models import (
 
 class ExpenseRepository(BaseRepository[Expense]):
     model = Expense
-    relations =(
+    relations = (
         selectinload(Expense.children),
         selectinload(Expense.parent),
     )
