@@ -106,17 +106,13 @@ class FinanceService(BaseService[FinanceRepository, Finance]):
             reference_day = payload.reference_day or 10
             reference_year = payload.reference_year
 
-            for payload_income in payload.incomes:
-                income = await self.income_service.persist(
-                    months=payload_income.months,
-                    source=payload_income.source,
-                    account=account,
-                    with_throw=False,
-                    description=payload_income.description,
-                    reference_day=reference_day,
-                    reference_year=reference_year,
-                )
-                incomes.append(income)
+            incomes.extend(await self.income_service.persist_list(
+                account=account,
+                with_throw=False,
+                payloads=payload.incomes,
+                reference_day=reference_day,
+                reference_year=reference_year,
+            ))
 
             for payload_allocation in payload.allocations:
                 allocation = await self.allocation_service.persist(

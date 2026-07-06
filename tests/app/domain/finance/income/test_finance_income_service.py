@@ -9,9 +9,12 @@ from fastapi import HTTPException
 from http import HTTPStatus
 
 from app.domain.finance.income.service import IncomeService
-from app.domain.finance.income.schema import PayloadIncomeCreateSchema
+from app.domain.finance.income.schema import (
+    PayloadIncomeCreateSchema,
+    PayloadIncomePersistSchema,
+)
 from app.domain.finance.months.schema import PayloadMonthPersistSchema
-from app.models import utcnow, Account
+from app.models import utcnow, Account, Income
 
 
 @pytest.fixture
@@ -35,6 +38,25 @@ def account():
     account.id = uuid4()
     account.finance_id = uuid4()
     return account
+
+@pytest.fixture()
+def income():
+    income = MagicMock(spec=Income)
+    income.id = uuid4()
+    income.source = "Test Income"
+    income.description = "Test Income Description"
+    return income
+
+
+@pytest.fixture
+def payload_months(value: float = 100.0):
+    months: list[PayloadMonthPersistSchema] = []
+    for i in range(1, 13):
+        months.append(PayloadMonthPersistSchema(
+            amount=value,
+            reference_month=i
+        ))
+    return months
 
 
 class TestFinanceIncomeFromSessionService:
@@ -342,3 +364,49 @@ class TestFinanceIncomePersistService:
         )
         assert result == created_income
         income_repository_mock.save.assert_awaited_once()
+        
+class TestFinanceIncomePersistListService:
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_income_persist_list_service_successfully(
+        income_repository_mock, 
+            income,
+        account,
+            payload_months
+    ):
+
+        reference_day = 10
+        reference_year = utcnow().year        
+        
+        second_income = income
+        second_income.id = uuid4()
+        second_income.source = "Second Income"
+        second_income.description = "Second Income Description"
+
+        payload_incomes: list[PayloadIncomePersistSchema] = [
+            PayloadIncomePersistSchema(
+                months=payload_months,
+                source=income.source,
+                description=income.description,
+            ),
+            PayloadIncomePersistSchema(
+                months=payload_months,
+                source=second_income.source,
+                description=second_income.description,
+            ),
+        ]
+
+        service = IncomeService(repository=income_repository_mock)
+        service.find_by = AsyncMock(side_effect=[None, income, None, second_income])
+        income_repository_mock.save.side_effect = [income, second_income]
+        result = await service.persist_list(
+            account=account,
+            payloads=payload_incomes,
+            with_throw=False,
+            reference_day=reference_day,
+            reference_year=reference_year,            
+        )
+        assert len(result) == 2
+        assert result[0] == income
+        assert result[1] == second_income
+        income_repository_mock.save.assert_awaited()

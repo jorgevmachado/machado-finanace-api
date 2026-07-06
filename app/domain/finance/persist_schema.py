@@ -1,14 +1,8 @@
 from pydantic import BaseModel
 
+from app.domain.finance.income.schema import PayloadIncomePersistSchema
 from app.domain.finance.months.schema import PayloadMonthPersistSchema
 from app.models import AccountTypeEnum
-
-
-class PayloadPersistIncomeSchema(BaseModel):
-    months: list[PayloadMonthPersistSchema]
-    source: str
-    description: str
-
 
 class PayloadPersistChildrenExpenseSchema(BaseModel):
     name: str
@@ -45,7 +39,7 @@ class PayloadPersistAllocationSchema(BaseModel):
 class PayloadPersistSchema(BaseModel):
     name: str
     type: AccountTypeEnum
-    incomes: list[PayloadPersistIncomeSchema] = []
+    incomes: list[PayloadIncomePersistSchema] = []
     allocations: list[PayloadPersistAllocationSchema] = []
     initial_balance: float
     reference_day: int | None = None

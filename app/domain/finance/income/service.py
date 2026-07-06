@@ -15,7 +15,7 @@ from app.shared.utils.validator import validate_year
 from app.domain.finance.income.repository import IncomeRepository
 from app.domain.finance.income.schema import (
     PayloadIncomeCreateSchema,
-    IncomeSchema,
+    IncomeSchema, PayloadIncomePersistSchema,
 )
 
 from app.models import Income, Finance, Account
@@ -128,3 +128,25 @@ class IncomeService(BaseService[IncomeRepository, Income]):
             updated_income = await self.find_by(id=created_income.id)
             updated_income.months = months
             return updated_income
+
+    async def persist_list(
+        self,
+        account: Account,
+        payloads: list[PayloadIncomePersistSchema],
+        reference_year: int,
+        with_throw: bool = True,
+        reference_day: int = 10,
+    ) -> list[Income]:
+        incomes: list[Income] = []
+        for payload in payloads:
+            income = await self.persist(
+                months=payload.months,
+                source=payload.source,
+                account=account,
+                with_throw=with_throw,
+                description=payload.description,
+                reference_day=reference_day,
+                reference_year=reference_year,
+            )
+            incomes.append(income)
+        return incomes

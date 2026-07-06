@@ -10,9 +10,9 @@ import pytest
 from fastapi import HTTPException
 
 from app.domain.finance.months.schema import PayloadMonthPersistSchema
+from app.domain.finance.income.schema import PayloadIncomePersistSchema
 from app.domain.finance.persist_schema import (
     PayloadPersistSchema,
-    PayloadPersistIncomeSchema,
     PayloadPersistAllocationSchema,
     PayloadPersistCategorySchema,
     PayloadPersistParentExpenseSchema,
@@ -308,8 +308,8 @@ class TestFinancePersistService:
 
         income.account_id = account_bank.id
 
-        payload_incomes: list[PayloadPersistIncomeSchema] = [
-            PayloadPersistIncomeSchema(
+        payload_incomes: list[PayloadIncomePersistSchema] = [
+            PayloadIncomePersistSchema(
                 months=payload_months,
                 source=income.source,
                 description=income.description,
@@ -337,7 +337,7 @@ class TestFinancePersistService:
             allocation_contribution_service=allocation_contribution_service_mock,
         )
         account_service_mock.persist.return_value=account_bank
-        income_service_mock.persist.return_value=income
+        income_service_mock.persist_list.return_value=[income]
         result = await service.persist(finance=finance, payloads=payloads)
         assert result.accounts == 1
         assert result.incomes == 1
@@ -345,7 +345,7 @@ class TestFinancePersistService:
         assert result.expenses == 0
         assert result.categories == 0
         account_service_mock.persist.assert_awaited_once()
-        income_service_mock.persist.assert_awaited_once()
+        income_service_mock.persist_list.assert_awaited_once()
 
     @staticmethod
     @pytest.mark.asyncio
