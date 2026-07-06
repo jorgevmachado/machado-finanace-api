@@ -139,15 +139,13 @@ class ExpenseService(BaseService[ExpenseRepository, Expense]):
             else:
                 expense.description = description
                 expense.parent_id = parent_id
-                updated_months = await self.expense_month_service.persist_list(
+                await self.expense_month_service.persist_list(
                     months=months,
                     expense=expense,
                     reference_year=year,
                     reference_day=reference_day,
                 )
-                updated_expense = await self.repository.update(entity=expense)
-                updated_expense.months = updated_months
-                return updated_expense
+                return await self.repository.update(entity=expense)
 
         else:
             created_expense = await self.repository.save(

@@ -1,2639 +1,490 @@
-{
-  "accounts": [
-    {
-      "id": "8616336d-74b1-4f49-86ae-8ca7e120c410",
-      "name": "Itaú",
-      "type": "BANK",
-      "is_active": true,
-      "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-      "reference_year": 2026,
-      "initial_balance": 0,
-      "current_balance": 0,
-      "created_at": "2026-07-02T00:09:29.724575Z",
-      "updated_at": null,
-      "deleted_at": null,
-      "incomes": [
-        {
-          "id": "4b1c86c3-21e4-42af-82e8-f33c4ddb3d87",
-          "source": "Salario (Itaú)",
-          "total": 45.120,
-          "source_code": "salario_itau",
-          "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-          "account_id": "8616336d-74b1-4f49-86ae-8ca7e120c410",
-          "description": "Salario (Itaú)",
-          "created_at": "2026-07-02T00:09:29.750863Z",
-          "updated_at": null,
-          "deleted_at": null,
-          "months": [
-            {
-              "id": "11111111-1111-1111-1111-111111111111",
-              "amount": 7520.0,
-              "income_id": "4b1c86c3-21e4-42af-82e8-f33c4ddb3d87",
-              "reference_year": 2026,
-              "reference_month": 1,
-              "received_at": "2026-01-05",
-              "created_at": "2026-07-02T00:09:29.750863Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "11111111-1111-1111-1111-111111111111",
-              "amount": 7520.0,
-              "income_id": "4b1c86c3-21e4-42af-82e8-f33c4ddb3d87",
-              "reference_year": 2026,
-              "reference_month": 2,
-              "received_at": "2026-01-05",
-              "created_at": "2026-07-02T00:09:29.750863Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "11111111-1111-1111-1111-111111111111",
-              "amount": 7520.0,
-              "income_id": "4b1c86c3-21e4-42af-82e8-f33c4ddb3d87",
-              "reference_year": 2026,
-              "reference_month": 3,
-              "received_at": "2026-01-05",
-              "created_at": "2026-07-02T00:09:29.750863Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "11111111-1111-1111-1111-111111111111",
-              "amount": 7520.0,
-              "income_id": "4b1c86c3-21e4-42af-82e8-f33c4ddb3d87",
-              "reference_year": 2026,
-              "reference_month": 4,
-              "received_at": "2026-01-05",
-              "created_at": "2026-07-02T00:09:29.750863Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "11111111-1111-1111-1111-111111111111",
-              "amount": 7520.0,
-              "income_id": "4b1c86c3-21e4-42af-82e8-f33c4ddb3d87",
-              "reference_year": 2026,
-              "reference_month": 5,
-              "received_at": "2026-01-05",
-              "created_at": "2026-07-02T00:09:29.750863Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "11111111-1111-1111-1111-111111111111",
-              "amount": 7520.0,
-              "income_id": "4b1c86c3-21e4-42af-82e8-f33c4ddb3d87",
-              "reference_year": 2026,
-              "reference_month": 6,
-              "received_at": "2026-01-05",
-              "created_at": "2026-07-02T00:09:29.750863Z",
-              "updated_at": null,
-              "deleted_at": null
-            }
-          ]
-        }
-      ],
-      "outgoing_transfers": [
-        {
-          "id": "11111111-1111-1111-1111-111111111111",
-          "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-          "description": "Parte Jorge",
-          "to_account_id": "498faeea-6a86-482d-88fd-f669b6e1a699",
-          "from_account_id": "8616336d-74b1-4f49-86ae-8ca7e120c410",
-          "transfer_date": "2026-01-07",
-          "amount": 1700.00
-        },
-        {
-          "id": "11111111-1111-1111-1111-111111111111",
-          "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-          "description": "Parte Jorge",
-          "to_account_id": "498faeea-6a86-482d-88fd-f669b6e1a699",
-          "from_account_id": "8616336d-74b1-4f49-86ae-8ca7e120c410",
-          "transfer_date": "2026-02-06",
-          "amount": 1000.00
-        },
-        {
-          "id": "11111111-1111-1111-1111-111111111111",
-          "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-          "description": "Parte Jorge",
-          "to_account_id": "498faeea-6a86-482d-88fd-f669b6e1a699",
-          "from_account_id": "8616336d-74b1-4f49-86ae-8ca7e120c410",
-          "transfer_date": "2026-03-09",
-          "amount": 1500.00
-        },
-        {
-          "id": "11111111-1111-1111-1111-111111111111",
-          "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-          "description": "Parte Jorge",
-          "to_account_id": "498faeea-6a86-482d-88fd-f669b6e1a699",
-          "from_account_id": "8616336d-74b1-4f49-86ae-8ca7e120c410",
-          "transfer_date": "2026-04-10",
-          "amount": 1500.00
-        },
-        {
-          "id": "11111111-1111-1111-1111-111111111111",
-          "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-          "description": "Parte Jorge",
-          "to_account_id": "498faeea-6a86-482d-88fd-f669b6e1a699",
-          "from_account_id": "8616336d-74b1-4f49-86ae-8ca7e120c410",
-          "transfer_date": "2026-05-08",
-          "amount": 1500.00
-        },
-        {
-          "id": "11111111-1111-1111-1111-111111111111",
-          "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-          "description": "Parte Jorge",
-          "to_account_id": "498faeea-6a86-482d-88fd-f669b6e1a699",
-          "from_account_id": "8616336d-74b1-4f49-86ae-8ca7e120c410",
-          "transfer_date": "2026-05-14",
-          "amount": 300.00
-        },
-        {
-          "id": "11111111-1111-1111-1111-111111111111",
-          "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-          "description": "Parte Jorge",
-          "to_account_id": "498faeea-6a86-482d-88fd-f669b6e1a699",
-          "from_account_id": "8616336d-74b1-4f49-86ae-8ca7e120c410",
-          "transfer_date": "2026-05-14",
-          "amount": 85.09
-        },
-        {
-          "id": "11111111-1111-1111-1111-111111111111",
-          "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-          "description": "Parte Jorge",
-          "to_account_id": "498faeea-6a86-482d-88fd-f669b6e1a699",
-          "from_account_id": "8616336d-74b1-4f49-86ae-8ca7e120c410",
-          "transfer_date": "2026-05-5",
-          "amount": 1500.00
-        },
-        {
-          "id": "11111111-1111-1111-1111-111111111111",
-          "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-          "description": "Parte Jorge",
-          "to_account_id": "498faeea-6a86-482d-88fd-f669b6e1a699",
-          "from_account_id": "8616336d-74b1-4f49-86ae-8ca7e120c410",
-          "transfer_date": "2026-06-12",
-          "amount": 300.00
-        },
-        {
-          "id": "11111111-1111-1111-1111-111111111111",
-          "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-          "description": "Parte Jorge",
-          "to_account_id": "498faeea-6a86-482d-88fd-f669b6e1a699",
-          "from_account_id": "8616336d-74b1-4f49-86ae-8ca7e120c410",
-          "transfer_date": "2026-06-16",
-          "amount": 450.00
-        }
-      ],
-      "allocations": [
-        {
-          "id": "11111111-1111-1111-1111-111111111111",
-          "name": "Debito em Conta",
-          "type": "PERSONAL",
-          "name_code": "debito_em_conta",
-          "description": "Debito em Conta",
-          "expenses": [
-            {
-              "id": "11111111-1111-1111-1111-111111111111",
-              "category": {
-                "id": "11111111-1111-1111-1111-111111111111",
-                "name": "Internet Claro",
-                "type": "UTILITY",
-                "description": "Internet (Itaú)"
+[
+  {
+    "name": "Nubank",
+    "type": "BANK",
+    "reference_year": 2025,
+    "initial_balance": 0,
+    "incomes": [
+      {
+        "source": "Salario",
+        "months": [
+          {
+            "amount": 7520.0,
+            "reference_month": 1
+          },
+          {
+            "amount": 7520.0,
+            "reference_month": 2
+          },
+          {
+            "amount": 7520.0,
+            "reference_month": 3
+          },
+          {
+            "amount": 7520.0,
+            "reference_month": 4
+          },
+          {
+            "amount": 7520.0,
+            "reference_month": 5
+          },
+          {
+            "amount": 7520.0,
+            "reference_month": 6
+          }
+        ],
+        "description": "Salario"
+      }
+    ],
+    "allocations": [
+      {
+        "name": "Debito em Conta",
+        "description": "Debito em Conta",
+        "categories": [
+          {
+            "name": "Studies",
+            "description": "Studies",
+            "expenses": [
+              {
+                "name": "L.U.V.E",
+                "description": "Loja Universitária Verdade e Evolução (Nubank)",
+                "months": [
+                  {
+                    "amount": 0,
+                    "reference_month": 1
+                  },
+                  {
+                    "amount": 110.00,
+                    "reference_month": 2
+                  },
+                  {
+                    "amount": 220.00,
+                    "reference_month": 3
+                  },
+                  {
+                    "amount": 210.00,
+                    "reference_month": 4
+                  }
+                ]
               },
-              "months": [
-                {
-                  "id": "11111111-1111-1111-1111-111111111111",
-                  "amount": 551.18,
-                  "expense_id": "4b1c86c3-21e4-42af-82e8-f33c4ddb3d87",
-                  "reference_year": 2026,
-                  "reference_month": 1,
-                  "received_at": "2026-01-05",
-                  "created_at": "2026-07-02T00:09:29.750863Z",
-                  "updated_at": null,
-                  "deleted_at": null
-                },
-                {
-                  "id": "11111111-1111-1111-1111-111111111111",
-                  "amount": 360.05,
-                  "expense_id": "4b1c86c3-21e4-42af-82e8-f33c4ddb3d87",
-                  "reference_year": 2026,
-                  "reference_month": 2,
-                  "received_at": "2026-01-05",
-                  "created_at": "2026-07-02T00:09:29.750863Z",
-                  "updated_at": null,
-                  "deleted_at": null
-                },
-                {
-                  "id": "11111111-1111-1111-1111-111111111111",
-                  "amount": 319.81,
-                  "expense_id": "4b1c86c3-21e4-42af-82e8-f33c4ddb3d87",
-                  "reference_year": 2026,
-                  "reference_month": 3,
-                  "received_at": "2026-01-05",
-                  "created_at": "2026-07-02T00:09:29.750863Z",
-                  "updated_at": null,
-                  "deleted_at": null
-                },
-                {
-                  "id": "11111111-1111-1111-1111-111111111111",
-                  "amount": 319.73,
-                  "expense_id": "4b1c86c3-21e4-42af-82e8-f33c4ddb3d87",
-                  "reference_year": 2026,
-                  "reference_month": 4,
-                  "received_at": "2026-01-05",
-                  "created_at": "2026-07-02T00:09:29.750863Z",
-                  "updated_at": null,
-                  "deleted_at": null
-                },
-                {
-                  "id": "11111111-1111-1111-1111-111111111111",
-                  "amount": 354.6,
-                  "expense_id": "4b1c86c3-21e4-42af-82e8-f33c4ddb3d87",
-                  "reference_year": 2026,
-                  "reference_month": 5,
-                  "received_at": "2026-01-05",
-                  "created_at": "2026-07-02T00:09:29.750863Z",
-                  "updated_at": null,
-                  "deleted_at": null
-                }
-              ],
-              "created_at": "2026-07-02T00:09:29.724575Z",
-              "updated_at": null,
-              "deleted_at": null
-            }
-          ]
-        },
-        {
-          "id": "11111111-1111-1111-1111-111111111111",
-          "name": "Cartão de Crédito",
-          "type": "PERSONAL",
-          "description": "Cartão de Crédito",
-          "expenses": [
-            {
-              "id": "11111111-1111-1111-1111-111111111111",
-              "category": {
-                "id": "11111111-1111-1111-1111-111111111111",
-                "name": "Fatura do Cartão de Crédito Itau",
-                "type": "CREDIT_CARD",
-                "description": "Fatura do Cartão de Crédito Itau"
+              {
+                "name": "Filosóficos",
+                "description": "Capitulo Consciência Liberta (Nubank)",
+                "months": [
+                  {
+                    "amount": 140.00,
+                    "reference_month": 1
+                  },
+                  {
+                    "amount": 40.00,
+                    "reference_month": 2
+                  },
+                  {
+                    "amount": 40.00,
+                    "reference_month": 3
+                  },
+                  {
+                    "amount": 40.00,
+                    "reference_month": 4
+                  },
+                  {
+                    "amount": 40.00,
+                    "reference_month": 5
+                  },
+                  {
+                    "amount": 40.00,
+                    "reference_month": 6
+                  }
+                ]
               },
-              "months": [
-                {
-                  "id": "11111111-1111-1111-1111-111111111111",
-                  "amount": 200.0,
-                  "expense_id": "11111111-1111-1111-1111-111111111111",
-                  "received_year": 2026,
-                  "received_month": 1,
-                  "received_at": "2026-01-01",
-                  "created_at": "2026-07-02T00:09:29.724575Z",
-                  "expenses": [
-                    {
-                      "id": "11111111-1111-1111-1111-111111111111",
-                      "category": {
-                        "id": "11111111-1111-1111-1111-111111111111",
+              {
+                "name": "M.C.B.D.A",
+                "description": "Moto Clube Bodes do Asfalto (Nubank)",
+                "months": [
+                  {
+                    "amount": 180.31,
+                    "reference_month": 1
+                  },
+                  {
+                    "amount": 180.31,
+                    "reference_month": 2
+                  },
+                  {
+                    "amount": 180.31,
+                    "reference_month": 3
+                  },
+                  {
+                    "amount": 180.31,
+                    "reference_month": 4
+                  },
+                  {
+                    "amount": 180.31,
+                    "reference_month": 5
+                  },
+                  {
+                    "amount": 180.31,
+                    "reference_month": 6
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "PIX",
+        "description": "PIX",
+        "categories": [
+          {
+            "name": "Government Fees",
+            "description": "Government Fees",
+            "expenses": [
+              {
+                "name": "I.P.V.A",
+                "description": "Imposto sobre a Propriedade de Veículos Automotores.",
+                "months": [
+                  {
+                    "amount": 981.12,
+                    "reference_month": 2
+                  },
+                  {
+                    "amount": 119.23,
+                    "reference_month": 4
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Transport",
+            "description": "Transport",
+            "expenses": [
+              {
+                "name": "seguro Moto (Porto)",
+                "description": "Seguro da moto Harley Davidson Road King",
+                "months": [
+                  {
+                    "amount": 542.46,
+                    "reference_month": 1
+                  },
+                  {
+                    "amount": 547.46,
+                    "reference_month": 2
+                  },
+                  {
+                    "amount": 548.31,
+                    "reference_month": 3
+                  },
+                  {
+                    "amount": 547.80,
+                    "reference_month": 4
+                  },
+                  {
+                    "amount": 54.28,
+                    "reference_month": 5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Residencial Monte Carlo",
+        "description": "Despesas do Residencial Monte Carlo",
+        "categories": [
+          {
+            "name": "Transport",
+            "description": "Transport",
+            "expenses": [
+              {
+                "name": "Garagem (Monte Carlo)",
+                "description": "Garagem do Monte Carlo",
+                "months": [
+                  {
+                    "amount": 150.00,
+                    "reference_month": 1
+                  },
+                  {
+                    "amount": 150.00,
+                    "reference_month": 2
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Utility",
+            "description": "Utility",
+            "expenses": [
+              {
+                "name": "Condomínio (Ancora)",
+                "description": "Condomínio do Monte Carlo",
+                "months": [
+                  {
+                    "amount": 780.24,
+                    "reference_month": 1
+                  },
+                  {
+                    "amount": 778.36,
+                    "reference_month": 2
+                  },
+                  {
+                    "amount": 788.38,
+                    "reference_month": 3
+                  },
+                  {
+                    "amount": 781.15,
+                    "reference_month": 4
+                  },
+                  {
+                    "amount": 782.67,
+                    "reference_month": 5
+                  },
+                  {
+                    "amount": 783.90,
+                    "reference_month": 6
+                  }
+                ]
+              },
+              {
+                "name": "Diarista",
+                "description": "Serviços de Diarista",
+                "months": [
+                  {
+                    "amount": 300.00,
+                    "reference_month": 6
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Government Fees",
+            "description": "Government Fees",
+            "expenses": [
+              {
+                "name": "Luz",
+                "description": "Luz do Monte Carlo",
+                "months": [
+                  {
+                    "amount": 130.00,
+                    "reference_month": 1
+                  },
+                  {
+                    "amount": 117.94,
+                    "reference_month": 2
+                  },
+                  {
+                    "amount": 145.26,
+                    "reference_month": 3
+                  },
+                  {
+                    "amount": 132.50,
+                    "reference_month": 4
+                  },
+                  {
+                    "amount": 142.19,
+                    "reference_month": 5
+                  },
+                  {
+                    "amount": 105.84,
+                    "reference_month": 6
+                  }
+                ]
+              },
+              {
+                "name": "I.P.T.U",
+                "description": "Imposto sobre a Propriedade Predial e Territorial Urbana",
+                "months": [
+                  {
+                    "amount": 225.59,
+                    "reference_month": 5
+                  },
+                  {
+                    "amount": 214.85,
+                    "reference_month": 6
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Cartão de Crédito",
+        "description": "Cartão de Crédito",
+        "categories": [
+          {
+            "name": "Credit Card",
+            "description": "Credit Card",
+            "expenses": [
+              {
+                "name": "Fatura do Cartão de Crédito Nubank",
+                "description": "Fatura do Cartão de Crédito Nubank",
+                "categories": [
+                  {
+                    "name": "Entertainment",
+                    "description": "Entertainment",
+                    "expenses": [
+                      {
                         "name": "Netflix",
-                        "type": "ENTERTAINMENT",
-                        "description": "Netflix"
+                        "description": "Taxa de Streaming",
+                        "months": [
+                          {
+                            "amount": 44.90,
+                            "reference_month": 1
+                          },
+                          {
+                            "amount": 44.90,
+                            "reference_month": 2
+                          },
+                          {
+                            "amount": 44.90,
+                            "reference_month": 3
+                          },
+                          {
+                            "amount": 44.90,
+                            "reference_month": 4
+                          },
+                          {
+                            "amount": 44.90,
+                            "reference_month": 5
+                          },
+                          {
+                            "amount": 44.90,
+                            "reference_month": 6
+                          }
+                        ]
                       },
-                      "amount": 44.9,
-                      "expense_id": "11111111-1111-1111-1111-111111111111",
-                      "reference_year": 2026,
-                      "reference_month": 1,
-                      "received_at": "2026-01-05",
-                      "created_at": "2026-07-02T00:09:29.750863Z",
-                      "updated_at": null,
-                      "deleted_at": null
-                    }
-                  ],
-                  "updated_at": null,
-                  "deleted_at": null
-                }
-              ],
-              "created_at": "2026-07-02T00:09:29.724575Z",
-              "updated_at": null,
-              "deleted_at": null
-            }
-          ]
-        }
-      ],
-      "expenses": [
-        {
-          "id": "7d7aeae2-8b42-4096-be5f-681cf66abe55",
-          "months": [
-            {
-              "id": "db848d6c-7c34-48ff-97f6-29abb9dc954b",
-              "status": "PAID",
-              "amount": 551.18,
-              "paid_at": "2026-07-02T00:09:29.832625Z",
-              "expense_id": "7d7aeae2-8b42-4096-be5f-681cf66abe55",
-              "reference_year": 2026,
-              "reference_month": 1,
-              "created_at": "2026-07-02T00:09:29.835266Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "f6d24910-12f8-4e95-90ab-aaea7b67d889",
-              "status": "PAID",
-              "amount": 360.05,
-              "paid_at": "2026-07-02T00:09:29.842963Z",
-              "expense_id": "7d7aeae2-8b42-4096-be5f-681cf66abe55",
-              "reference_year": 2026,
-              "reference_month": 2,
-              "created_at": "2026-07-02T00:09:29.845246Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "118e59e1-04e4-4c06-9f94-b0ad83705805",
-              "status": "PAID",
-              "amount": 319.81,
-              "paid_at": "2026-07-02T00:09:29.849419Z",
-              "expense_id": "7d7aeae2-8b42-4096-be5f-681cf66abe55",
-              "reference_year": 2026,
-              "reference_month": 3,
-              "created_at": "2026-07-02T00:09:29.850908Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "b90fcdb4-90d8-46f8-81e3-489ee428d644",
-              "status": "PAID",
-              "amount": 319.73,
-              "paid_at": "2026-07-02T00:09:29.854552Z",
-              "expense_id": "7d7aeae2-8b42-4096-be5f-681cf66abe55",
-              "reference_year": 2026,
-              "reference_month": 4,
-              "created_at": "2026-07-02T00:09:29.856478Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "acc96d73-41d1-40c1-be74-ad6e95141053",
-              "status": "PAID",
-              "amount": 354.6,
-              "paid_at": "2026-07-02T00:09:29.861237Z",
-              "expense_id": "7d7aeae2-8b42-4096-be5f-681cf66abe55",
-              "reference_year": 2026,
-              "reference_month": 5,
-              "created_at": "2026-07-02T00:09:29.862749Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "776cd4c1-3d0c-4592-a23f-000dc9e9e75a",
-              "status": "PAID",
-              "amount": 0.0,
-              "paid_at": "2026-07-02T00:09:29.866646Z",
-              "expense_id": "7d7aeae2-8b42-4096-be5f-681cf66abe55",
-              "reference_year": 2026,
-              "reference_month": 6,
-              "created_at": "2026-07-02T00:09:29.868229Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "cf4a0cec-ab22-4064-aac0-b221497bc8d9",
-              "status": "PAID",
-              "amount": 0.0,
-              "paid_at": "2026-07-02T00:09:29.872034Z",
-              "expense_id": "7d7aeae2-8b42-4096-be5f-681cf66abe55",
-              "reference_year": 2026,
-              "reference_month": 7,
-              "created_at": "2026-07-02T00:09:29.874674Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "a6067c4c-dbf7-446b-bd92-3d67fae9ae3d",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "7d7aeae2-8b42-4096-be5f-681cf66abe55",
-              "reference_year": 2026,
-              "reference_month": 8,
-              "created_at": "2026-07-02T00:09:29.881756Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "5d32bd48-b9d9-4001-8b71-760f7d6ea580",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "7d7aeae2-8b42-4096-be5f-681cf66abe55",
-              "reference_year": 2026,
-              "reference_month": 9,
-              "created_at": "2026-07-02T00:09:29.888597Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "88aedcd5-4746-45f8-9323-cf0ca8b0f12e",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "7d7aeae2-8b42-4096-be5f-681cf66abe55",
-              "reference_year": 2026,
-              "reference_month": 10,
-              "created_at": "2026-07-02T00:09:29.896048Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "56ed80cb-1926-4922-8e9e-48f93217b52b",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "7d7aeae2-8b42-4096-be5f-681cf66abe55",
-              "reference_year": 2026,
-              "reference_month": 11,
-              "created_at": "2026-07-02T00:09:29.901390Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "c1eea6db-984b-48e8-be82-86745b7c5549",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "7d7aeae2-8b42-4096-be5f-681cf66abe55",
-              "reference_year": 2026,
-              "reference_month": 12,
-              "created_at": "2026-07-02T00:09:29.908141Z",
-              "updated_at": null,
-              "deleted_at": null
-            }
-          ],
-          "category": {
-            "id": "c60fcb21-240e-4d4c-8d86-80df0aee1901",
-            "name": "Internet Claro",
-            "type": "UTILITY",
-            "name_code": "internet_claro",
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Internet (Itaú)",
-            "created_at": "2026-07-02T00:09:29.808144Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-          "account_id": "8616336d-74b1-4f49-86ae-8ca7e120c410",
-          "allocation": {
-            "id": "478a8f42-d57e-48c7-9312-9259e8023487",
-            "name": "Debito em Conta",
-            "type": "PERSONAL",
-            "name_code": "debito_em_conta",
-            "is_active": true,
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Despesas de Debito em Conta",
-            "created_at": "2026-07-02T00:09:29.794192Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "description": "Internet (Itaú)",
-          "created_at": "2026-07-02T00:09:29.820576Z",
-          "updated_at": null,
-          "deleted_at": null
-        },
-        {
-          "id": "8e5f6497-d30f-4434-93f0-cf11978b4cd6",
-          "months": [
-            {
-              "id": "f1e8dc71-1963-4446-9179-0b8d2b250e97",
-              "status": "PAID",
-              "amount": 0.0,
-              "paid_at": "2026-07-02T00:09:30.050335Z",
-              "expense_id": "8e5f6497-d30f-4434-93f0-cf11978b4cd6",
-              "reference_year": 2026,
-              "reference_month": 1,
-              "created_at": "2026-07-02T00:09:30.051252Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "87e769ec-dfd1-4706-8a30-10d472aa0405",
-              "status": "PAID",
-              "amount": 110.0,
-              "paid_at": "2026-07-02T00:09:30.054600Z",
-              "expense_id": "8e5f6497-d30f-4434-93f0-cf11978b4cd6",
-              "reference_year": 2026,
-              "reference_month": 2,
-              "created_at": "2026-07-02T00:09:30.056248Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "b0f9f189-7c88-4792-910b-5c09093eba90",
-              "status": "PAID",
-              "amount": 220.0,
-              "paid_at": "2026-07-02T00:09:30.060492Z",
-              "expense_id": "8e5f6497-d30f-4434-93f0-cf11978b4cd6",
-              "reference_year": 2026,
-              "reference_month": 3,
-              "created_at": "2026-07-02T00:09:30.062196Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "9caf0f65-fc88-48cb-889d-59daf8326d50",
-              "status": "PAID",
-              "amount": 210.0,
-              "paid_at": "2026-07-02T00:09:30.065619Z",
-              "expense_id": "8e5f6497-d30f-4434-93f0-cf11978b4cd6",
-              "reference_year": 2026,
-              "reference_month": 4,
-              "created_at": "2026-07-02T00:09:30.066999Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "a3d498ca-4e99-410f-8ae8-e7f0d971f4d1",
-              "status": "PAID",
-              "amount": 0.0,
-              "paid_at": "2026-07-02T00:09:30.070664Z",
-              "expense_id": "8e5f6497-d30f-4434-93f0-cf11978b4cd6",
-              "reference_year": 2026,
-              "reference_month": 5,
-              "created_at": "2026-07-02T00:09:30.072078Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "6d62b9a6-9101-47bf-bd0e-cfc0b7553dfd",
-              "status": "PAID",
-              "amount": 0.0,
-              "paid_at": "2026-07-02T00:09:30.076501Z",
-              "expense_id": "8e5f6497-d30f-4434-93f0-cf11978b4cd6",
-              "reference_year": 2026,
-              "reference_month": 6,
-              "created_at": "2026-07-02T00:09:30.078258Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "1221d94b-c30f-4ef3-b516-a72c3050276e",
-              "status": "PAID",
-              "amount": 0.0,
-              "paid_at": "2026-07-02T00:09:30.081947Z",
-              "expense_id": "8e5f6497-d30f-4434-93f0-cf11978b4cd6",
-              "reference_year": 2026,
-              "reference_month": 7,
-              "created_at": "2026-07-02T00:09:30.083292Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "c93e5530-eff7-4bec-8c6c-c040ea42c50a",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "8e5f6497-d30f-4434-93f0-cf11978b4cd6",
-              "reference_year": 2026,
-              "reference_month": 8,
-              "created_at": "2026-07-02T00:09:30.088432Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "1b4e086b-5542-445a-8cfe-2ed38eb7b4c7",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "8e5f6497-d30f-4434-93f0-cf11978b4cd6",
-              "reference_year": 2026,
-              "reference_month": 9,
-              "created_at": "2026-07-02T00:09:30.095134Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "013315cb-7efb-4e61-a66e-052373f8cac6",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "8e5f6497-d30f-4434-93f0-cf11978b4cd6",
-              "reference_year": 2026,
-              "reference_month": 10,
-              "created_at": "2026-07-02T00:09:30.100808Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "e97f8e35-5094-4082-9583-ea5290ec3a82",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "8e5f6497-d30f-4434-93f0-cf11978b4cd6",
-              "reference_year": 2026,
-              "reference_month": 11,
-              "created_at": "2026-07-02T00:09:30.105847Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "2c6a0821-9a11-4b09-a823-0d3fe12d0509",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "8e5f6497-d30f-4434-93f0-cf11978b4cd6",
-              "reference_year": 2026,
-              "reference_month": 12,
-              "created_at": "2026-07-02T00:09:30.112065Z",
-              "updated_at": null,
-              "deleted_at": null
-            }
-          ],
-          "category": {
-            "id": "3dac1b10-42ee-4494-afc1-64a77ef9973b",
-            "name": "L.U.V.E",
-            "type": "STUDIES",
-            "name_code": "l_u_v_e",
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Loja Universitária Verdade e Evolução (Nubank)",
-            "created_at": "2026-07-02T00:09:30.034469Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-          "account_id": "8616336d-74b1-4f49-86ae-8ca7e120c410",
-          "allocation": {
-            "id": "478a8f42-d57e-48c7-9312-9259e8023487",
-            "name": "Debito em Conta",
-            "type": "PERSONAL",
-            "name_code": "debito_em_conta",
-            "is_active": true,
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Despesas de Debito em Conta",
-            "created_at": "2026-07-02T00:09:29.794192Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "description": "Loja Universitária Verdade e Evolução (Nubank)",
-          "created_at": "2026-07-02T00:09:30.044189Z",
-          "updated_at": null,
-          "deleted_at": null
-        },
-        {
-          "id": "4a54a5a5-652c-4d50-b14f-d504565371b4",
-          "months": [
-            {
-              "id": "a4fb8f30-0338-4f07-8ce6-ce378715c5d1",
-              "status": "PAID",
-              "amount": 140.0,
-              "paid_at": "2026-07-02T00:09:30.230468Z",
-              "expense_id": "4a54a5a5-652c-4d50-b14f-d504565371b4",
-              "reference_year": 2026,
-              "reference_month": 1,
-              "created_at": "2026-07-02T00:09:30.232255Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "f8ebe4bb-9e07-4188-84c6-2a353681f047",
-              "status": "PAID",
-              "amount": 40.0,
-              "paid_at": "2026-07-02T00:09:30.236582Z",
-              "expense_id": "4a54a5a5-652c-4d50-b14f-d504565371b4",
-              "reference_year": 2026,
-              "reference_month": 2,
-              "created_at": "2026-07-02T00:09:30.237970Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "b3076ab6-0367-414e-978b-7e28cd5cec58",
-              "status": "PAID",
-              "amount": 40.0,
-              "paid_at": "2026-07-02T00:09:30.242195Z",
-              "expense_id": "4a54a5a5-652c-4d50-b14f-d504565371b4",
-              "reference_year": 2026,
-              "reference_month": 3,
-              "created_at": "2026-07-02T00:09:30.244082Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "03136162-b068-4061-877c-fc8798aa4cc7",
-              "status": "PAID",
-              "amount": 40.0,
-              "paid_at": "2026-07-02T00:09:30.247962Z",
-              "expense_id": "4a54a5a5-652c-4d50-b14f-d504565371b4",
-              "reference_year": 2026,
-              "reference_month": 4,
-              "created_at": "2026-07-02T00:09:30.249573Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "a75ff641-4942-4eb9-816d-3352f10b7a7f",
-              "status": "PAID",
-              "amount": 40.0,
-              "paid_at": "2026-07-02T00:09:30.253362Z",
-              "expense_id": "4a54a5a5-652c-4d50-b14f-d504565371b4",
-              "reference_year": 2026,
-              "reference_month": 5,
-              "created_at": "2026-07-02T00:09:30.254800Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "76f25a41-ff6d-4e6d-8e89-723bcd6af5bd",
-              "status": "PAID",
-              "amount": 40.0,
-              "paid_at": "2026-07-02T00:09:30.259426Z",
-              "expense_id": "4a54a5a5-652c-4d50-b14f-d504565371b4",
-              "reference_year": 2026,
-              "reference_month": 6,
-              "created_at": "2026-07-02T00:09:30.261056Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "72150dc1-53ab-43d4-b867-ce6181d27ad7",
-              "status": "PAID",
-              "amount": 0.0,
-              "paid_at": "2026-07-02T00:09:30.264520Z",
-              "expense_id": "4a54a5a5-652c-4d50-b14f-d504565371b4",
-              "reference_year": 2026,
-              "reference_month": 7,
-              "created_at": "2026-07-02T00:09:30.265835Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "d66cd869-0112-42cc-b5a8-63480807a701",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "4a54a5a5-652c-4d50-b14f-d504565371b4",
-              "reference_year": 2026,
-              "reference_month": 8,
-              "created_at": "2026-07-02T00:09:30.271075Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "c83d93f3-906c-43eb-9634-170dc329d400",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "4a54a5a5-652c-4d50-b14f-d504565371b4",
-              "reference_year": 2026,
-              "reference_month": 9,
-              "created_at": "2026-07-02T00:09:30.277485Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "8b5d34a0-6219-4d6a-9d4e-f43216f1bf39",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "4a54a5a5-652c-4d50-b14f-d504565371b4",
-              "reference_year": 2026,
-              "reference_month": 10,
-              "created_at": "2026-07-02T00:09:30.282544Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "8167a65e-d665-4f10-94f0-df4c347a23f3",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "4a54a5a5-652c-4d50-b14f-d504565371b4",
-              "reference_year": 2026,
-              "reference_month": 11,
-              "created_at": "2026-07-02T00:09:30.287281Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "7d5827e8-fd21-4fd4-b970-e465a2aeed3b",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "4a54a5a5-652c-4d50-b14f-d504565371b4",
-              "reference_year": 2026,
-              "reference_month": 12,
-              "created_at": "2026-07-02T00:09:30.293832Z",
-              "updated_at": null,
-              "deleted_at": null
-            }
-          ],
-          "category": {
-            "id": "244fdf11-df42-45a2-b97d-2f0e4ac95a2d",
-            "name": "Filosóficos",
-            "type": "STUDIES",
-            "name_code": "filosoficos",
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Capitulo Consciência Liberta (Nubank)",
-            "created_at": "2026-07-02T00:09:30.211105Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-          "account_id": "8616336d-74b1-4f49-86ae-8ca7e120c410",
-          "allocation": {
-            "id": "478a8f42-d57e-48c7-9312-9259e8023487",
-            "name": "Debito em Conta",
-            "type": "PERSONAL",
-            "name_code": "debito_em_conta",
-            "is_active": true,
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Despesas de Debito em Conta",
-            "created_at": "2026-07-02T00:09:29.794192Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "description": "Capitulo Consciência Liberta (Nubank)",
-          "created_at": "2026-07-02T00:09:30.222231Z",
-          "updated_at": null,
-          "deleted_at": null
-        },
-        {
-          "id": "239ee716-2fb6-4613-83d2-65d07dc6e901",
-          "months": [
-            {
-              "id": "3a77ffe8-b539-4988-a1bf-ff2d95784f3c",
-              "status": "PAID",
-              "amount": 180.31,
-              "paid_at": "2026-07-02T00:09:30.386993Z",
-              "expense_id": "239ee716-2fb6-4613-83d2-65d07dc6e901",
-              "reference_year": 2026,
-              "reference_month": 1,
-              "created_at": "2026-07-02T00:09:30.388318Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "3797c2d5-285e-40f1-94ec-f80c89539cfe",
-              "status": "PAID",
-              "amount": 180.31,
-              "paid_at": "2026-07-02T00:09:30.392985Z",
-              "expense_id": "239ee716-2fb6-4613-83d2-65d07dc6e901",
-              "reference_year": 2026,
-              "reference_month": 2,
-              "created_at": "2026-07-02T00:09:30.394762Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "ab5701e6-768b-4880-a94f-7d708b320e85",
-              "status": "PAID",
-              "amount": 180.31,
-              "paid_at": "2026-07-02T00:09:30.399049Z",
-              "expense_id": "239ee716-2fb6-4613-83d2-65d07dc6e901",
-              "reference_year": 2026,
-              "reference_month": 3,
-              "created_at": "2026-07-02T00:09:30.400362Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "da6934ae-6ed8-4c23-bce5-bf086bf4499c",
-              "status": "PAID",
-              "amount": 180.31,
-              "paid_at": "2026-07-02T00:09:30.403474Z",
-              "expense_id": "239ee716-2fb6-4613-83d2-65d07dc6e901",
-              "reference_year": 2026,
-              "reference_month": 4,
-              "created_at": "2026-07-02T00:09:30.404522Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "ead26717-fbc9-450b-810a-28e6f2d6c7d4",
-              "status": "PAID",
-              "amount": 180.31,
-              "paid_at": "2026-07-02T00:09:30.408379Z",
-              "expense_id": "239ee716-2fb6-4613-83d2-65d07dc6e901",
-              "reference_year": 2026,
-              "reference_month": 5,
-              "created_at": "2026-07-02T00:09:30.410054Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "ede768eb-5efb-4716-b477-bf4a0d2f4d30",
-              "status": "PAID",
-              "amount": 180.31,
-              "paid_at": "2026-07-02T00:09:30.413492Z",
-              "expense_id": "239ee716-2fb6-4613-83d2-65d07dc6e901",
-              "reference_year": 2026,
-              "reference_month": 6,
-              "created_at": "2026-07-02T00:09:30.414834Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "0114b435-bf93-45c7-95cc-e1f9c007f221",
-              "status": "PAID",
-              "amount": 0.0,
-              "paid_at": "2026-07-02T00:09:30.417932Z",
-              "expense_id": "239ee716-2fb6-4613-83d2-65d07dc6e901",
-              "reference_year": 2026,
-              "reference_month": 7,
-              "created_at": "2026-07-02T00:09:30.419136Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "5f727df0-db53-4010-9a08-965e25ad98fb",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "239ee716-2fb6-4613-83d2-65d07dc6e901",
-              "reference_year": 2026,
-              "reference_month": 8,
-              "created_at": "2026-07-02T00:09:30.424239Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "acf488e8-91f2-4d2c-b256-3f97ea7bddd7",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "239ee716-2fb6-4613-83d2-65d07dc6e901",
-              "reference_year": 2026,
-              "reference_month": 9,
-              "created_at": "2026-07-02T00:09:30.429297Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "d12dc6dd-5838-46c8-8bef-8e41c5a44230",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "239ee716-2fb6-4613-83d2-65d07dc6e901",
-              "reference_year": 2026,
-              "reference_month": 10,
-              "created_at": "2026-07-02T00:09:30.433883Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "16e23114-51b6-408c-9eb8-0a8db2250e5a",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "239ee716-2fb6-4613-83d2-65d07dc6e901",
-              "reference_year": 2026,
-              "reference_month": 11,
-              "created_at": "2026-07-02T00:09:30.437963Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "d7c94d90-07ea-4f39-876d-8744211bbf64",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "239ee716-2fb6-4613-83d2-65d07dc6e901",
-              "reference_year": 2026,
-              "reference_month": 12,
-              "created_at": "2026-07-02T00:09:30.443432Z",
-              "updated_at": null,
-              "deleted_at": null
-            }
-          ],
-          "category": {
-            "id": "a1dd5151-0cb8-4a38-9c54-b3abb18180b4",
-            "name": "M.C.B.D.A",
-            "type": "ENTERTAINMENT",
-            "name_code": "m_c_b_d_a",
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Moto Clube Bodes do Asfalto (Nubank)",
-            "created_at": "2026-07-02T00:09:30.372815Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-          "account_id": "8616336d-74b1-4f49-86ae-8ca7e120c410",
-          "allocation": {
-            "id": "478a8f42-d57e-48c7-9312-9259e8023487",
-            "name": "Debito em Conta",
-            "type": "PERSONAL",
-            "name_code": "debito_em_conta",
-            "is_active": true,
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Despesas de Debito em Conta",
-            "created_at": "2026-07-02T00:09:29.794192Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "description": "Moto Clube Bodes do Asfalto (Nubank)",
-          "created_at": "2026-07-02T00:09:30.381862Z",
-          "updated_at": null,
-          "deleted_at": null
-        },
-        {
-          "id": "05aa32bc-1aef-49d1-878e-0cf18a27cafc",
-          "months": [
-            {
-              "id": "a2dc6ab7-77a6-407c-abbd-da936fd4bc25",
-              "status": "PAID",
-              "amount": 0.0,
-              "paid_at": "2026-07-02T00:09:30.538264Z",
-              "expense_id": "05aa32bc-1aef-49d1-878e-0cf18a27cafc",
-              "reference_year": 2026,
-              "reference_month": 1,
-              "created_at": "2026-07-02T00:09:30.539844Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "4589bdf1-b4c6-432d-a08c-9a27741b0552",
-              "status": "PAID",
-              "amount": 981.12,
-              "paid_at": "2026-07-02T00:09:30.544707Z",
-              "expense_id": "05aa32bc-1aef-49d1-878e-0cf18a27cafc",
-              "reference_year": 2026,
-              "reference_month": 2,
-              "created_at": "2026-07-02T00:09:30.546269Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "76c9f295-9fc5-4d3f-b38d-7ae2cd069d44",
-              "status": "PAID",
-              "amount": 0.0,
-              "paid_at": "2026-07-02T00:09:30.549745Z",
-              "expense_id": "05aa32bc-1aef-49d1-878e-0cf18a27cafc",
-              "reference_year": 2026,
-              "reference_month": 3,
-              "created_at": "2026-07-02T00:09:30.551188Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "063a394e-7a9a-4c99-bf06-e626013b003d",
-              "status": "PAID",
-              "amount": 119.23,
-              "paid_at": "2026-07-02T00:09:30.555443Z",
-              "expense_id": "05aa32bc-1aef-49d1-878e-0cf18a27cafc",
-              "reference_year": 2026,
-              "reference_month": 4,
-              "created_at": "2026-07-02T00:09:30.558590Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "1776f0e1-36ba-463f-95f2-0b063b28fd0b",
-              "status": "PAID",
-              "amount": 0.0,
-              "paid_at": "2026-07-02T00:09:30.563758Z",
-              "expense_id": "05aa32bc-1aef-49d1-878e-0cf18a27cafc",
-              "reference_year": 2026,
-              "reference_month": 5,
-              "created_at": "2026-07-02T00:09:30.565245Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "141713b0-58a2-4ce4-8551-e20f45a679bf",
-              "status": "PAID",
-              "amount": 0.0,
-              "paid_at": "2026-07-02T00:09:30.568672Z",
-              "expense_id": "05aa32bc-1aef-49d1-878e-0cf18a27cafc",
-              "reference_year": 2026,
-              "reference_month": 6,
-              "created_at": "2026-07-02T00:09:30.569989Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "48a309ee-9bef-4245-b8de-b3c6d8df1bae",
-              "status": "PAID",
-              "amount": 0.0,
-              "paid_at": "2026-07-02T00:09:30.575510Z",
-              "expense_id": "05aa32bc-1aef-49d1-878e-0cf18a27cafc",
-              "reference_year": 2026,
-              "reference_month": 7,
-              "created_at": "2026-07-02T00:09:30.579029Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "00055a3f-9d53-42d0-868e-f069202b8ff0",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "05aa32bc-1aef-49d1-878e-0cf18a27cafc",
-              "reference_year": 2026,
-              "reference_month": 8,
-              "created_at": "2026-07-02T00:09:30.587685Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "2f5922fd-6792-464c-b574-6a26c1c64da5",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "05aa32bc-1aef-49d1-878e-0cf18a27cafc",
-              "reference_year": 2026,
-              "reference_month": 9,
-              "created_at": "2026-07-02T00:09:30.597330Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "55ba06e1-8ec4-4eaa-91b5-101234f4fe0e",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "05aa32bc-1aef-49d1-878e-0cf18a27cafc",
-              "reference_year": 2026,
-              "reference_month": 10,
-              "created_at": "2026-07-02T00:09:30.603676Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "5410d803-eff4-4e20-afdd-7808e847a45e",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "05aa32bc-1aef-49d1-878e-0cf18a27cafc",
-              "reference_year": 2026,
-              "reference_month": 11,
-              "created_at": "2026-07-02T00:09:30.612326Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "ae69abfb-2dbf-49f4-9301-5cd25dc543f3",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "05aa32bc-1aef-49d1-878e-0cf18a27cafc",
-              "reference_year": 2026,
-              "reference_month": 12,
-              "created_at": "2026-07-02T00:09:30.619643Z",
-              "updated_at": null,
-              "deleted_at": null
-            }
-          ],
-          "category": {
-            "id": "908e6bce-35fc-41a5-9708-49446950a121",
-            "name": "I.P.V.A",
-            "type": "GOVERNMENT_FEES",
-            "name_code": "i_p_v_a",
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Imposto sobre a Propriedade de Veículos Automotores.",
-            "created_at": "2026-07-02T00:09:30.523645Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-          "account_id": "8616336d-74b1-4f49-86ae-8ca7e120c410",
-          "allocation": {
-            "id": "d64408bd-721c-4a07-bf8f-b6f243e5823c",
-            "name": "Pagamento Manual",
-            "type": "PERSONAL",
-            "name_code": "pagamento_manual",
-            "is_active": true,
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Pagamento Manual (Pix | Boleto)",
-            "created_at": "2026-07-02T00:09:30.513849Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "description": "Imposto sobre a Propriedade de Veículos Automotores.",
-          "created_at": "2026-07-02T00:09:30.532730Z",
-          "updated_at": null,
-          "deleted_at": null
-        },
-        {
-          "id": "fdde3ea1-09d3-465e-8156-0e40c55b2240",
-          "months": [
-            {
-              "id": "8b363e88-f19e-4c1d-8c77-a3a89ea4a7fc",
-              "status": "PAID",
-              "amount": 542.46,
-              "paid_at": "2026-07-02T00:09:30.729555Z",
-              "expense_id": "fdde3ea1-09d3-465e-8156-0e40c55b2240",
-              "reference_year": 2026,
-              "reference_month": 1,
-              "created_at": "2026-07-02T00:09:30.731434Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "c7b2dfda-ea63-430f-a47b-5562f9fb19a1",
-              "status": "PAID",
-              "amount": 547.46,
-              "paid_at": "2026-07-02T00:09:30.736135Z",
-              "expense_id": "fdde3ea1-09d3-465e-8156-0e40c55b2240",
-              "reference_year": 2026,
-              "reference_month": 2,
-              "created_at": "2026-07-02T00:09:30.737938Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "c829d40d-a6bd-4d48-a18c-9f7ba20139ed",
-              "status": "PAID",
-              "amount": 548.31,
-              "paid_at": "2026-07-02T00:09:30.744540Z",
-              "expense_id": "fdde3ea1-09d3-465e-8156-0e40c55b2240",
-              "reference_year": 2026,
-              "reference_month": 3,
-              "created_at": "2026-07-02T00:09:30.747588Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "af1ba069-6711-413b-9866-7986d0d20de1",
-              "status": "PAID",
-              "amount": 547.8,
-              "paid_at": "2026-07-02T00:09:30.751624Z",
-              "expense_id": "fdde3ea1-09d3-465e-8156-0e40c55b2240",
-              "reference_year": 2026,
-              "reference_month": 4,
-              "created_at": "2026-07-02T00:09:30.753338Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "cffd9af3-6330-4bc3-92e2-2c2c59bfb203",
-              "status": "PAID",
-              "amount": 54.28,
-              "paid_at": "2026-07-02T00:09:30.758645Z",
-              "expense_id": "fdde3ea1-09d3-465e-8156-0e40c55b2240",
-              "reference_year": 2026,
-              "reference_month": 5,
-              "created_at": "2026-07-02T00:09:30.763137Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "04a18581-5acf-4620-87de-e042df68fd52",
-              "status": "PAID",
-              "amount": 0.0,
-              "paid_at": "2026-07-02T00:09:30.767593Z",
-              "expense_id": "fdde3ea1-09d3-465e-8156-0e40c55b2240",
-              "reference_year": 2026,
-              "reference_month": 6,
-              "created_at": "2026-07-02T00:09:30.769344Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "c487b2a5-d455-4d11-b15f-b204128b08db",
-              "status": "PAID",
-              "amount": 0.0,
-              "paid_at": "2026-07-02T00:09:30.774689Z",
-              "expense_id": "fdde3ea1-09d3-465e-8156-0e40c55b2240",
-              "reference_year": 2026,
-              "reference_month": 7,
-              "created_at": "2026-07-02T00:09:30.777802Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "9326b3b7-8f4b-4758-a00a-aa4b6ba4a5f5",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "fdde3ea1-09d3-465e-8156-0e40c55b2240",
-              "reference_year": 2026,
-              "reference_month": 8,
-              "created_at": "2026-07-02T00:09:30.783131Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "bf5208e9-26b7-477b-a206-39a442969cae",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "fdde3ea1-09d3-465e-8156-0e40c55b2240",
-              "reference_year": 2026,
-              "reference_month": 9,
-              "created_at": "2026-07-02T00:09:30.789493Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "68f213df-b64f-453a-bfb5-eb315a355823",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "fdde3ea1-09d3-465e-8156-0e40c55b2240",
-              "reference_year": 2026,
-              "reference_month": 10,
-              "created_at": "2026-07-02T00:09:30.797520Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "e176e0bd-a547-4a6a-b1f0-cd301002dde4",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "fdde3ea1-09d3-465e-8156-0e40c55b2240",
-              "reference_year": 2026,
-              "reference_month": 11,
-              "created_at": "2026-07-02T00:09:30.802261Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "dcc14c20-2913-41e2-b635-0324d5ec4d47",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "fdde3ea1-09d3-465e-8156-0e40c55b2240",
-              "reference_year": 2026,
-              "reference_month": 12,
-              "created_at": "2026-07-02T00:09:30.807854Z",
-              "updated_at": null,
-              "deleted_at": null
-            }
-          ],
-          "category": {
-            "id": "dbd6953d-1fea-494b-9aca-2e3f356d4a9d",
-            "name": "seguro Moto (Porto)",
-            "type": "TRANSPORT",
-            "name_code": "seguro_moto_porto",
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Seguro da moto Harley Davidson Road King",
-            "created_at": "2026-07-02T00:09:30.713113Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-          "account_id": "8616336d-74b1-4f49-86ae-8ca7e120c410",
-          "allocation": {
-            "id": "d64408bd-721c-4a07-bf8f-b6f243e5823c",
-            "name": "Pagamento Manual",
-            "type": "PERSONAL",
-            "name_code": "pagamento_manual",
-            "is_active": true,
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Pagamento Manual (Pix | Boleto)",
-            "created_at": "2026-07-02T00:09:30.513849Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "description": "Seguro da moto Harley Davidson Road King",
-          "created_at": "2026-07-02T00:09:30.721735Z",
-          "updated_at": null,
-          "deleted_at": null
-        },
-        {
-          "id": "50f2ffec-3251-4cac-ae7f-01fb71ee2421",
-          "months": [
-            {
-              "id": "8f677852-0392-4d88-8dbb-22b12d7409c3",
-              "status": "PAID",
-              "amount": 5543.38,
-              "paid_at": "2026-07-02T00:09:30.900676Z",
-              "expense_id": "50f2ffec-3251-4cac-ae7f-01fb71ee2421",
-              "reference_year": 2026,
-              "reference_month": 1,
-              "created_at": "2026-07-02T00:09:30.901841Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "9afcc9b5-7cba-4953-960f-f7b3c3d2980a",
-              "status": "PAID",
-              "amount": 2565.67,
-              "paid_at": "2026-07-02T00:09:30.904692Z",
-              "expense_id": "50f2ffec-3251-4cac-ae7f-01fb71ee2421",
-              "reference_year": 2026,
-              "reference_month": 2,
-              "created_at": "2026-07-02T00:09:30.905873Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "04e0d1a3-779a-46b1-9148-cfc80b917977",
-              "status": "PAID",
-              "amount": 658.59,
-              "paid_at": "2026-07-02T00:09:30.909359Z",
-              "expense_id": "50f2ffec-3251-4cac-ae7f-01fb71ee2421",
-              "reference_year": 2026,
-              "reference_month": 3,
-              "created_at": "2026-07-02T00:09:30.910598Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "39d958df-bd17-45d3-ac99-7f0bb6a1729c",
-              "status": "PAID",
-              "amount": 184.99,
-              "paid_at": "2026-07-02T00:09:30.913653Z",
-              "expense_id": "50f2ffec-3251-4cac-ae7f-01fb71ee2421",
-              "reference_year": 2026,
-              "reference_month": 4,
-              "created_at": "2026-07-02T00:09:30.914886Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "e1b0b737-cdba-4de3-b8a2-47080b2a8ec4",
-              "status": "PAID",
-              "amount": 243.1,
-              "paid_at": "2026-07-02T00:09:30.917918Z",
-              "expense_id": "50f2ffec-3251-4cac-ae7f-01fb71ee2421",
-              "reference_year": 2026,
-              "reference_month": 5,
-              "created_at": "2026-07-02T00:09:30.919095Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "14cc7c93-de58-4a16-8b79-72647d6fa860",
-              "status": "PAID",
-              "amount": 351.84,
-              "paid_at": "2026-07-02T00:09:30.921909Z",
-              "expense_id": "50f2ffec-3251-4cac-ae7f-01fb71ee2421",
-              "reference_year": 2026,
-              "reference_month": 6,
-              "created_at": "2026-07-02T00:09:30.923391Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "c73f1778-9c82-4bf3-9dd5-b940c50ba2fc",
-              "status": "PAID",
-              "amount": 0.0,
-              "paid_at": "2026-07-02T00:09:30.927510Z",
-              "expense_id": "50f2ffec-3251-4cac-ae7f-01fb71ee2421",
-              "reference_year": 2026,
-              "reference_month": 7,
-              "created_at": "2026-07-02T00:09:30.929229Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "295e8b6a-c193-4e3f-bd46-00aba24f6035",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "50f2ffec-3251-4cac-ae7f-01fb71ee2421",
-              "reference_year": 2026,
-              "reference_month": 8,
-              "created_at": "2026-07-02T00:09:30.934873Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "5ea62623-e537-4b42-ac95-cdaab9d1f2f6",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "50f2ffec-3251-4cac-ae7f-01fb71ee2421",
-              "reference_year": 2026,
-              "reference_month": 9,
-              "created_at": "2026-07-02T00:09:30.940601Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "9d111fdd-8b0d-4a4c-bec2-563003b65fdf",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "50f2ffec-3251-4cac-ae7f-01fb71ee2421",
-              "reference_year": 2026,
-              "reference_month": 10,
-              "created_at": "2026-07-02T00:09:30.946638Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "87d81392-7d93-428e-ac3c-efb68495abb6",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "50f2ffec-3251-4cac-ae7f-01fb71ee2421",
-              "reference_year": 2026,
-              "reference_month": 11,
-              "created_at": "2026-07-02T00:09:30.951672Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "0d445fca-301f-449c-ace0-df7157a6bc68",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "50f2ffec-3251-4cac-ae7f-01fb71ee2421",
-              "reference_year": 2026,
-              "reference_month": 12,
-              "created_at": "2026-07-02T00:09:30.956412Z",
-              "updated_at": null,
-              "deleted_at": null
-            }
-          ],
-          "category": {
-            "id": "48ee44d2-d5c8-4922-b36c-8a2169042d52",
-            "name": "Mensalidade Cartão de Crédito (Nubank)",
-            "type": "OTHER",
-            "name_code": "mensalidade_cartao_de_credito_nubank",
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Mensalidade do Cartão de Crédito (Sem Streaming e Serviços)",
-            "created_at": "2026-07-02T00:09:30.888128Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-          "account_id": "8616336d-74b1-4f49-86ae-8ca7e120c410",
-          "allocation": {
-            "id": "d64408bd-721c-4a07-bf8f-b6f243e5823c",
-            "name": "Pagamento Manual",
-            "type": "PERSONAL",
-            "name_code": "pagamento_manual",
-            "is_active": true,
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Pagamento Manual (Pix | Boleto)",
-            "created_at": "2026-07-02T00:09:30.513849Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "description": "Mensalidade do Cartão de Crédito (Sem Streaming e Serviços)",
-          "created_at": "2026-07-02T00:09:30.896253Z",
-          "updated_at": null,
-          "deleted_at": null
-        },
-        {
-          "id": "b5ab1abd-b8f7-498a-a8a6-c17615e79c19",
-          "months": [
-            {
-              "id": "704f462a-4917-430f-9927-09c8cf2c28ec",
-              "status": "PAID",
-              "amount": 220.0,
-              "paid_at": "2026-07-02T00:09:31.079512Z",
-              "expense_id": "b5ab1abd-b8f7-498a-a8a6-c17615e79c19",
-              "reference_year": 2026,
-              "reference_month": 1,
-              "created_at": "2026-07-02T00:09:31.081476Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "9f7e3337-242c-4613-8255-0868d0e5d3cb",
-              "status": "PAID",
-              "amount": 3928.03,
-              "paid_at": "2026-07-02T00:09:31.085609Z",
-              "expense_id": "b5ab1abd-b8f7-498a-a8a6-c17615e79c19",
-              "reference_year": 2026,
-              "reference_month": 2,
-              "created_at": "2026-07-02T00:09:31.087408Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "8e354295-43b6-4103-a132-efcafdaa1ee3",
-              "status": "PAID",
-              "amount": 3653.63,
-              "paid_at": "2026-07-02T00:09:31.093058Z",
-              "expense_id": "b5ab1abd-b8f7-498a-a8a6-c17615e79c19",
-              "reference_year": 2026,
-              "reference_month": 3,
-              "created_at": "2026-07-02T00:09:31.095545Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "41de1808-3852-48f5-a9d6-247d4c4bbaf2",
-              "status": "PAID",
-              "amount": 3394.88,
-              "paid_at": "2026-07-02T00:09:31.101508Z",
-              "expense_id": "b5ab1abd-b8f7-498a-a8a6-c17615e79c19",
-              "reference_year": 2026,
-              "reference_month": 4,
-              "created_at": "2026-07-02T00:09:31.103697Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "50b88472-6832-4814-b945-91886e83b6d3",
-              "status": "PAID",
-              "amount": 3930.14,
-              "paid_at": "2026-07-02T00:09:31.109272Z",
-              "expense_id": "b5ab1abd-b8f7-498a-a8a6-c17615e79c19",
-              "reference_year": 2026,
-              "reference_month": 5,
-              "created_at": "2026-07-02T00:09:31.111656Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "03d2d251-d9ec-41d4-8eb0-a2f4bc996bac",
-              "status": "PAID",
-              "amount": 3650.94,
-              "paid_at": "2026-07-02T00:09:31.117457Z",
-              "expense_id": "b5ab1abd-b8f7-498a-a8a6-c17615e79c19",
-              "reference_year": 2026,
-              "reference_month": 6,
-              "created_at": "2026-07-02T00:09:31.120128Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "a23cd042-3d28-4c4f-875e-3771d36f1499",
-              "status": "PAID",
-              "amount": 0.0,
-              "paid_at": "2026-07-02T00:09:31.127576Z",
-              "expense_id": "b5ab1abd-b8f7-498a-a8a6-c17615e79c19",
-              "reference_year": 2026,
-              "reference_month": 7,
-              "created_at": "2026-07-02T00:09:31.131097Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "9e65f237-72e4-4f9a-9555-f30bd8b8f2e2",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "b5ab1abd-b8f7-498a-a8a6-c17615e79c19",
-              "reference_year": 2026,
-              "reference_month": 8,
-              "created_at": "2026-07-02T00:09:31.140445Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "ba93d414-883f-41a7-a887-8e400a37c930",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "b5ab1abd-b8f7-498a-a8a6-c17615e79c19",
-              "reference_year": 2026,
-              "reference_month": 9,
-              "created_at": "2026-07-02T00:09:31.151223Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "16335445-4632-46ae-899f-4d04b2da835a",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "b5ab1abd-b8f7-498a-a8a6-c17615e79c19",
-              "reference_year": 2026,
-              "reference_month": 10,
-              "created_at": "2026-07-02T00:09:31.161863Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "160820f3-5cd3-475a-b269-50462b34ef86",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "b5ab1abd-b8f7-498a-a8a6-c17615e79c19",
-              "reference_year": 2026,
-              "reference_month": 11,
-              "created_at": "2026-07-02T00:09:31.171107Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "3e508709-6217-482c-899f-b0fcebaeb627",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "b5ab1abd-b8f7-498a-a8a6-c17615e79c19",
-              "reference_year": 2026,
-              "reference_month": 12,
-              "created_at": "2026-07-02T00:09:31.178840Z",
-              "updated_at": null,
-              "deleted_at": null
-            }
-          ],
-          "category": {
-            "id": "29228436-fbb2-46b7-adf5-9565c7abbd93",
-            "name": "Mensalidade Cartão de Crédito (Itaú)",
-            "type": "OTHER",
-            "name_code": "mensalidade_cartao_de_credito_itau",
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Mensalidade do Cartão de Crédito",
-            "created_at": "2026-07-02T00:09:31.061047Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-          "account_id": "8616336d-74b1-4f49-86ae-8ca7e120c410",
-          "allocation": {
-            "id": "d64408bd-721c-4a07-bf8f-b6f243e5823c",
-            "name": "Pagamento Manual",
-            "type": "PERSONAL",
-            "name_code": "pagamento_manual",
-            "is_active": true,
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Pagamento Manual (Pix | Boleto)",
-            "created_at": "2026-07-02T00:09:30.513849Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "description": "Mensalidade do Cartão de Crédito",
-          "created_at": "2026-07-02T00:09:31.072033Z",
-          "updated_at": null,
-          "deleted_at": null
-        },
-        {
-          "id": "051a80c4-127b-495e-af79-72aa5bb018c1",
-          "months": [
-            {
-              "id": "1b4c5a91-4ecb-4dfb-95d4-d5e6a3f8e56e",
-              "status": "PAID",
-              "amount": 44.9,
-              "paid_at": "2026-07-02T00:09:31.289709Z",
-              "expense_id": "051a80c4-127b-495e-af79-72aa5bb018c1",
-              "reference_year": 2026,
-              "reference_month": 1,
-              "created_at": "2026-07-02T00:09:31.291916Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "ec627281-9d3e-423f-8dd2-8486a328b667",
-              "status": "PAID",
-              "amount": 44.9,
-              "paid_at": "2026-07-02T00:09:31.296290Z",
-              "expense_id": "051a80c4-127b-495e-af79-72aa5bb018c1",
-              "reference_year": 2026,
-              "reference_month": 2,
-              "created_at": "2026-07-02T00:09:31.297907Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "61aed58c-57fb-4cbf-a1bb-cdedd2cf73f5",
-              "status": "PAID",
-              "amount": 44.9,
-              "paid_at": "2026-07-02T00:09:31.302262Z",
-              "expense_id": "051a80c4-127b-495e-af79-72aa5bb018c1",
-              "reference_year": 2026,
-              "reference_month": 3,
-              "created_at": "2026-07-02T00:09:31.304230Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "ea8a8fa6-7a8a-4695-a66c-ba6ae1b90a83",
-              "status": "PAID",
-              "amount": 44.9,
-              "paid_at": "2026-07-02T00:09:31.309432Z",
-              "expense_id": "051a80c4-127b-495e-af79-72aa5bb018c1",
-              "reference_year": 2026,
-              "reference_month": 4,
-              "created_at": "2026-07-02T00:09:31.311348Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "11f26469-b334-456a-9d48-b1788eca0d06",
-              "status": "PAID",
-              "amount": 44.9,
-              "paid_at": "2026-07-02T00:09:31.315763Z",
-              "expense_id": "051a80c4-127b-495e-af79-72aa5bb018c1",
-              "reference_year": 2026,
-              "reference_month": 5,
-              "created_at": "2026-07-02T00:09:31.317531Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "796a0722-13b9-48ad-80b5-1cd3c697ca74",
-              "status": "PAID",
-              "amount": 44.9,
-              "paid_at": "2026-07-02T00:09:31.321990Z",
-              "expense_id": "051a80c4-127b-495e-af79-72aa5bb018c1",
-              "reference_year": 2026,
-              "reference_month": 6,
-              "created_at": "2026-07-02T00:09:31.324781Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "2bf3ea04-84e4-4a97-9ce3-e91ad71f579f",
-              "status": "PAID",
-              "amount": 44.9,
-              "paid_at": "2026-07-02T00:09:31.330530Z",
-              "expense_id": "051a80c4-127b-495e-af79-72aa5bb018c1",
-              "reference_year": 2026,
-              "reference_month": 7,
-              "created_at": "2026-07-02T00:09:31.332646Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "505d7ea3-e605-4d3b-b4c5-33bb48f8e28a",
-              "status": "PENDING",
-              "amount": 44.9,
-              "paid_at": null,
-              "expense_id": "051a80c4-127b-495e-af79-72aa5bb018c1",
-              "reference_year": 2026,
-              "reference_month": 8,
-              "created_at": "2026-07-02T00:09:31.340310Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "f00ebea3-0e82-4517-9bec-675c65c3106a",
-              "status": "PENDING",
-              "amount": 44.9,
-              "paid_at": null,
-              "expense_id": "051a80c4-127b-495e-af79-72aa5bb018c1",
-              "reference_year": 2026,
-              "reference_month": 9,
-              "created_at": "2026-07-02T00:09:31.351062Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "e117b9c4-4f65-44f2-bdc3-ff413059f313",
-              "status": "PENDING",
-              "amount": 44.9,
-              "paid_at": null,
-              "expense_id": "051a80c4-127b-495e-af79-72aa5bb018c1",
-              "reference_year": 2026,
-              "reference_month": 10,
-              "created_at": "2026-07-02T00:09:31.358115Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "10389ae4-8362-4036-92d1-d982abbb38f4",
-              "status": "PENDING",
-              "amount": 44.9,
-              "paid_at": null,
-              "expense_id": "051a80c4-127b-495e-af79-72aa5bb018c1",
-              "reference_year": 2026,
-              "reference_month": 11,
-              "created_at": "2026-07-02T00:09:31.364386Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "458b77e3-4692-4bd2-9392-be9aebcdfadc",
-              "status": "PENDING",
-              "amount": 44.9,
-              "paid_at": null,
-              "expense_id": "051a80c4-127b-495e-af79-72aa5bb018c1",
-              "reference_year": 2026,
-              "reference_month": 12,
-              "created_at": "2026-07-02T00:09:31.369606Z",
-              "updated_at": null,
-              "deleted_at": null
-            }
-          ],
-          "category": {
-            "id": "3c1c3e40-7da5-4ad0-ab16-085e2f71fef6",
-            "name": "Netflix",
-            "type": "ENTERTAINMENT",
-            "name_code": "netflix",
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Taxa de Streaming",
-            "created_at": "2026-07-02T00:09:31.278684Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-          "account_id": "8616336d-74b1-4f49-86ae-8ca7e120c410",
-          "allocation": {
-            "id": "fef60017-2e73-41e7-ae19-0030ed09f0cf",
-            "name": "Credito em Conta (Nubank)",
-            "type": "PERSONAL",
-            "name_code": "credito_em_conta_nubank",
-            "is_active": true,
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Despesas de Credito em Conta",
-            "created_at": "2026-07-02T00:09:31.269140Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "description": "Taxa de Streaming",
-          "created_at": "2026-07-02T00:09:31.284838Z",
-          "updated_at": null,
-          "deleted_at": null
-        },
-        {
-          "id": "4ec71853-c0f5-4971-bdca-e48058d4d9bd",
-          "months": [
-            {
-              "id": "30e9dc98-f01c-4516-bbfb-796c8fc81035",
-              "status": "PAID",
-              "amount": 22.45,
-              "paid_at": "2026-07-02T00:09:31.549025Z",
-              "expense_id": "4ec71853-c0f5-4971-bdca-e48058d4d9bd",
-              "reference_year": 2026,
-              "reference_month": 1,
-              "created_at": "2026-07-02T00:09:31.550642Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "8a3e5823-5c89-4c8b-8860-6cc0be6984e1",
-              "status": "PAID",
-              "amount": 22.45,
-              "paid_at": "2026-07-02T00:09:31.554904Z",
-              "expense_id": "4ec71853-c0f5-4971-bdca-e48058d4d9bd",
-              "reference_year": 2026,
-              "reference_month": 2,
-              "created_at": "2026-07-02T00:09:31.557249Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "a2e56038-d4a6-458d-8b83-9b894be5f17e",
-              "status": "PAID",
-              "amount": 22.45,
-              "paid_at": "2026-07-02T00:09:31.561559Z",
-              "expense_id": "4ec71853-c0f5-4971-bdca-e48058d4d9bd",
-              "reference_year": 2026,
-              "reference_month": 3,
-              "created_at": "2026-07-02T00:09:31.562827Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "3ab86345-5106-4346-9228-945b18d2bd4e",
-              "status": "PAID",
-              "amount": 22.45,
-              "paid_at": "2026-07-02T00:09:31.565905Z",
-              "expense_id": "4ec71853-c0f5-4971-bdca-e48058d4d9bd",
-              "reference_year": 2026,
-              "reference_month": 4,
-              "created_at": "2026-07-02T00:09:31.567096Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "266298c8-9e7f-44db-8e6e-edc8f18a67ed",
-              "status": "PAID",
-              "amount": 22.45,
-              "paid_at": "2026-07-02T00:09:31.570198Z",
-              "expense_id": "4ec71853-c0f5-4971-bdca-e48058d4d9bd",
-              "reference_year": 2026,
-              "reference_month": 5,
-              "created_at": "2026-07-02T00:09:31.571444Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "a74af0c9-dc28-42bc-a267-f23bb41009aa",
-              "status": "PAID",
-              "amount": 22.45,
-              "paid_at": "2026-07-02T00:09:31.575052Z",
-              "expense_id": "4ec71853-c0f5-4971-bdca-e48058d4d9bd",
-              "reference_year": 2026,
-              "reference_month": 6,
-              "created_at": "2026-07-02T00:09:31.576084Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "7c3ab5c8-3d89-4abf-a6ee-ae7f0a0b596f",
-              "status": "PAID",
-              "amount": 22.45,
-              "paid_at": "2026-07-02T00:09:31.579275Z",
-              "expense_id": "4ec71853-c0f5-4971-bdca-e48058d4d9bd",
-              "reference_year": 2026,
-              "reference_month": 7,
-              "created_at": "2026-07-02T00:09:31.580583Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "72d02a3d-e136-424d-b530-8c04583934e5",
-              "status": "PENDING",
-              "amount": 22.45,
-              "paid_at": null,
-              "expense_id": "4ec71853-c0f5-4971-bdca-e48058d4d9bd",
-              "reference_year": 2026,
-              "reference_month": 8,
-              "created_at": "2026-07-02T00:09:31.584898Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "0712e156-526f-4afc-85cf-7daabaa07ec2",
-              "status": "PENDING",
-              "amount": 22.45,
-              "paid_at": null,
-              "expense_id": "4ec71853-c0f5-4971-bdca-e48058d4d9bd",
-              "reference_year": 2026,
-              "reference_month": 9,
-              "created_at": "2026-07-02T00:09:31.589455Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "f9dba816-a2ff-4509-9297-3ed0d1c13671",
-              "status": "PENDING",
-              "amount": 22.45,
-              "paid_at": null,
-              "expense_id": "4ec71853-c0f5-4971-bdca-e48058d4d9bd",
-              "reference_year": 2026,
-              "reference_month": 10,
-              "created_at": "2026-07-02T00:09:31.595659Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "9f998cc4-4fa0-4146-8ccb-91849537cf18",
-              "status": "PENDING",
-              "amount": 22.45,
-              "paid_at": null,
-              "expense_id": "4ec71853-c0f5-4971-bdca-e48058d4d9bd",
-              "reference_year": 2026,
-              "reference_month": 11,
-              "created_at": "2026-07-02T00:09:31.599838Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "4082147a-10b1-4bd5-8840-8b50dd92a765",
-              "status": "PENDING",
-              "amount": 22.45,
-              "paid_at": null,
-              "expense_id": "4ec71853-c0f5-4971-bdca-e48058d4d9bd",
-              "reference_year": 2026,
-              "reference_month": 12,
-              "created_at": "2026-07-02T00:09:31.605597Z",
-              "updated_at": null,
-              "deleted_at": null
-            }
-          ],
-          "category": {
-            "id": "29e54e92-b1b9-486b-8321-0997a94f536d",
-            "name": "HBO Max",
-            "type": "ENTERTAINMENT",
-            "name_code": "hbo_max",
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Taxa de Streaming",
-            "created_at": "2026-07-02T00:09:31.529679Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-          "account_id": "8616336d-74b1-4f49-86ae-8ca7e120c410",
-          "allocation": {
-            "id": "fef60017-2e73-41e7-ae19-0030ed09f0cf",
-            "name": "Credito em Conta (Nubank)",
-            "type": "PERSONAL",
-            "name_code": "credito_em_conta_nubank",
-            "is_active": true,
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Despesas de Credito em Conta",
-            "created_at": "2026-07-02T00:09:31.269140Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "description": "Taxa de Streaming",
-          "created_at": "2026-07-02T00:09:31.541751Z",
-          "updated_at": null,
-          "deleted_at": null
-        },
-        {
-          "id": "d68fbea8-0a49-4c06-a718-d2bec0039d32",
-          "months": [
-            {
-              "id": "229be37f-4162-4b86-bbd8-db4737a65704",
-              "status": "PAID",
-              "amount": 0.0,
-              "paid_at": "2026-07-02T00:09:31.709866Z",
-              "expense_id": "d68fbea8-0a49-4c06-a718-d2bec0039d32",
-              "reference_year": 2026,
-              "reference_month": 1,
-              "created_at": "2026-07-02T00:09:31.712139Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "002a7cc0-9d6e-4544-994a-5562be0a7fdd",
-              "status": "PAID",
-              "amount": 0.0,
-              "paid_at": "2026-07-02T00:09:31.715553Z",
-              "expense_id": "d68fbea8-0a49-4c06-a718-d2bec0039d32",
-              "reference_year": 2026,
-              "reference_month": 2,
-              "created_at": "2026-07-02T00:09:31.716832Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "4908315b-ac9c-455f-9d0d-ba9c909f8fc9",
-              "status": "PAID",
-              "amount": 0.0,
-              "paid_at": "2026-07-02T00:09:31.720092Z",
-              "expense_id": "d68fbea8-0a49-4c06-a718-d2bec0039d32",
-              "reference_year": 2026,
-              "reference_month": 3,
-              "created_at": "2026-07-02T00:09:31.721365Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "3ffc80b3-4444-4a8b-8fc3-e92230b3ec5d",
-              "status": "PAID",
-              "amount": 0.0,
-              "paid_at": "2026-07-02T00:09:31.726989Z",
-              "expense_id": "d68fbea8-0a49-4c06-a718-d2bec0039d32",
-              "reference_year": 2026,
-              "reference_month": 4,
-              "created_at": "2026-07-02T00:09:31.729848Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "52349361-0fcb-46bf-8c7f-aa66a3d0f1c2",
-              "status": "PAID",
-              "amount": 0.0,
-              "paid_at": "2026-07-02T00:09:31.734379Z",
-              "expense_id": "d68fbea8-0a49-4c06-a718-d2bec0039d32",
-              "reference_year": 2026,
-              "reference_month": 5,
-              "created_at": "2026-07-02T00:09:31.735904Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "460f533f-8af9-4486-bf55-94cd03feb6d0",
-              "status": "PAID",
-              "amount": 166.8,
-              "paid_at": "2026-07-02T00:09:31.739976Z",
-              "expense_id": "d68fbea8-0a49-4c06-a718-d2bec0039d32",
-              "reference_year": 2026,
-              "reference_month": 6,
-              "created_at": "2026-07-02T00:09:31.741845Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "bced4c77-87a5-46ca-962d-3fa9276ece64",
-              "status": "PAID",
-              "amount": 0.0,
-              "paid_at": "2026-07-02T00:09:31.748015Z",
-              "expense_id": "d68fbea8-0a49-4c06-a718-d2bec0039d32",
-              "reference_year": 2026,
-              "reference_month": 7,
-              "created_at": "2026-07-02T00:09:31.749723Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "1b18c6d7-93ce-4da6-baf6-837740d0aef1",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "d68fbea8-0a49-4c06-a718-d2bec0039d32",
-              "reference_year": 2026,
-              "reference_month": 8,
-              "created_at": "2026-07-02T00:09:31.757279Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "51ae3481-0802-4303-82df-5181f5d798a6",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "d68fbea8-0a49-4c06-a718-d2bec0039d32",
-              "reference_year": 2026,
-              "reference_month": 9,
-              "created_at": "2026-07-02T00:09:31.766742Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "2ab4ae40-4ef3-4a5d-bef4-2ab7c1edd733",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "d68fbea8-0a49-4c06-a718-d2bec0039d32",
-              "reference_year": 2026,
-              "reference_month": 10,
-              "created_at": "2026-07-02T00:09:31.772740Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "b96541f7-d1d0-4f5e-8247-96e96b05308c",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "d68fbea8-0a49-4c06-a718-d2bec0039d32",
-              "reference_year": 2026,
-              "reference_month": 11,
-              "created_at": "2026-07-02T00:09:31.780045Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "a524c849-f6b2-4a1d-95ac-9f446790908d",
-              "status": "PENDING",
-              "amount": 0.0,
-              "paid_at": null,
-              "expense_id": "d68fbea8-0a49-4c06-a718-d2bec0039d32",
-              "reference_year": 2026,
-              "reference_month": 12,
-              "created_at": "2026-07-02T00:09:31.785429Z",
-              "updated_at": null,
-              "deleted_at": null
-            }
-          ],
-          "category": {
-            "id": "71ab1103-f7d9-4071-ac11-2c211f1f7709",
-            "name": "Amazon",
-            "type": "ENTERTAINMENT",
-            "name_code": "amazon",
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Taxa de Streaming (Prime Video | Amazon Prime)",
-            "created_at": "2026-07-02T00:09:31.696016Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-          "account_id": "8616336d-74b1-4f49-86ae-8ca7e120c410",
-          "allocation": {
-            "id": "fef60017-2e73-41e7-ae19-0030ed09f0cf",
-            "name": "Credito em Conta (Nubank)",
-            "type": "PERSONAL",
-            "name_code": "credito_em_conta_nubank",
-            "is_active": true,
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Despesas de Credito em Conta",
-            "created_at": "2026-07-02T00:09:31.269140Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "description": "Taxa de Streaming (Prime Video | Amazon Prime)",
-          "created_at": "2026-07-02T00:09:31.702887Z",
-          "updated_at": null,
-          "deleted_at": null
-        },
-        {
-          "id": "87f4423b-dd21-4f60-8833-89da80d00f98",
-          "months": [
-            {
-              "id": "ddbdcb73-6001-4cf5-bcec-42596db1e1b7",
-              "status": "PAID",
-              "amount": 19.9,
-              "paid_at": "2026-07-02T00:09:31.930294Z",
-              "expense_id": "87f4423b-dd21-4f60-8833-89da80d00f98",
-              "reference_year": 2026,
-              "reference_month": 1,
-              "created_at": "2026-07-02T00:09:31.932277Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "3cfb1d15-3aef-443d-9c7b-b89e8774f8dc",
-              "status": "PAID",
-              "amount": 19.9,
-              "paid_at": "2026-07-02T00:09:31.935686Z",
-              "expense_id": "87f4423b-dd21-4f60-8833-89da80d00f98",
-              "reference_year": 2026,
-              "reference_month": 2,
-              "created_at": "2026-07-02T00:09:31.937288Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "690b284e-b53b-48dc-ae79-8b07bbff5b83",
-              "status": "PAID",
-              "amount": 19.9,
-              "paid_at": "2026-07-02T00:09:31.947929Z",
-              "expense_id": "87f4423b-dd21-4f60-8833-89da80d00f98",
-              "reference_year": 2026,
-              "reference_month": 3,
-              "created_at": "2026-07-02T00:09:31.951718Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "a004ea5a-8d50-4913-8f16-ac426a3abf9f",
-              "status": "PAID",
-              "amount": 19.9,
-              "paid_at": "2026-07-02T00:09:31.956173Z",
-              "expense_id": "87f4423b-dd21-4f60-8833-89da80d00f98",
-              "reference_year": 2026,
-              "reference_month": 4,
-              "created_at": "2026-07-02T00:09:31.959736Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "f9712638-1fdd-46f1-ac57-b9a59a268548",
-              "status": "PAID",
-              "amount": 19.9,
-              "paid_at": "2026-07-02T00:09:31.963810Z",
-              "expense_id": "87f4423b-dd21-4f60-8833-89da80d00f98",
-              "reference_year": 2026,
-              "reference_month": 5,
-              "created_at": "2026-07-02T00:09:31.965825Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "054cef37-e7fd-481e-b0cf-a6b8b922de0a",
-              "status": "PAID",
-              "amount": 19.9,
-              "paid_at": "2026-07-02T00:09:31.969488Z",
-              "expense_id": "87f4423b-dd21-4f60-8833-89da80d00f98",
-              "reference_year": 2026,
-              "reference_month": 6,
-              "created_at": "2026-07-02T00:09:31.971321Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "f1caefbb-6978-4281-b276-e6ee634e8c60",
-              "status": "PAID",
-              "amount": 19.9,
-              "paid_at": "2026-07-02T00:09:31.977734Z",
-              "expense_id": "87f4423b-dd21-4f60-8833-89da80d00f98",
-              "reference_year": 2026,
-              "reference_month": 7,
-              "created_at": "2026-07-02T00:09:31.981747Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "77d5c836-32e0-4e48-a800-ba39ec73daa5",
-              "status": "PENDING",
-              "amount": 19.9,
-              "paid_at": null,
-              "expense_id": "87f4423b-dd21-4f60-8833-89da80d00f98",
-              "reference_year": 2026,
-              "reference_month": 8,
-              "created_at": "2026-07-02T00:09:31.992611Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "ef149cd8-c034-4611-a258-052fe2e76c87",
-              "status": "PENDING",
-              "amount": 19.9,
-              "paid_at": null,
-              "expense_id": "87f4423b-dd21-4f60-8833-89da80d00f98",
-              "reference_year": 2026,
-              "reference_month": 9,
-              "created_at": "2026-07-02T00:09:32.000994Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "51c47176-efe0-4e71-ba5f-d461b3febe7f",
-              "status": "PENDING",
-              "amount": 19.9,
-              "paid_at": null,
-              "expense_id": "87f4423b-dd21-4f60-8833-89da80d00f98",
-              "reference_year": 2026,
-              "reference_month": 10,
-              "created_at": "2026-07-02T00:09:32.007993Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "f508e124-5f7d-4fb9-89a7-768015849749",
-              "status": "PENDING",
-              "amount": 19.9,
-              "paid_at": null,
-              "expense_id": "87f4423b-dd21-4f60-8833-89da80d00f98",
-              "reference_year": 2026,
-              "reference_month": 11,
-              "created_at": "2026-07-02T00:09:32.015101Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "12095472-2481-4ac5-a9e5-645441254b8d",
-              "status": "PENDING",
-              "amount": 19.9,
-              "paid_at": null,
-              "expense_id": "87f4423b-dd21-4f60-8833-89da80d00f98",
-              "reference_year": 2026,
-              "reference_month": 12,
-              "created_at": "2026-07-02T00:09:32.019621Z",
-              "updated_at": null,
-              "deleted_at": null
-            }
-          ],
-          "category": {
-            "id": "7aeb9bdd-70a0-44c7-be4f-767d0a743ca0",
-            "name": "MeliMais",
-            "type": "ENTERTAINMENT",
-            "name_code": "melimais",
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Taxa de Streaming (Disney Plus | Mercado Livre)",
-            "created_at": "2026-07-02T00:09:31.906271Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-          "account_id": "8616336d-74b1-4f49-86ae-8ca7e120c410",
-          "allocation": {
-            "id": "fef60017-2e73-41e7-ae19-0030ed09f0cf",
-            "name": "Credito em Conta (Nubank)",
-            "type": "PERSONAL",
-            "name_code": "credito_em_conta_nubank",
-            "is_active": true,
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Despesas de Credito em Conta",
-            "created_at": "2026-07-02T00:09:31.269140Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "description": "Taxa de Streaming (Disney Plus | Mercado Livre)",
-          "created_at": "2026-07-02T00:09:31.920345Z",
-          "updated_at": null,
-          "deleted_at": null
-        },
-        {
-          "id": "7af09696-a065-4fad-97a8-bbf910728256",
-          "months": [
-            {
-              "id": "a91f4b5e-36f2-49b5-a1eb-52c3c0e675f6",
-              "status": "PAID",
-              "amount": 9.9,
-              "paid_at": "2026-07-02T00:09:32.122515Z",
-              "expense_id": "7af09696-a065-4fad-97a8-bbf910728256",
-              "reference_year": 2026,
-              "reference_month": 1,
-              "created_at": "2026-07-02T00:09:32.125336Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "9d3b3906-eba7-45ac-9529-df50c2a73aa5",
-              "status": "PAID",
-              "amount": 9.9,
-              "paid_at": "2026-07-02T00:09:32.131706Z",
-              "expense_id": "7af09696-a065-4fad-97a8-bbf910728256",
-              "reference_year": 2026,
-              "reference_month": 2,
-              "created_at": "2026-07-02T00:09:32.133541Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "c062c1e8-e50b-469c-972e-82d7b49115d2",
-              "status": "PAID",
-              "amount": 9.9,
-              "paid_at": "2026-07-02T00:09:32.137242Z",
-              "expense_id": "7af09696-a065-4fad-97a8-bbf910728256",
-              "reference_year": 2026,
-              "reference_month": 3,
-              "created_at": "2026-07-02T00:09:32.138334Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "3f97814f-f76c-4d57-86a4-6ab8e501f32e",
-              "status": "PAID",
-              "amount": 9.9,
-              "paid_at": "2026-07-02T00:09:32.144139Z",
-              "expense_id": "7af09696-a065-4fad-97a8-bbf910728256",
-              "reference_year": 2026,
-              "reference_month": 4,
-              "created_at": "2026-07-02T00:09:32.146808Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "6bbfa9be-7675-4cf8-ac3a-5fdf32edd8ee",
-              "status": "PAID",
-              "amount": 9.9,
-              "paid_at": "2026-07-02T00:09:32.150992Z",
-              "expense_id": "7af09696-a065-4fad-97a8-bbf910728256",
-              "reference_year": 2026,
-              "reference_month": 5,
-              "created_at": "2026-07-02T00:09:32.152170Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "c164c462-4463-4a0c-8e83-ba2fdb01524d",
-              "status": "PAID",
-              "amount": 9.9,
-              "paid_at": "2026-07-02T00:09:32.156133Z",
-              "expense_id": "7af09696-a065-4fad-97a8-bbf910728256",
-              "reference_year": 2026,
-              "reference_month": 6,
-              "created_at": "2026-07-02T00:09:32.158961Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "3dbb3a79-7828-43ec-8a66-0ec4fe5a6a37",
-              "status": "PAID",
-              "amount": 9.9,
-              "paid_at": "2026-07-02T00:09:32.164036Z",
-              "expense_id": "7af09696-a065-4fad-97a8-bbf910728256",
-              "reference_year": 2026,
-              "reference_month": 7,
-              "created_at": "2026-07-02T00:09:32.165344Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "dec2e9cf-abb9-479c-b77b-86ba0b7a92eb",
-              "status": "PENDING",
-              "amount": 9.9,
-              "paid_at": null,
-              "expense_id": "7af09696-a065-4fad-97a8-bbf910728256",
-              "reference_year": 2026,
-              "reference_month": 8,
-              "created_at": "2026-07-02T00:09:32.170640Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "c0787765-ad0f-4590-8bc0-fb2695d04965",
-              "status": "PENDING",
-              "amount": 9.9,
-              "paid_at": null,
-              "expense_id": "7af09696-a065-4fad-97a8-bbf910728256",
-              "reference_year": 2026,
-              "reference_month": 9,
-              "created_at": "2026-07-02T00:09:32.178040Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "60187119-5ad7-4be0-8855-27ef1637afec",
-              "status": "PENDING",
-              "amount": 9.9,
-              "paid_at": null,
-              "expense_id": "7af09696-a065-4fad-97a8-bbf910728256",
-              "reference_year": 2026,
-              "reference_month": 10,
-              "created_at": "2026-07-02T00:09:32.183354Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "080c804b-4bb9-4c02-89cf-f8274035b8d6",
-              "status": "PENDING",
-              "amount": 9.9,
-              "paid_at": null,
-              "expense_id": "7af09696-a065-4fad-97a8-bbf910728256",
-              "reference_year": 2026,
-              "reference_month": 11,
-              "created_at": "2026-07-02T00:09:32.188522Z",
-              "updated_at": null,
-              "deleted_at": null
-            },
-            {
-              "id": "cdbef1fc-8764-40bf-bb56-e60c99a686d2",
-              "status": "PENDING",
-              "amount": 9.9,
-              "paid_at": null,
-              "expense_id": "7af09696-a065-4fad-97a8-bbf910728256",
-              "reference_year": 2026,
-              "reference_month": 12,
-              "created_at": "2026-07-02T00:09:32.194562Z",
-              "updated_at": null,
-              "deleted_at": null
-            }
-          ],
-          "category": {
-            "id": "a1dcd4fa-b07e-48fb-a932-63441a294d3b",
-            "name": "Google Storage",
-            "type": "ENTERTAINMENT",
-            "name_code": "google_storage",
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Taxa de Serviço de Armazenamento",
-            "created_at": "2026-07-02T00:09:32.100690Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-          "account_id": "8616336d-74b1-4f49-86ae-8ca7e120c410",
-          "allocation": {
-            "id": "fef60017-2e73-41e7-ae19-0030ed09f0cf",
-            "name": "Credito em Conta (Nubank)",
-            "type": "PERSONAL",
-            "name_code": "credito_em_conta_nubank",
-            "is_active": true,
-            "finance_id": "2d38facc-b2a7-4467-808f-c88bbf0fcab3",
-            "description": "Despesas de Credito em Conta",
-            "created_at": "2026-07-02T00:09:31.269140Z",
-            "updated_at": null,
-            "deleted_at": null
-          },
-          "description": "Taxa de Serviço de Armazenamento",
-          "created_at": "2026-07-02T00:09:32.116409Z",
-          "updated_at": null,
-          "deleted_at": null
-        }
-      ]
-    }
-  ]
-}
+                      {
+                        "name": "HBO Max",
+                        "description": "Taxa de Streaming",
+                        "months": [
+                          {
+                            "amount": 22.45,
+                            "reference_month": 1
+                          },
+                          {
+                            "amount": 22.45,
+                            "reference_month": 2
+                          },
+                          {
+                            "amount": 22.45,
+                            "reference_month": 3
+                          },
+                          {
+                            "amount": 22.45,
+                            "reference_month": 4
+                          },
+                          {
+                            "amount": 22.45,
+                            "reference_month": 5
+                          },
+                          {
+                            "amount": 22.45,
+                            "reference_month": 6
+                          }
+                        ]
+                      },
+                      {
+                        "name": "MeliMais",
+                        "description": "Taxa de Streaming (Disney Plus | Mercado Livre)",
+                        "months": [
+                          {
+                            "amount": 19.90,
+                            "reference_month": 1
+                          },
+                          {
+                            "amount": 19.90,
+                            "reference_month": 2
+                          },
+                          {
+                            "amount": 19.90,
+                            "reference_month": 3
+                          },
+                          {
+                            "amount": 19.90,
+                            "reference_month": 4
+                          },
+                          {
+                            "amount": 19.90,
+                            "reference_month": 5
+                          },
+                          {
+                            "amount": 19.90,
+                            "reference_month": 6
+                          },
+                          {
+                            "amount": 19.90,
+                            "reference_month": 7
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Services",
+                    "description": "Services",
+                    "expenses": [
+                      {
+                        "name": "Google Storage",
+                        "description": "Taxa de Serviço de Armazenamento",
+                        "months": [
+                          {
+                            "amount": 9.90,
+                            "reference_month": 1
+                          },
+                          {
+                            "amount": 9.90,
+                            "reference_month": 2
+                          },
+                          {
+                            "amount": 9.90,
+                            "reference_month": 3
+                          },
+                          {
+                            "amount": 9.90,
+                            "reference_month": 4
+                          },
+                          {
+                            "amount": 9.90,
+                            "reference_month": 5
+                          },
+                          {
+                            "amount": 9.90,
+                            "reference_month": 6
+                          },
+                          {
+                            "amount": 9.90,
+                            "reference_month": 7
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Food",
+                    "description": "Despesas com comida",
+                    "expenses": [
+                      {
+                        "name": "Bolos do Flávio",
+                        "description": "Compra de bolo do Flavio",
+                        "months": [
+                          {
+                            "amount": 50,
+                            "reference_month": 1
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
