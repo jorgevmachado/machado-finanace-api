@@ -95,9 +95,9 @@ class FinanceService(BaseService[FinanceRepository, Finance]):
 
         for payload in payloads:
             account = await self.account_service.persist(
-                finance=finance,
                 name=payload.name,
                 type=payload.type,
+                finance=finance,
                 with_throw=False,
                 initial_balance=payload.initial_balance or 0,
             )
