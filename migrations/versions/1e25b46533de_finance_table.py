@@ -1,8 +1,8 @@
-"""finance onboarding
+"""finance table
 
-Revision ID: 2eaf2a39f864
-Revises: 527b69285dd7
-Create Date: 2026-06-20 16:57:15.552065
+Revision ID: 1e25b46533de
+Revises: b1d875bd9653
+Create Date: 2026-07-05 15:22:03.826760
 
 """
 
@@ -13,8 +13,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "2eaf2a39f864"
-down_revision: Union[str, Sequence[str], None] = "527b69285dd7"
+revision: str = "1e25b46533de"
+down_revision: Union[str, Sequence[str], None] = "b1d875bd9653"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -36,7 +36,6 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index("finance_user_id_idx", "finances", ["user_id"])
-
     # ### end Alembic commands ###
 
 

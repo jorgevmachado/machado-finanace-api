@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from types import SimpleNamespace
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
 import pytest
@@ -11,7 +11,7 @@ from http import HTTPStatus
 from app.domain.finance.income.service import IncomeService
 from app.domain.finance.income.schema import PayloadIncomeCreateSchema
 from app.domain.finance.months.schema import PayloadMonthPersistSchema
-from app.models import utcnow
+from app.models import utcnow, Account
 
 
 @pytest.fixture
@@ -27,6 +27,14 @@ def account_service_mock():
 @pytest.fixture
 def income_month_service_mock():
     return AsyncMock()
+
+
+@pytest.fixture
+def account():
+    account = MagicMock(spec=Account)
+    account.id = uuid4()
+    account.finance_id = uuid4()
+    return account
 
 
 class TestFinanceIncomeFromSessionService:
@@ -100,10 +108,9 @@ class TestFinanceIncomeCreateService:
     @staticmethod
     @pytest.mark.asyncio
     async def test_create_with_valid_account_new_income(
-        income_repository_mock, account_service_mock, income_month_service_mock
+        income_repository_mock, account_service_mock, income_month_service_mock, account
     ):
         finance = SimpleNamespace(id=uuid4())
-        account = SimpleNamespace(id=uuid4())
         account_id = account.id
         payload = PayloadIncomeCreateSchema(
             months=[],
@@ -134,10 +141,9 @@ class TestFinanceIncomeCreateService:
     @staticmethod
     @pytest.mark.asyncio
     async def test_create_with_existing_income_throws(
-        income_repository_mock, account_service_mock, income_month_service_mock
+        income_repository_mock, account_service_mock, income_month_service_mock, account
     ):
         finance = SimpleNamespace(id=uuid4())
-        account = SimpleNamespace(id=uuid4())
         existing_income = SimpleNamespace(id=uuid4(), source="Test Income")
         payload = PayloadIncomeCreateSchema(
             months=[],
@@ -166,7 +172,7 @@ class TestFinanceIncomePersistService:
     @staticmethod
     @pytest.mark.asyncio
     async def test_finance_income_persist_service_invalid_year(
-        income_repository_mock,
+        income_repository_mock, account
     ):
         months = [
             PayloadMonthPersistSchema(
@@ -181,8 +187,6 @@ class TestFinanceIncomePersistService:
             ),
         ]
         source = "Some Source"
-        finance = SimpleNamespace(id=uuid4())
-        account = SimpleNamespace(id=uuid4())
         description = "Some Description"
         current_year = utcnow().year
         reference_day = 10
@@ -193,7 +197,6 @@ class TestFinanceIncomePersistService:
             await service.persist(
                 months=months,
                 source=source,
-                finance=finance,
                 account=account,
                 with_throw=True,
                 description=description,
@@ -210,7 +213,7 @@ class TestFinanceIncomePersistService:
     @staticmethod
     @pytest.mark.asyncio
     async def test_finance_income_persist_service_exist_income_with_throw(
-        income_repository_mock,
+        income_repository_mock, account
     ):
         months = [
             PayloadMonthPersistSchema(
@@ -225,8 +228,6 @@ class TestFinanceIncomePersistService:
             ),
         ]
         source = "Some Source"
-        finance = SimpleNamespace(id=uuid4())
-        account = SimpleNamespace(id=uuid4())
         description = "Some Description"
         current_year = utcnow().year
         reference_day = 10
@@ -241,7 +242,6 @@ class TestFinanceIncomePersistService:
             await service.persist(
                 months=months,
                 source=source,
-                finance=finance,
                 account=account,
                 with_throw=True,
                 description=description,
@@ -259,7 +259,7 @@ class TestFinanceIncomePersistService:
     @staticmethod
     @pytest.mark.asyncio
     async def test_finance_income_persist_service_exist_income_without_throw(
-        income_repository_mock,
+        income_repository_mock, account
     ):
         months = [
             PayloadMonthPersistSchema(
@@ -274,8 +274,6 @@ class TestFinanceIncomePersistService:
             ),
         ]
         source = "Some Source"
-        finance = SimpleNamespace(id=uuid4())
-        account = SimpleNamespace(id=uuid4())
         description = "Some Description"
         current_year = utcnow().year
         reference_day = 10
@@ -292,7 +290,6 @@ class TestFinanceIncomePersistService:
         result = await service.persist(
             months=months,
             source=source,
-            finance=finance,
             account=account,
             with_throw=False,
             description=description,
@@ -306,7 +303,7 @@ class TestFinanceIncomePersistService:
     @staticmethod
     @pytest.mark.asyncio
     async def test_finance_income_persist_service_save_when_not_exist_income(
-        income_repository_mock,
+        income_repository_mock, account
     ):
         months = [
             PayloadMonthPersistSchema(
@@ -321,8 +318,6 @@ class TestFinanceIncomePersistService:
             ),
         ]
         source = "Some Source"
-        finance = SimpleNamespace(id=uuid4())
-        account = SimpleNamespace(id=uuid4())
         description = "Some Description"
         current_year = utcnow().year
         reference_day = 10
@@ -339,7 +334,6 @@ class TestFinanceIncomePersistService:
         result = await service.persist(
             months=months,
             source=source,
-            finance=finance,
             account=account,
             with_throw=False,
             description=description,

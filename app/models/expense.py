@@ -4,15 +4,13 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
-from sqlalchemy import DateTime, ForeignKey, Text
+from sqlalchemy import DateTime, ForeignKey, Text, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import default_lazy, table_registry
 from app.models import utcnow
 
 if TYPE_CHECKING:
-    from app.models.finance import Finance
-    from app.models.account import Account
     from app.models.allocation import Allocation
     from app.models.category import Category
     from app.models.expense_month import ExpenseMonth
@@ -21,22 +19,6 @@ if TYPE_CHECKING:
 @table_registry.mapped_as_dataclass
 class Expense:
     __tablename__ = "expenses"
-
-    finance_id: Mapped[UUID] = mapped_column(ForeignKey("finances.id"), nullable=False)
-
-    finance: Mapped["Finance"] = relationship(
-        init=False,
-        lazy=default_lazy,
-        back_populates="expenses",
-    )
-
-    account_id: Mapped[UUID] = mapped_column(ForeignKey("accounts.id"), nullable=False)
-
-    account: Mapped["Account"] = relationship(
-        init=False,
-        lazy=default_lazy,
-        back_populates="expenses",
-    )
 
     allocation_id: Mapped[UUID] = mapped_column(
         ForeignKey("allocations.id"), nullable=False
@@ -47,6 +29,10 @@ class Expense:
         lazy=default_lazy,
         back_populates="expenses",
     )
+
+    payee: Mapped[str] = mapped_column(String, nullable=False)
+
+    payee_code: Mapped[str] = mapped_column(String, nullable=False)
 
     category_id: Mapped[UUID] = mapped_column(
         ForeignKey("categories.id"), nullable=False

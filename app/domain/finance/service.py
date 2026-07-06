@@ -2,32 +2,27 @@ from __future__ import annotations
 
 import logging
 from http import HTTPStatus
-from typing import Annotated
 
-from fastapi import HTTPException, Query
+from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import LoggingParams
 from app.core.service import BaseService
-from app.domain.finance.account.schema import PayloadAccountCreateSchema
+
 from app.domain.finance.account.service import AccountService
-from app.domain.finance.allocation.schema import (
-    PayloadAllocationCreateSchema,
-)
+
 from app.domain.finance.allocation.service import AllocationService
 from app.domain.finance.allocation_contribution.service import (
     AllocationContributionService,
 )
-from app.domain.finance.business import has_yearly_data
-
 from app.domain.finance.category.service import CategoryService
 from app.domain.finance.expense.service import ExpenseService
 from app.domain.finance.income.service import IncomeService
+from app.domain.finance.persist_schema import PayloadPersistSchema
 from app.domain.finance.repository import FinanceRepository
 from app.domain.finance.schema import (
     FinancePersistResultSchema,
     FinanceSchema,
-    PayloadFinancePersistSchema,
 )
 from app.models import (
     Account,
@@ -38,8 +33,6 @@ from app.models import (
     Allocation,
     Income,
 )
-from app.shared.schemas import FilterPage
-from app.shared.utils.validator import validate_year
 
 logger = logging.getLogger(__name__)
 
@@ -91,37 +84,8 @@ class FinanceService(BaseService[FinanceRepository, Finance]):
             )
         return await self.repository.save(entity=Finance(user_id=current_user.id))
 
-    async def find_by_user(
-        self,
-        current_user: User,
-        page_filter: Annotated[FilterPage, Query()] = None,
-    ) -> Finance:
-        finance = current_user.finance if current_user.finance else None
-        if not finance:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail=f"User {current_user.username} must be onboarded first",
-            )
-        year = getattr(page_filter, "year", None) if page_filter else None
-        with_deleted = page_filter.with_deleted if page_filter else False
-        if year is not None:
-            reference_year = validate_year(year)
-            result = await self.repository.find_by_finance_year(
-                finance_id=finance.id,
-                reference_year=reference_year,
-                with_deleted=with_deleted or False,
-            )
-            if result is None or not has_yearly_data(result):
-                raise HTTPException(
-                    status_code=HTTPStatus.NOT_FOUND,
-                    detail=f"{self.alias} not found",
-                )
-            return result
-
-        return await self.find_one(param=str(finance.id))
-
     async def persist(
-        self, finance: Finance, payloads: list[PayloadFinancePersistSchema]
+        self, finance: Finance, payloads: list[PayloadPersistSchema]
     ) -> FinancePersistResultSchema:
         incomes: list[Income] = []
         accounts: list[Account] = []
@@ -132,14 +96,13 @@ class FinanceService(BaseService[FinanceRepository, Finance]):
         for payload in payloads:
             account = await self.account_service.persist(
                 finance=finance,
-                payload=PayloadAccountCreateSchema(
-                    name=payload.name,
-                    type=payload.type,
-                    initial_balance=payload.initial_balance or 0,
-                ),
+                name=payload.name,
+                type=payload.type,
                 with_throw=False,
+                initial_balance=payload.initial_balance or 0,
             )
             accounts.append(account)
+
             reference_day = payload.reference_day or 10
             reference_year = payload.reference_year
 
@@ -147,7 +110,6 @@ class FinanceService(BaseService[FinanceRepository, Finance]):
                 income = await self.income_service.persist(
                     months=payload_income.months,
                     source=payload_income.source,
-                    finance=finance,
                     account=account,
                     with_throw=False,
                     description=payload_income.description,
@@ -158,32 +120,65 @@ class FinanceService(BaseService[FinanceRepository, Finance]):
 
             for payload_allocation in payload.allocations:
                 allocation = await self.allocation_service.persist(
-                    finance=finance,
-                    payload=PayloadAllocationCreateSchema(
-                        name=payload_allocation.name,
-                        type=payload_allocation.type,
-                        description=payload_allocation.description
-                        or payload_allocation.name,
-                    ),
+                    name=payload_allocation.name,
+                    account=account,
+                    description=payload_allocation.description or payload_allocation.name,                    
                     with_throw=False,
                 )
                 allocations.append(allocation)
-
                 for payload_category in payload_allocation.categories:
-                    expenses_persisted: list[
-                        Expense
-                    ] = await self.expense_service.persist_by_category(
+                    category = await self.category_service.persist(
+                        name=payload_category.name,
                         finance=finance,
-                        account=account,
-                        payload=payload_category,
-                        allocation=allocation,
-                        reference_day=reference_day,
-                        reference_year=reference_year,
+                        description=payload_category.description or payload_category.name,                        
+                        with_throw=False,
                     )
-                    for expense_persisted in expenses_persisted:
-                        if expense_persisted.category:
-                            categories.append(expense_persisted.category)
-                    expenses.extend(expenses_persisted)
+                    categories.append(category)
+                    for payload_expense in payload_category.expenses:
+                        parent_expense = await self.expense_service.persist(
+                            payee=payload_expense.name,
+                            months=payload_expense.months or [],
+                            category=category,
+                            allocation=allocation,
+                            with_throw=False,
+                            description=payload_expense.description,
+                            reference_day=reference_day,
+                            reference_year=reference_year,
+                        )
+                        expenses.append(parent_expense)
+                        payload_expense_children_categories = (
+                            payload_expense.categories or []
+                        )
+                        if len(payload_expense_children_categories) > 0:
+                            for (
+                                payload_expense_children_category
+                            ) in payload_expense_children_categories:
+                                children_category = await self.category_service.persist(
+                                    name=payload_expense_children_category.name,
+                                    finance=finance,
+                                    description=payload_expense_children_category.description or payload_expense_children_category.name,                                    
+                                    with_throw=False,
+                                )
+                                categories.append(children_category)
+                                payload_children_expenses = (
+                                    payload_expense_children_category.expenses or []
+                                )
+                                if len(payload_children_expenses) > 0:
+                                    for (
+                                        payload_children_expense
+                                    ) in payload_children_expenses:
+                                        child_expense = await self.expense_service.persist(
+                                            payee=payload_children_expense.name,
+                                            months=payload_children_expense.months or [],
+                                            category=children_category,
+                                            allocation=allocation,
+                                            with_throw=False,
+                                            description=payload_children_expense.description,
+                                            reference_day=reference_day,
+                                            reference_year=reference_year,
+                                            parent_id=parent_expense.id,
+                                        )
+                                        expenses.append(child_expense)
 
         return FinancePersistResultSchema(
             incomes=len(incomes),

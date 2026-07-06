@@ -56,44 +56,12 @@ class TestFinanceAllocationContributionFromSessionService:
 class TestFinanceAllocationContributionCreateService:
     @staticmethod
     @pytest.mark.asyncio
-    async def test_allocation_contribution_create_with_invalid_account(
-        allocation_contribution_repository_mock, finance, account, allocation
-    ):
-        current_year = utcnow().year
-        payload = PayloadAllocationContributionCreateSchema(
-            months=[],
-            account_id=account.id,
-            description="Some Description",
-            allocation_id=allocation.id,
-            reference_day=10,
-            reference_year=current_year,
-            contributor_name="Some Name",
-        )
-
-        service = AllocationContributionService(
-            repository=allocation_contribution_repository_mock
-        )
-
-        service.account_service.find_by = AsyncMock(return_value=None)
-        service.allocation_service.find_by = AsyncMock(return_value=None)
-
-        with pytest.raises(HTTPException) as exc_info:
-            await service.create(finance=finance, payload=payload)
-
-        assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
-        assert (
-            exc_info.value.detail == f"Account with this id {account.id} does not exist"
-        )
-
-    @staticmethod
-    @pytest.mark.asyncio
     async def test_allocation_contribution_create_with_invalid_allocation(
         allocation_contribution_repository_mock, finance, account, allocation
     ):
         current_year = utcnow().year
         payload = PayloadAllocationContributionCreateSchema(
             months=[],
-            account_id=account.id,
             description="Some Description",
             allocation_id=allocation.id,
             reference_day=10,
@@ -105,7 +73,6 @@ class TestFinanceAllocationContributionCreateService:
             repository=allocation_contribution_repository_mock
         )
 
-        service.account_service.find_by = AsyncMock(return_value=account)
         service.allocation_service.find_by = AsyncMock(return_value=None)
 
         with pytest.raises(HTTPException) as exc_info:
@@ -125,7 +92,6 @@ class TestFinanceAllocationContributionCreateService:
         current_year = utcnow().year
         payload = PayloadAllocationContributionCreateSchema(
             months=[],
-            account_id=account.id,
             description="Some Description",
             allocation_id=allocation.id,
             reference_day=10,
@@ -135,7 +101,6 @@ class TestFinanceAllocationContributionCreateService:
 
         existing_allocation_contribution = SimpleNamespace(
             id=uuid4(),
-            account_id=account.id,
             allocation_id=allocation.id,
         )
 
@@ -143,7 +108,6 @@ class TestFinanceAllocationContributionCreateService:
             repository=allocation_contribution_repository_mock
         )
 
-        service.account_service.find_by = AsyncMock(return_value=account)
         service.allocation_service.find_by = AsyncMock(return_value=allocation)
         service.find_by = AsyncMock(return_value=existing_allocation_contribution)
 
@@ -160,7 +124,6 @@ class TestFinanceAllocationContributionCreateService:
         current_year = utcnow().year
         payload = PayloadAllocationContributionCreateSchema(
             months=[],
-            account_id=account.id,
             description="Some Description",
             allocation_id=allocation.id,
             reference_day=10,
@@ -178,7 +141,6 @@ class TestFinanceAllocationContributionCreateService:
             repository=allocation_contribution_repository_mock
         )
 
-        service.account_service.find_by = AsyncMock(return_value=account)
         service.allocation_service.find_by = AsyncMock(return_value=allocation)
         service.find_by = AsyncMock(side_effect=[None, saved_allocation_contribution])
         service.allocation_contribution_month_service.persist_list = AsyncMock(
@@ -222,8 +184,6 @@ class TestFinanceAllocationContributionPersistService:
         with pytest.raises(HTTPException) as exc_info:
             await service.persist(
                 months=months,
-                finance=finance,
-                account=account,
                 allocation=allocation,
                 with_throw=True,
                 description=description,
@@ -263,7 +223,6 @@ class TestFinanceAllocationContributionPersistService:
 
         exist_allocation_contribution = SimpleNamespace(
             id=uuid4(),
-            account_id=account.id,
             description=description,
             allocation_id=allocation.id,
             contributor_name=contributor_name,
@@ -277,8 +236,6 @@ class TestFinanceAllocationContributionPersistService:
         with pytest.raises(HTTPException) as exc_info:
             await service.persist(
                 months=months,
-                finance=finance,
-                account=account,
                 allocation=allocation,
                 with_throw=True,
                 description=description,
@@ -318,7 +275,6 @@ class TestFinanceAllocationContributionPersistService:
 
         exist_allocation_contribution = SimpleNamespace(
             id=uuid4(),
-            account_id=account.id,
             description=description,
             allocation_id=allocation.id,
             contributor_name=contributor_name,
@@ -337,8 +293,6 @@ class TestFinanceAllocationContributionPersistService:
         )
         result = await service.persist(
             months=months,
-            finance=finance,
-            account=account,
             allocation=allocation,
             with_throw=False,
             description=description,
@@ -374,7 +328,6 @@ class TestFinanceAllocationContributionPersistService:
 
         created_allocation_contribution = SimpleNamespace(
             id=uuid4(),
-            account_id=account.id,
             description=description,
             allocation_id=allocation.id,
             contributor_name=contributor_name,
@@ -392,8 +345,6 @@ class TestFinanceAllocationContributionPersistService:
         )
         result = await service.persist(
             months=months,
-            finance=finance,
-            account=account,
             allocation=allocation,
             with_throw=False,
             description=description,

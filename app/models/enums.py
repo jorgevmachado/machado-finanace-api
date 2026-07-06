@@ -12,19 +12,10 @@ class RoleEnum(str, Enum):
 
 
 class AccountTypeEnum(str, Enum):
-    PIX = "PIX"
     BANK = "BANK"
     CASH = "CASH"
     OTHER = "OTHER"
     INVESTMENT = "INVESTMENT"
-    ACCOUNT_DEBIT = "ACCOUNT_DEBIT"
-
-
-class AllocationTypeEnum(str, Enum):
-    OTHER = "OTHER"
-    HOUSE = "HOUSE"
-    FAMILY = "FAMILY"
-    PERSONAL = "PERSONAL"
 
 
 class CategoryTypeEnum(str, Enum):

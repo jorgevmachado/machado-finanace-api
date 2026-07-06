@@ -12,7 +12,6 @@ from app.domain.finance.category.repository import CategoryRepository
 from app.domain.finance.category.schema import (
     PayloadCategoryCreateSchema,
     CategorySchema,
-    PayloadCategoryCreateListSchema,
 )
 from app.shared.utils.string import to_snake_case
 
@@ -40,39 +39,25 @@ class CategoryService(BaseService[CategoryRepository, Category]):
     def from_session(cls, session: AsyncSession):
         return cls(CategoryRepository(session))
 
-    async def create_list(
-        self,
-        finance: Finance,
-        payload: PayloadCategoryCreateListSchema,
-    ) -> list[Category]:
-        payload_categories = payload.categories if payload.categories else []
-
-        if len(payload_categories) == 0:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail="Categories list cannot be empty",
-            )
-
-        categories: list[Category] = []
-
-        if payload_categories and len(payload_categories) > 0:
-            for item in payload_categories:
-                category = await self.persist(
-                    finance=finance,
-                    payload=item,
-                    with_throw=False,
-                )
-                categories.append(category)
-
-        return categories
-
-    async def persist(
+    async def create(
         self,
         finance: Finance,
         payload: PayloadCategoryCreateSchema,
+    ) -> Category:
+        return await self.persist(
+            name=payload.name,
+            finance=finance,
+            description=payload.description,
+        )
+
+    async def persist(
+        self,
+        name: str,
+        finance: Finance,
+        description: str,
         with_throw: bool = True,
     ) -> Category:
-        name_code = to_snake_case(payload.name)
+        name_code = to_snake_case(name)
         category = await self.find_by(
             finance_id=finance.id, name_code=name_code, without_throw=True
         )
@@ -80,17 +65,16 @@ class CategoryService(BaseService[CategoryRepository, Category]):
             if with_throw:
                 raise HTTPException(
                     status_code=HTTPStatus.BAD_REQUEST,
-                    detail=f"Category with this name {payload.name} already exists",
+                    detail=f"Category with this name {name} already exists",
                 )
             else:
                 return category
         else:
             return await self.repository.save(
                 entity=Category(
-                    finance_id=finance.id,
-                    name=payload.name,
+                    name=name,
                     name_code=name_code,
-                    type=payload.type,
-                    description=payload.description,
+                    finance_id=finance.id,
+                    description=description,
                 )
             )

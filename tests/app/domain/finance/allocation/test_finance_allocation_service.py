@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from http import HTTPStatus
 from types import SimpleNamespace
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
 import pytest
@@ -12,13 +12,27 @@ from app.domain.finance.allocation.schema import (
     PayloadAllocationCreateSchema,
 )
 from app.domain.finance.allocation.service import AllocationService
-from app.models import AllocationTypeEnum
+from app.models import Account, Finance
 from app.shared.utils.string import to_snake_case
 
 
 @pytest.fixture
 def allocation_repository_mock() -> AsyncMock:
     return AsyncMock()
+
+
+@pytest.fixture
+def account():
+    account = MagicMock(spec=Account)
+    account.id = uuid4()
+    return account
+
+
+@pytest.fixture
+def finance():
+    finance = MagicMock(spec=Finance)
+    finance.id = uuid4()
+    return finance
 
 
 class TestFinanceAllocationServiceFromSession:
@@ -32,41 +46,38 @@ class TestFinanceAllocationServiceFromSession:
 class TestFinanceAllocationPersistService:
     @staticmethod
     @pytest.mark.asyncio
-    async def test_persist_raises_when_allocation_exists(
-        allocation_repository_mock: AsyncMock,
+    async def test_finance_allocation_persist_raises_when_allocation_exists(
+        allocation_repository_mock: AsyncMock, account
     ):
-        payload = PayloadAllocationCreateSchema(
-            name="Test Allocation",
-            type=AllocationTypeEnum.OTHER,
-            description="Some Description",
-        )
-        finance = SimpleNamespace(id=uuid4())
         service = AllocationService(repository=allocation_repository_mock)
         service.find_by = AsyncMock(return_value=SimpleNamespace(id=uuid4()))
-
+        name = "Test Allocation"
         with pytest.raises(HTTPException) as exc_info:
-            await service.persist(finance=finance, payload=payload)
+            await service.persist(
+                name=name,
+                account=account,
+                description="Some Description",
+            )
 
         assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
-        assert exc_info.value.detail == "Allocation with this name already exists"
+        assert (
+            exc_info.value.detail == f"Allocation with this name {name} already exists"
+        )
 
     @staticmethod
     @pytest.mark.asyncio
-    async def test_persist_returns_existing_when_with_throw_false(
-        allocation_repository_mock: AsyncMock,
+    async def test_finance_allocation_persist_returns_existing_when_with_throw_false(
+        allocation_repository_mock: AsyncMock, account
     ):
-        payload = PayloadAllocationCreateSchema(
-            name="Test Allocation",
-            type=AllocationTypeEnum.OTHER,
-            description="Some Description",
-        )
-        finance = SimpleNamespace(id=uuid4())
         existing = SimpleNamespace(id=uuid4())
         service = AllocationService(repository=allocation_repository_mock)
         service.find_by = AsyncMock(return_value=existing)
 
         result = await service.persist(
-            finance=finance, payload=payload, with_throw=False
+            name="Test Allocation",
+            account=account,
+            description="Some Description",
+            with_throw=False,
         )
 
         assert result is existing
@@ -74,27 +85,74 @@ class TestFinanceAllocationPersistService:
 
     @staticmethod
     @pytest.mark.asyncio
-    async def test_persist_successfully_saves(allocation_repository_mock: AsyncMock):
-        payload = PayloadAllocationCreateSchema(
-            name="Test Allocation",
-            type=AllocationTypeEnum.OTHER,
-            description="Some Description",
-        )
-        finance_id = uuid4()
-        finance = SimpleNamespace(id=finance_id)
+    async def test_finance_allocation_persist_successfully_saves(
+        allocation_repository_mock: AsyncMock, account
+    ):
         expected = SimpleNamespace(id=uuid4())
         service = AllocationService(repository=allocation_repository_mock)
         service.find_by = AsyncMock(return_value=None)
         allocation_repository_mock.save.return_value = expected
 
-        result = await service.persist(finance=finance, payload=payload)
+        result = await service.persist(
+            name="Test Allocation",
+            account=account,
+            description="Some Description",
+        )
 
         assert result is expected
         allocation_repository_mock.save.assert_awaited_once()
         saved_entity = allocation_repository_mock.save.await_args.kwargs["entity"]
-        assert saved_entity.finance_id == finance_id
-        assert saved_entity.name == payload.name
-        assert saved_entity.name_code == to_snake_case(payload.name)
-        assert saved_entity.type == payload.type
+        assert saved_entity.account_id == account.id
+        assert saved_entity.name == "Test Allocation"
+        assert saved_entity.name_code == to_snake_case("Test Allocation")
         assert saved_entity.is_active is True
-        assert saved_entity.description == payload.description
+        assert saved_entity.description == "Some Description"
+
+
+class TestFinanceAllocationCreateService:
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_allocation_create_raises_when_account_not_found(
+        allocation_repository_mock: AsyncMock, finance, account
+    ):
+
+        service = AllocationService(repository=allocation_repository_mock)
+        service.account_service.find_by = AsyncMock(return_value=None)
+        payload = PayloadAllocationCreateSchema(
+            name="Test Allocation",
+            account_id=account.id,
+            description="Some Description",
+        )
+        with pytest.raises(HTTPException) as exc_info:
+            await service.create(finance=finance, payload=payload)
+
+        assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
+        assert (
+            exc_info.value.detail == f"Account with this id {account.id} does not exist"
+        )
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_allocation_create_successfully(
+        allocation_repository_mock: AsyncMock, finance, account
+    ):
+        expected = SimpleNamespace(id=uuid4())
+
+        service = AllocationService(repository=allocation_repository_mock)
+        service.account_service.find_by = AsyncMock(return_value=account)
+        service.find_by = AsyncMock(return_value=None)
+        allocation_repository_mock.save.return_value = expected
+        payload = PayloadAllocationCreateSchema(
+            name="Test Allocation",
+            account_id=account.id,
+            description="Some Description",
+        )
+        result = await service.create(finance=finance, payload=payload)
+        assert result is expected
+        allocation_repository_mock.save.assert_awaited_once()
+        saved_entity = allocation_repository_mock.save.await_args.kwargs["entity"]
+        assert saved_entity.account_id == account.id
+        assert saved_entity.name == "Test Allocation"
+        assert saved_entity.name_code == to_snake_case("Test Allocation")
+        assert saved_entity.is_active is True
+        assert saved_entity.description == "Some Description"

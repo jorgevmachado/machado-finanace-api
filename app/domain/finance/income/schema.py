@@ -30,7 +30,6 @@ class IncomeSchema(BaseModel):
     months: list[IncomeMonthSchema] = []
     source: str
     source_code: str
-    finance_id: UUID
     account_id: UUID
     description: str
     created_at: datetime

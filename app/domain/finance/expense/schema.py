@@ -6,28 +6,14 @@ from app.domain.finance.allocation.schema import (
     AllocationRelationSchema,
     AllocationSchema,
 )
-from app.domain.finance.category.schema import (
-    CategorySchema,
-    PayloadCategoryCreateSchema,
-)
+from app.domain.finance.category.schema import CategorySchema
 from app.domain.finance.expense_month.schema import ExpenseMonthSchema
 from app.domain.finance.months.schema import PayloadMonthPersistSchema
 
 
-class PayloadFinanceExpensePersistChildrenRequiredSchema(PayloadCategoryCreateSchema):
-    amount: float
-    reference_day: int | None = None
-    reference_month: int
-
-
-class PayloadFinanceExpensePersistRequiredSchema(BaseModel):
-    children: list[PayloadFinanceExpensePersistChildrenRequiredSchema]
-    reference_month: int
-
-
 class PayloadExpenseCreateSchema(BaseModel):
+    payee: str
     months: list[PayloadMonthPersistSchema]
-    account_id: UUID
     category_id: UUID
     description: str
     allocation_id: UUID
@@ -39,7 +25,6 @@ class PayloadExpenseCreateSchema(BaseModel):
 
 class PayloadExpenseUpdateSchema(BaseModel):
     months: list[ExpenseMonthSchema] = []
-    account_id: UUID | None = None
     category_id: UUID | None = None
     description: str | None = None
     allocation_id: UUID | None = None
@@ -59,10 +44,10 @@ class ExpenseSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
+    payee: str
     months: list[ExpenseMonthSchema] = []
     category: CategorySchema
-    finance_id: UUID
-    account_id: UUID
+    payee_code: str
     allocation: AllocationRelationSchema
     description: str
     parent_id: UUID | None = None
@@ -77,10 +62,10 @@ class ExpenseDetailSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
+    payee: str
     months: list[ExpenseMonthSchema] = []
     category: CategorySchema
-    finance_id: UUID
-    account_id: UUID
+    payee_code: str
     allocation: AllocationRelationSchema
     description: str
     parent_id: UUID | None = None

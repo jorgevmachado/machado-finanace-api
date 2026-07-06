@@ -4,11 +4,11 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
-from sqlalchemy import DateTime, ForeignKey, String, Enum as SAEnum, Text
+from sqlalchemy import DateTime, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import default_lazy, table_registry
-from app.models import utcnow, CategoryTypeEnum
+from app.models import utcnow
 
 if TYPE_CHECKING:
     from app.models.finance import Finance
@@ -32,12 +32,6 @@ class Category:
     name_code: Mapped[str] = mapped_column(String, unique=True, nullable=False)
 
     description: Mapped[str] = mapped_column(Text, nullable=False)
-
-    type: Mapped[CategoryTypeEnum] = mapped_column(
-        SAEnum(CategoryTypeEnum, name="categorytypeenum"),
-        nullable=False,
-        default=CategoryTypeEnum.OTHER,
-    )
 
     expenses: Mapped[list["Expense"]] = relationship(
         lazy=default_lazy,

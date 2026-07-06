@@ -16,7 +16,6 @@ from app.domain.finance.category.schema import (
     CategorySchema,
     PayloadCategoryCreateSchema,
     PayloadCategoryUpdateSchema,
-    PayloadCategoryCreateListSchema,
 )
 from app.domain.finance.category.service import CategoryService
 from app.models import User
@@ -38,7 +37,6 @@ CurrentUser = Annotated[User, Depends(get_current_user)]
 def category_filter(
     page: int | None = None,
     name: str | None = None,
-    type: str | None = None,
     limit: int | None = 12,
     offset: int | None = None,
     clean_cache: bool = False,
@@ -47,7 +45,6 @@ def category_filter(
     return FilterPage.build(
         page=page,
         name=name,
-        type=type,
         limit=limit,
         offset=offset,
         clean_cache=clean_cache,
@@ -97,7 +94,7 @@ async def create(
     service: Service, current_user: CurrentUser, payload: PayloadCategoryCreateSchema
 ):
     finance = validate_finance(current_user.finance)
-    return await service.persist(finance=finance, payload=payload)
+    return await service.create(finance=finance, payload=payload)
 
 
 @router.put("/{param}", response_model=CategorySchema, status_code=HTTPStatus.CREATED)
@@ -123,13 +120,3 @@ async def delete(
     return await service.soft_delete(
         param=param, user_request=current_user.username, finance_id=str(finance.id)
     )
-
-
-@router.post("/list", response_model=CategorySchema, status_code=HTTPStatus.OK)
-async def create_list(
-    service: Service,
-    current_user: CurrentUser,
-    payload: PayloadCategoryCreateListSchema,
-):
-    finance = validate_finance(current_user.finance)
-    return await service.create_list(finance=finance, payload=payload)

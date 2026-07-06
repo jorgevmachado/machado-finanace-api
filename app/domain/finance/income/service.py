@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 from http import HTTPStatus
-from uuid import UUID
 
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -55,14 +54,19 @@ class IncomeService(BaseService[IncomeRepository, Income]):
         self, finance: Finance, payload: PayloadIncomeCreateSchema
     ) -> Income:
 
-        account = await self._validate_relations(
-            finance=finance, account_id=payload.account_id
+        account = await self.account_service.find_by(
+            id=payload.account_id, finance_id=finance.id, without_throw=True
         )
+
+        if not account:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail=f"Account with this id {payload.account_id} does not exist",
+            )
 
         return await self.persist(
             months=payload.months,
             source=payload.source,
-            finance=finance,
             account=account,
             with_throw=True,
             description=payload.description,
@@ -70,24 +74,10 @@ class IncomeService(BaseService[IncomeRepository, Income]):
             reference_year=payload.reference_year,
         )
 
-    async def _validate_relations(self, account_id: UUID, finance: Finance):
-        account = await self.account_service.find_by(
-            id=account_id, finance_id=finance.id, without_throw=True
-        )
-
-        if not account:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail=f"Account with this id {account_id} does not exist",
-            )
-
-        return account
-
     async def persist(
         self,
         months: list[PayloadMonthPersistSchema],
         source: str,
-        finance: Finance,
         account: Account,
         description: str,
         reference_day: int,
@@ -100,7 +90,6 @@ class IncomeService(BaseService[IncomeRepository, Income]):
         source_code = to_snake_case(source)
 
         income = await self.find_by(
-            finance_id=finance.id,
             account_id=account.id,
             source_code=source_code,
             without_throw=True,
@@ -125,16 +114,17 @@ class IncomeService(BaseService[IncomeRepository, Income]):
             created_income = await self.repository.save(
                 entity=Income(
                     source=source,
-                    finance_id=finance.id,
                     account_id=account.id,
                     source_code=source_code,
                     description=description,
                 )
             )
-            await self.income_month_service.persist_list(
+            months = await self.income_month_service.persist_list(
                 income=created_income,
                 months=months,
                 reference_day=reference_day,
                 reference_year=year,
             )
-            return await self.find_by(id=created_income.id)
+            updated_income = await self.find_by(id=created_income.id)
+            updated_income.months = months
+            return updated_income

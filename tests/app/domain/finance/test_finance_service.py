@@ -2,14 +2,106 @@ from __future__ import annotations
 
 from http import HTTPStatus
 from types import SimpleNamespace
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
 
 import pytest
 from fastapi import HTTPException
 
+from app.domain.finance.months.schema import PayloadMonthPersistSchema
+from app.domain.finance.persist_schema import (
+    PayloadPersistSchema,
+    PayloadPersistIncomeSchema,
+    PayloadPersistAllocationSchema,
+    PayloadPersistCategorySchema,
+    PayloadPersistParentExpenseSchema,
+    PayloadPersistChildrenCategorySchema,
+    PayloadPersistChildrenExpenseSchema,
+)
 from app.domain.finance.service import FinanceService
+from app.models import Account, Allocation, Category, Finance, AccountTypeEnum, utcnow, Income, Expense
+
+
+@pytest.fixture
+def account_service_mock():
+    return AsyncMock()
+
+@pytest.fixture
+def income_service_mock():
+    return AsyncMock()
+
+@pytest.fixture
+def allocation_service_mock():
+    return AsyncMock()
+
+@pytest.fixture
+def category_service_mock():
+    return AsyncMock()
+
+@pytest.fixture
+def expense_service_mock():
+    return AsyncMock()
+
+@pytest.fixture
+def allocation_contribution_service_mock():
+    return AsyncMock()
+
+@pytest.fixture
+def finance():
+    finance = MagicMock(spec=Finance)
+    finance.id = uuid4()
+    return finance
+
+@pytest.fixture
+def account():
+    account = MagicMock(spec=Account)
+    account.id = uuid4()
+    account.finance_id = uuid4()
+    account.current_balance = 0
+    return account
+
+@pytest.fixture()
+def income():
+    income = MagicMock(spec=Income)
+    income.id = uuid4()
+    income.source = "Test Income"
+    income.description = "Test Income Description"
+    return income
+
+@pytest.fixture
+def allocation():
+    allocation = MagicMock(spec=Allocation)
+    allocation.id = uuid4()
+    allocation.name = "Test Allocation"
+    allocation.description = "Test Allocation Description"
+    return allocation
+
+@pytest.fixture
+def category():
+    category = MagicMock(spec=Category)
+    category.id = uuid4()
+    category.name = "Test Category"
+    category.description = "Test Category Description"   
+    return category
+
+@pytest.fixture
+def expense():
+    expense = MagicMock(spec=Expense)    
+    expense.id = uuid4()
+    expense.payee = "Test Payee"
+    expense.description = "Test Expense Description"   
+    return expense
+
+@pytest.fixture
+def payload_months(value: float = 100.0):
+    months: list[PayloadMonthPersistSchema] = []
+    for i in range(1, 13):
+        months.append(PayloadMonthPersistSchema(
+            amount=value,
+            reference_month=i
+        ))
+    return months
 
 
 @pytest.fixture
@@ -64,561 +156,540 @@ class TestFinanceOnboardingService:
         result = await service.onboard(current_user=current_user)
         assert result == finance
 
-
-class TestFinanceFindByUserService:
-    @staticmethod
-    @pytest.mark.asyncio
-    async def test_finance_find_by_user_service_no_has_finance(
-        finance_repository_mock: AsyncMock,
-    ):
-        current_user = SimpleNamespace(
-            id=uuid4(), username="Finance User", finance=None
-        )
-
-        service = FinanceService(repository=finance_repository_mock)
-
-        with pytest.raises(HTTPException) as exc_info:
-            await service.find_by_user(current_user=current_user)
-
-        assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
-        assert (
-            exc_info.value.detail
-            == f"User {current_user.username} must be onboarded first"
-        )
-
-    @staticmethod
-    @pytest.mark.asyncio
-    async def test_finance_find_by_user_service_successfully(
-        finance_repository_mock: AsyncMock,
-    ):
-        finance = SimpleNamespace(id=uuid4())
-        current_user = SimpleNamespace(
-            id=uuid4(), username="Finance User", finance=finance
-        )
-
-        service = FinanceService(repository=finance_repository_mock)
-        service.find_one = AsyncMock(return_value=finance)
-
-        result = await service.find_by_user(current_user=current_user)
-
-        assert result == finance
-
-    @staticmethod
-    @pytest.mark.asyncio
-    async def test_finance_find_by_user_service_with_year_uses_repository_method(
-        finance_repository_mock: AsyncMock,
-    ):
-        finance = SimpleNamespace(
-            id=uuid4(),
-            incomes=[SimpleNamespace(id=uuid4())],
-            expenses=[],
-            allocation_contributions=[],
-            allocations=[],
-        )
-        current_user = SimpleNamespace(
-            id=uuid4(), username="Finance User", finance=finance
-        )
-        page_filter = SimpleNamespace(year=2026, with_deleted=False)
-
-        service = FinanceService(repository=finance_repository_mock)
-        service.repository.find_by_finance_year = AsyncMock(return_value=finance)
-        service.find_one = AsyncMock()
-
-        result = await service.find_by_user(
-            current_user=current_user,
-            page_filter=page_filter,
-        )
-
-        assert result == finance
-        service.repository.find_by_finance_year.assert_awaited_once_with(
-            finance_id=finance.id,
-            reference_year=2026,
-            with_deleted=False,
-        )
-        service.find_one.assert_not_awaited()
-
-    @staticmethod
-    @pytest.mark.asyncio
-    async def test_finance_find_by_user_service_with_year_not_found(
-        finance_repository_mock: AsyncMock,
-    ):
-        finance = SimpleNamespace(id=uuid4())
-        current_user = SimpleNamespace(
-            id=uuid4(), username="Finance User", finance=finance
-        )
-        page_filter = SimpleNamespace(year=2026, with_deleted=False)
-
-        service = FinanceService(repository=finance_repository_mock)
-        service.repository.find_by_finance_year = AsyncMock(return_value=None)
-
-        with pytest.raises(HTTPException) as exc_info:
-            await service.find_by_user(
-                current_user=current_user, page_filter=page_filter
-            )
-
-        assert exc_info.value.status_code == HTTPStatus.NOT_FOUND
-        assert exc_info.value.detail == "Finance not found"
-
-    @staticmethod
-    @pytest.mark.asyncio
-    async def test_finance_find_by_user_service_with_year_empty_data_not_found(
-        finance_repository_mock: AsyncMock,
-    ):
-        finance = SimpleNamespace(id=uuid4())
-        current_user = SimpleNamespace(
-            id=uuid4(), username="Finance User", finance=finance
-        )
-        page_filter = SimpleNamespace(year=2025, with_deleted=False)
-        filtered_finance = SimpleNamespace(
-            id=finance.id,
-            incomes=[],
-            expenses=[],
-            allocation_contributions=[],
-            allocations=[],
-        )
-
-        service = FinanceService(repository=finance_repository_mock)
-        service.repository.find_by_finance_year = AsyncMock(
-            return_value=filtered_finance
-        )
-
-        with pytest.raises(HTTPException) as exc_info:
-            await service.find_by_user(
-                current_user=current_user, page_filter=page_filter
-            )
-
-        assert exc_info.value.status_code == HTTPStatus.NOT_FOUND
-        assert exc_info.value.detail == "Finance not found"
-
-
 class TestFinancePersistService:
     @staticmethod
     @pytest.mark.asyncio
-    async def test_finance_persist_with_single_payload_success(
-        finance_repository_mock: AsyncMock,
+    async def test_finance_persist_with_empty_payloads(
+            finance_repository_mock,
+            account_service_mock,
+            income_service_mock,
+            allocation_service_mock,
+            category_service_mock,
+            expense_service_mock,
+            allocation_contribution_service_mock,
+            finance
     ):
-        finance = SimpleNamespace(id=uuid4())
-        account = SimpleNamespace(id=uuid4())
-        income = SimpleNamespace(id=uuid4())
-        allocation = SimpleNamespace(id=uuid4())
-        expense = SimpleNamespace(id=uuid4(), category=SimpleNamespace(id=uuid4()))
-
-        account_service_mock = AsyncMock()
-        account_service_mock.persist.return_value = account
-
-        income_service_mock = AsyncMock()
-        income_service_mock.persist.return_value = income
-
-        allocation_service_mock = AsyncMock()
-        allocation_service_mock.persist.return_value = allocation
-
-        expense_service_mock = AsyncMock()
-        expense_service_mock.persist_by_category.return_value = [expense]
-
+        payloads: list[PayloadPersistSchema] = []
         service = FinanceService(
             repository=finance_repository_mock,
             account_service=account_service_mock,
             income_service=income_service_mock,
             allocation_service=allocation_service_mock,
+            category_service=category_service_mock,
             expense_service=expense_service_mock,
+            allocation_contribution_service=allocation_contribution_service_mock
         )
+        result = await service.persist(finance=finance, payloads=payloads)
+        assert result.accounts == 0
+        assert result.incomes == 0
+        assert result.allocations == 0
+        assert result.expenses == 0
+        assert result.categories == 0
 
-        payloads = [
-            SimpleNamespace(
-                name="Test Account",
-                type="BANK",
-                initial_balance=1000,
-                reference_day=10,
-                reference_year=2026,
-                incomes=[
-                    SimpleNamespace(
-                        months=[1, 2, 3],
-                        source="Salary",
-                        description="Monthly salary",
-                    )
-                ],
-                allocations=[
-                    SimpleNamespace(
-                        name="Test Allocation",
-                        type="HOUSE",
-                        description="Savings goal",
-                        categories=[SimpleNamespace()],
-                    )
-                ],
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_persist_with_only_accounts_in_payloads(
+            finance_repository_mock,
+            account_service_mock,
+            income_service_mock,
+            allocation_service_mock,
+            category_service_mock,
+            expense_service_mock,
+            allocation_contribution_service_mock,
+             finance,
+            account
+    ):
+        
+        reference_year = utcnow().year
+        reference_day = 10
+        account_bank = account        
+        account_bank.type = AccountTypeEnum.BANK
+        account_bank.name = "Test Account Bank"        
+        account_bank.initial_balance = 1000
+        
+        account_cash = account
+        account_cash.id = uuid4()
+        account_cash.type = AccountTypeEnum.CASH        
+        account_cash.name = "Test Account Cash"
+        account_cash.initial_balance = 2000
+        
+        account_other = account
+        account_other.id = uuid4()
+        account_other.type = AccountTypeEnum.OTHER        
+        account_other.name = "Test Account Other"
+        account_other.initial_balance = 3000
+
+
+        account_investment = account
+        account_investment.id = uuid4()
+        account_investment.type = AccountTypeEnum.INVESTMENT
+        account_investment.name = "Test Account Investment"
+        account_investment.initial_balance = 4000
+    
+        payloads: list[PayloadPersistSchema] = [
+            PayloadPersistSchema(
+                name=account_bank.name,
+                type=AccountTypeEnum.BANK,
+                incomes=[],
+                allocations=[],
+                reference_day=reference_day,
+                reference_year=reference_year,
+                initial_balance=account_bank.initial_balance,
+            ),
+            PayloadPersistSchema(
+                name=account_cash.name,
+                type=account_cash.type,
+                incomes=[],
+                allocations=[],
+                reference_day=reference_day,
+                reference_year=reference_year,
+                initial_balance=account_cash.initial_balance,
+            ),
+            PayloadPersistSchema(
+                name=account_other.name,
+                type=account_other.type,
+                incomes=[],
+                allocations=[],
+                reference_day=reference_day,
+                reference_year=reference_year,
+                initial_balance=account_other.initial_balance,
+            ),
+            PayloadPersistSchema(
+                name=account_investment.name,
+                type=account_investment.type,
+                incomes=[],
+                allocations=[],
+                reference_day=reference_day,
+                reference_year=reference_year,
+                initial_balance=account_investment.initial_balance,
+            ),
+        ]
+        service = FinanceService(
+            repository=finance_repository_mock,
+            account_service=account_service_mock,
+            income_service=income_service_mock,
+            allocation_service=allocation_service_mock,
+            category_service=category_service_mock,
+            expense_service=expense_service_mock,
+            allocation_contribution_service=allocation_contribution_service_mock,
+        )
+        account_service_mock.persist.side_effect = [account_bank, account_cash, account_other, account_investment]
+        
+        result = await service.persist(finance=finance, payloads=payloads)
+        assert result.accounts == 4
+        assert result.incomes == 0
+        assert result.allocations == 0
+        assert result.expenses == 0
+        assert result.categories == 0
+        account_service_mock.persist.assert_awaited()
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_persist_with_incomes_in_account(
+        finance_repository_mock,
+        account_service_mock,
+        income_service_mock,
+        allocation_service_mock,
+        category_service_mock,
+        expense_service_mock,
+        allocation_contribution_service_mock,
+        finance,
+        account,
+        income,
+        payload_months,
+    ):
+
+        reference_year = utcnow().year
+        reference_day = 10
+        account_bank = account
+        account_bank.type = AccountTypeEnum.BANK
+        account_bank.name = "Test Account Bank"
+        account_bank.initial_balance = 1000
+
+        income.account_id = account_bank.id
+
+        payload_incomes: list[PayloadPersistIncomeSchema] = [
+            PayloadPersistIncomeSchema(
+                months=payload_months,
+                source=income.source,
+                description=income.description,
             )
         ]
 
+        payloads: list[PayloadPersistSchema] = [
+            PayloadPersistSchema(
+                name=account_bank.name,
+                type=AccountTypeEnum.BANK,
+                incomes=payload_incomes,
+                allocations=[],
+                reference_day=reference_day,
+                reference_year=reference_year,
+                initial_balance=account_bank.initial_balance,
+            ),
+        ]
+        service = FinanceService(
+            repository=finance_repository_mock,
+            account_service=account_service_mock,
+            income_service=income_service_mock,
+            allocation_service=allocation_service_mock,
+            category_service=category_service_mock,
+            expense_service=expense_service_mock,
+            allocation_contribution_service=allocation_contribution_service_mock,
+        )
+        account_service_mock.persist.return_value=account_bank
+        income_service_mock.persist.return_value=income
         result = await service.persist(finance=finance, payloads=payloads)
-
         assert result.accounts == 1
         assert result.incomes == 1
+        assert result.allocations == 0
+        assert result.expenses == 0
+        assert result.categories == 0
+        account_service_mock.persist.assert_awaited_once()
+        income_service_mock.persist.assert_awaited_once()
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_persist_with_allocations_with_categories_empty_in_account(
+        finance_repository_mock,
+        account_service_mock,
+        income_service_mock,
+        allocation_service_mock,
+        category_service_mock,
+        expense_service_mock,
+        allocation_contribution_service_mock,
+        finance,
+        account,
+        allocation,
+    ):
+
+        reference_year = utcnow().year
+        reference_day = 10
+        account_bank = account
+        account_bank.type = AccountTypeEnum.BANK
+        account_bank.name = "Test Account Bank"
+        account_bank.initial_balance = 1000
+
+        allocation.account_id = account_bank.id
+
+        payload_allocations: list[PayloadPersistAllocationSchema] = [
+            PayloadPersistAllocationSchema(
+                name=allocation.name,
+                description=allocation.description,
+            )
+        ]
+
+        payloads: list[PayloadPersistSchema] = [
+            PayloadPersistSchema(
+                name=account_bank.name,
+                type=AccountTypeEnum.BANK,
+                incomes=[],
+                allocations=payload_allocations,
+                reference_day=reference_day,
+                reference_year=reference_year,
+                initial_balance=account_bank.initial_balance,
+            ),
+        ]
+        service = FinanceService(
+            repository=finance_repository_mock,
+            account_service=account_service_mock,
+            income_service=income_service_mock,
+            allocation_service=allocation_service_mock,
+            category_service=category_service_mock,
+            expense_service=expense_service_mock,
+            allocation_contribution_service=allocation_contribution_service_mock,
+        )
+        account_service_mock.persist.return_value = account_bank
+        allocation_service_mock.persist.return_value = allocation
+        service.account_service.persist = AsyncMock(return_value=account_bank)
+        result = await service.persist(finance=finance, payloads=payloads)
+        assert result.accounts == 1
+        assert result.incomes == 0
+        assert result.allocations == 1
+        assert result.expenses == 0
+        assert result.categories == 0
+        account_service_mock.persist.assert_awaited_once()
+        allocation_service_mock.persist.assert_awaited_once()
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_persist_with_allocations_with_categories_with_expenses_empty_in_account(
+        finance_repository_mock,
+        account_service_mock,
+        income_service_mock,
+        allocation_service_mock,
+        category_service_mock,
+        expense_service_mock,
+        allocation_contribution_service_mock,
+        finance,
+        account,
+        allocation,
+        category,
+    ):
+
+        reference_year = utcnow().year
+        reference_day = 10
+        account_bank = account
+        account_bank.type = AccountTypeEnum.BANK
+        account_bank.name = "Test Account Bank"
+        account_bank.initial_balance = 1000
+
+        allocation.account_id = account_bank.id
+        category.finance_id = finance.id
+
+
+        payload_categories: list[PayloadPersistCategorySchema] = [
+            PayloadPersistCategorySchema(
+                name=category.name,
+                description=category.description
+            )
+        ]
+        payload_allocations: list[PayloadPersistAllocationSchema] = [
+            PayloadPersistAllocationSchema(
+                name=allocation.name,
+                categories=payload_categories,
+                description=allocation.description,
+            )
+        ]
+
+        payloads: list[PayloadPersistSchema] = [
+            PayloadPersistSchema(
+                name=account_bank.name,
+                type=AccountTypeEnum.BANK,
+                incomes=[],
+                allocations=payload_allocations,
+                reference_day=reference_day,
+                reference_year=reference_year,
+                initial_balance=account_bank.initial_balance,
+            ),
+        ]
+        service = FinanceService(
+            repository=finance_repository_mock,
+            account_service=account_service_mock,
+            income_service=income_service_mock,
+            allocation_service=allocation_service_mock,
+            category_service=category_service_mock,
+            expense_service=expense_service_mock,
+            allocation_contribution_service=allocation_contribution_service_mock,
+        )
+        account_service_mock.persist.return_value = account_bank
+        allocation_service_mock.persist.return_value = allocation
+        category_service_mock.persist.return_value = category
+        service.account_service.persist = AsyncMock(return_value=account_bank)
+        result = await service.persist(finance=finance, payloads=payloads)
+        assert result.accounts == 1
+        assert result.incomes == 0
+        assert result.allocations == 1
+        assert result.expenses == 0
+        assert result.categories == 1
+        account_service_mock.persist.assert_awaited_once()
+        allocation_service_mock.persist.assert_awaited_once()
+        category_service_mock.persist.assert_awaited_once()
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_persist_with_allocations_with_categories_with_expenses_simple_in_account(
+        finance_repository_mock,
+        account_service_mock,
+        income_service_mock,
+        allocation_service_mock,
+        category_service_mock,
+        expense_service_mock,
+        allocation_contribution_service_mock,
+        finance,
+        account,
+        allocation,
+        category,
+        expense,
+        payload_months,
+    ):
+
+        reference_year = utcnow().year
+        reference_day = 10
+        account_bank = account
+        account_bank.type = AccountTypeEnum.BANK
+        account_bank.name = "Test Account Bank"
+        account_bank.initial_balance = 1000
+
+        allocation.account_id = account_bank.id
+        
+        category.finance_id = finance.id
+        
+        expense.allocation_id = allocation.id
+        expense.category_id = category.id
+
+        payload_parent_expenses: list[PayloadPersistParentExpenseSchema] = [
+            PayloadPersistParentExpenseSchema(
+                name=expense.payee,
+                months=payload_months,
+                description=expense.description
+            )
+        ]
+        
+        payload_categories: list[PayloadPersistCategorySchema] = [
+            PayloadPersistCategorySchema(
+                name=category.name,
+                expenses=payload_parent_expenses,
+                description=category.description
+            )
+        ]
+        payload_allocations: list[PayloadPersistAllocationSchema] = [
+            PayloadPersistAllocationSchema(
+                name=allocation.name,
+                categories=payload_categories,
+                description=allocation.description,
+            )
+        ]
+
+        payloads: list[PayloadPersistSchema] = [
+            PayloadPersistSchema(
+                name=account_bank.name,
+                type=AccountTypeEnum.BANK,
+                incomes=[],
+                allocations=payload_allocations,
+                reference_day=reference_day,
+                reference_year=reference_year,
+                initial_balance=account_bank.initial_balance,
+            ),
+        ]
+        service = FinanceService(
+            repository=finance_repository_mock,
+            account_service=account_service_mock,
+            income_service=income_service_mock,
+            allocation_service=allocation_service_mock,
+            category_service=category_service_mock,
+            expense_service=expense_service_mock,
+            allocation_contribution_service=allocation_contribution_service_mock,
+        )
+        account_service_mock.persist.return_value = account_bank
+        allocation_service_mock.persist.return_value = allocation
+        category_service_mock.persist.return_value = category
+        expense_service_mock.persist.return_value = expense
+        service.account_service.persist = AsyncMock(return_value=account_bank)
+        result = await service.persist(finance=finance, payloads=payloads)
+        assert result.accounts == 1
+        assert result.incomes == 0
         assert result.allocations == 1
         assert result.expenses == 1
         assert result.categories == 1
+        account_service_mock.persist.assert_awaited_once()
+        allocation_service_mock.persist.assert_awaited_once()
+        category_service_mock.persist.assert_awaited_once()
+        expense_service_mock.persist.assert_awaited_once()
 
     @staticmethod
     @pytest.mark.asyncio
-    async def test_finance_persist_with_multiple_payloads(
-        finance_repository_mock: AsyncMock,
+    async def test_finance_persist_with_allocations_with_categories_with_expenses_children_in_account(
+        finance_repository_mock,
+        account_service_mock,
+        income_service_mock,
+        allocation_service_mock,
+        category_service_mock,
+        expense_service_mock,
+        allocation_contribution_service_mock,
+        finance,
+        account,
+        allocation,
+        category,
+        expense,
+        payload_months,
     ):
-        finance = SimpleNamespace(id=uuid4())
-        account1 = SimpleNamespace(id=uuid4())
-        account2 = SimpleNamespace(id=uuid4())
-        income = SimpleNamespace(id=uuid4())
-        allocation = SimpleNamespace(id=uuid4())
-        expense = SimpleNamespace(id=uuid4(), category=SimpleNamespace(id=uuid4()))
 
-        account_service_mock = AsyncMock()
-        account_service_mock.persist.side_effect = [account1, account2]
+        reference_year = utcnow().year
+        reference_day = 10
+        account_bank = account
+        account_bank.type = AccountTypeEnum.BANK
+        account_bank.name = "Test Account Bank"
+        account_bank.initial_balance = 1000
 
-        income_service_mock = AsyncMock()
-        income_service_mock.persist.side_effect = [income, income]
+        allocation.account_id = account_bank.id
 
-        allocation_service_mock = AsyncMock()
-        allocation_service_mock.persist.side_effect = [allocation, allocation]
+        category.finance_id = finance.id
 
-        expense_service_mock = AsyncMock()
-        expense_service_mock.persist_by_category.side_effect = [
-            [expense],
-            [expense],
+        expense.allocation_id = allocation.id
+        expense.category_id = category.id
+        
+        child_category = category
+        child_category.id = uuid4()
+        child_category.name = "Child Category"
+        
+        child_expense = expense
+        child_expense.id = uuid4()
+        child_expense.payee = "Child Expense"
+        child_expense.category_id = child_category.id
+
+        payload_children_expenses: list[PayloadPersistChildrenExpenseSchema] = [
+            PayloadPersistChildrenExpenseSchema(
+                name=child_expense.payee,
+                months=payload_months,
+                description=child_expense.description
+            )
         ]
 
+        payload_children_categories: list[PayloadPersistChildrenCategorySchema] = [
+            PayloadPersistChildrenCategorySchema(
+                name=child_category.name,
+                months=payload_months,
+                expenses=payload_children_expenses,
+                description=child_category.description,
+            )
+        ]
+        
+        payload_parent_expenses: list[PayloadPersistParentExpenseSchema] = [
+            PayloadPersistParentExpenseSchema(
+                name=expense.payee,
+                months=payload_months,
+                categories=payload_children_categories,
+                description=expense.description,
+            )
+        ]
+
+        payload_categories: list[PayloadPersistCategorySchema] = [
+            PayloadPersistCategorySchema(
+                name=category.name,
+                expenses=payload_parent_expenses,
+                description=category.description,
+            )
+        ]
+        payload_allocations: list[PayloadPersistAllocationSchema] = [
+            PayloadPersistAllocationSchema(
+                name=allocation.name,
+                categories=payload_categories,
+                description=allocation.description,
+            )
+        ]
+
+        payloads: list[PayloadPersistSchema] = [
+            PayloadPersistSchema(
+                name=account_bank.name,
+                type=AccountTypeEnum.BANK,
+                incomes=[],
+                allocations=payload_allocations,
+                reference_day=reference_day,
+                reference_year=reference_year,
+                initial_balance=account_bank.initial_balance,
+            ),
+        ]
         service = FinanceService(
             repository=finance_repository_mock,
             account_service=account_service_mock,
             income_service=income_service_mock,
             allocation_service=allocation_service_mock,
+            category_service=category_service_mock,
             expense_service=expense_service_mock,
+            allocation_contribution_service=allocation_contribution_service_mock,
         )
-
-        payloads = [
-            SimpleNamespace(
-                name="Account 1",
-                type="BANK",
-                initial_balance=1000,
-                reference_day=10,
-                reference_year=2026,
-                incomes=[
-                    SimpleNamespace(
-                        months=[1],
-                        source="Salary",
-                        description="Income 1",
-                    )
-                ],
-                allocations=[
-                    SimpleNamespace(
-                        name="Allocation 1",
-                        type="HOUSE",
-                        description="Allocation 1",
-                        categories=[SimpleNamespace()],
-                    )
-                ],
-            ),
-            SimpleNamespace(
-                name="Account 2",
-                type="PIX",
-                initial_balance=5000,
-                reference_day=15,
-                reference_year=2026,
-                incomes=[
-                    SimpleNamespace(
-                        months=[2],
-                        source="Bonus",
-                        description="Income 2",
-                    )
-                ],
-                allocations=[
-                    SimpleNamespace(
-                        name="Allocation 2",
-                        type="FAMILY",
-                        description="Allocation 2",
-                        categories=[SimpleNamespace()],
-                    )
-                ],
-            ),
-        ]
-
+        account_service_mock.persist.return_value = account_bank
+        allocation_service_mock.persist.return_value = allocation
+        category_service_mock.persist.side_effect = [category, child_category]
+        expense_service_mock.persist.side_effect = [expense, child_expense]
+        service.account_service.persist = AsyncMock(return_value=account_bank)
         result = await service.persist(finance=finance, payloads=payloads)
-
-        assert result.accounts == 2
-        assert result.incomes == 2
-        assert result.allocations == 2
+        assert result.accounts == 1
+        assert result.incomes == 0
+        assert result.allocations == 1
         assert result.expenses == 2
         assert result.categories == 2
-
-    @staticmethod
-    @pytest.mark.asyncio
-    async def test_finance_persist_with_no_initial_balance(
-        finance_repository_mock: AsyncMock,
-    ):
-        finance = SimpleNamespace(id=uuid4())
-        account = SimpleNamespace(id=uuid4())
-
-        account_service_mock = AsyncMock()
-        account_service_mock.persist.return_value = account
-
-        income_service_mock = AsyncMock()
-        income_service_mock.persist.return_value = SimpleNamespace(id=uuid4())
-
-        allocation_service_mock = AsyncMock()
-        expense_service_mock = AsyncMock()
-        expense_service_mock.persist_by_category.return_value = []
-
-        service = FinanceService(
-            repository=finance_repository_mock,
-            account_service=account_service_mock,
-            income_service=income_service_mock,
-            allocation_service=allocation_service_mock,
-            expense_service=expense_service_mock,
-        )
-
-        payloads = [
-            SimpleNamespace(
-                name="Account",
-                type="CASH",
-                initial_balance=None,
-                reference_day=10,
-                reference_year=2026,
-                incomes=[],
-                allocations=[],
-            )
-        ]
-
-        await service.persist(finance=finance, payloads=payloads)
-
-        account_service_mock.persist.assert_called_once()
-        call_args = account_service_mock.persist.call_args
-        assert call_args.kwargs["payload"].initial_balance == 0
-
-    @staticmethod
-    @pytest.mark.asyncio
-    async def test_finance_persist_with_no_reference_day(
-        finance_repository_mock: AsyncMock,
-    ):
-        finance = SimpleNamespace(id=uuid4())
-        account = SimpleNamespace(id=uuid4())
-
-        account_service_mock = AsyncMock()
-        account_service_mock.persist.return_value = account
-
-        income_service_mock = AsyncMock()
-        income_service_mock.persist.return_value = SimpleNamespace(id=uuid4())
-
-        allocation_service_mock = AsyncMock()
-        expense_service_mock = AsyncMock()
-        expense_service_mock.persist_by_category.return_value = []
-
-        service = FinanceService(
-            repository=finance_repository_mock,
-            account_service=account_service_mock,
-            income_service=income_service_mock,
-            allocation_service=allocation_service_mock,
-            expense_service=expense_service_mock,
-        )
-
-        payloads = [
-            SimpleNamespace(
-                name="Account",
-                type="INVESTMENT",
-                initial_balance=1000,
-                reference_day=None,
-                reference_year=2026,
-                incomes=[],
-                allocations=[],
-            )
-        ]
-
-        await service.persist(finance=finance, payloads=payloads)
-
-        income_service_mock.persist.assert_not_called()
-
-    @staticmethod
-    @pytest.mark.asyncio
-    async def test_finance_persist_with_multiple_incomes(
-        finance_repository_mock: AsyncMock,
-    ):
-        finance = SimpleNamespace(id=uuid4())
-        account = SimpleNamespace(id=uuid4())
-        income = SimpleNamespace(id=uuid4())
-
-        account_service_mock = AsyncMock()
-        account_service_mock.persist.return_value = account
-
-        income_service_mock = AsyncMock()
-        income_service_mock.persist.side_effect = [income, income]
-
-        allocation_service_mock = AsyncMock()
-        expense_service_mock = AsyncMock()
-        expense_service_mock.persist_by_category.return_value = []
-
-        service = FinanceService(
-            repository=finance_repository_mock,
-            account_service=account_service_mock,
-            income_service=income_service_mock,
-            allocation_service=allocation_service_mock,
-            expense_service=expense_service_mock,
-        )
-
-        payloads = [
-            SimpleNamespace(
-                name="Account",
-                type="OTHER",
-                initial_balance=1000,
-                reference_day=10,
-                reference_year=2026,
-                incomes=[
-                    SimpleNamespace(
-                        months=[1, 2],
-                        source="Salary",
-                        description="Main income",
-                    ),
-                    SimpleNamespace(
-                        months=[3],
-                        source="Bonus",
-                        description="Bonus income",
-                    ),
-                ],
-                allocations=[],
-            )
-        ]
-
-        result = await service.persist(finance=finance, payloads=payloads)
-
-        assert result.incomes == 2
-        assert income_service_mock.persist.call_count == 2
-
-    @staticmethod
-    @pytest.mark.asyncio
-    async def test_finance_persist_with_multiple_allocations(
-        finance_repository_mock: AsyncMock,
-    ):
-        finance = SimpleNamespace(id=uuid4())
-        account = SimpleNamespace(id=uuid4())
-        allocation = SimpleNamespace(id=uuid4())
-        expense_without_category = SimpleNamespace(id=uuid4(), category=None)
-        expense_with_category = SimpleNamespace(
-            id=uuid4(), category=SimpleNamespace(id=uuid4())
-        )
-
-        account_service_mock = AsyncMock()
-        account_service_mock.persist.return_value = account
-
-        income_service_mock = AsyncMock()
-        allocation_service_mock = AsyncMock()
-        allocation_service_mock.persist.side_effect = [allocation, allocation]
-
-        expense_service_mock = AsyncMock()
-        expense_service_mock.persist_by_category.side_effect = [
-            [expense_with_category],
-            [expense_without_category],
-        ]
-
-        service = FinanceService(
-            repository=finance_repository_mock,
-            account_service=account_service_mock,
-            income_service=income_service_mock,
-            allocation_service=allocation_service_mock,
-            expense_service=expense_service_mock,
-        )
-
-        payloads = [
-            SimpleNamespace(
-                name="Account",
-                type="ACCOUNT_DEBIT",
-                initial_balance=1000,
-                reference_day=10,
-                reference_year=2026,
-                incomes=[],
-                allocations=[
-                    SimpleNamespace(
-                        name="Allocation 1",
-                        type="HOUSE",
-                        description="Savings",
-                        categories=[SimpleNamespace()],
-                    ),
-                    SimpleNamespace(
-                        name="Allocation 2",
-                        type="PERSONAL",
-                        description=None,
-                        categories=[SimpleNamespace()],
-                    ),
-                ],
-            )
-        ]
-
-        result = await service.persist(finance=finance, payloads=payloads)
-
-        assert result.allocations == 2
-        assert result.expenses == 2
-        assert result.categories == 1
-
-    @staticmethod
-    @pytest.mark.asyncio
-    async def test_finance_persist_with_default_allocation_description(
-        finance_repository_mock: AsyncMock,
-    ):
-        finance = SimpleNamespace(id=uuid4())
-        account = SimpleNamespace(id=uuid4())
-        allocation = SimpleNamespace(id=uuid4())
-
-        account_service_mock = AsyncMock()
-        account_service_mock.persist.return_value = account
-
-        income_service_mock = AsyncMock()
-        allocation_service_mock = AsyncMock()
-        allocation_service_mock.persist.return_value = allocation
-
-        expense_service_mock = AsyncMock()
-        expense_service_mock.persist_by_category.return_value = []
-
-        service = FinanceService(
-            repository=finance_repository_mock,
-            account_service=account_service_mock,
-            income_service=income_service_mock,
-            allocation_service=allocation_service_mock,
-            expense_service=expense_service_mock,
-        )
-
-        payloads = [
-            SimpleNamespace(
-                name="Account",
-                type="PIX",
-                initial_balance=1000,
-                reference_day=10,
-                reference_year=2026,
-                incomes=[],
-                allocations=[
-                    SimpleNamespace(
-                        name="Allocation Name",
-                        type="FAMILY",
-                        description=None,
-                        categories=[SimpleNamespace()],
-                    )
-                ],
-            )
-        ]
-
-        await service.persist(finance=finance, payloads=payloads)
-
-        allocation_service_mock.persist.assert_called_once()
-        call_args = allocation_service_mock.persist.call_args
-        assert call_args.kwargs["payload"].description == "Allocation Name"
-
-    @staticmethod
-    @pytest.mark.asyncio
-    async def test_finance_persist_empty_payloads(
-        finance_repository_mock: AsyncMock,
-    ):
-        finance = SimpleNamespace(id=uuid4())
-
-        service = FinanceService(repository=finance_repository_mock)
-
-        payloads: list = []
-
-        result = await service.persist(finance=finance, payloads=payloads)
-
-        assert result.incomes == 0
-        assert result.accounts == 0
-        assert result.expenses == 0
-        assert result.categories == 0
-        assert result.allocations == 0
+        account_service_mock.persist.assert_awaited_once()
+        allocation_service_mock.persist.assert_awaited_once()
+        category_service_mock.persist.assert_awaited()
+        expense_service_mock.persist.assert_awaited()

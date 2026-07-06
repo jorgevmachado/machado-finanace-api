@@ -17,16 +17,12 @@ from app.domain.finance.allocation_contribution.route import (
 from app.domain.finance.category.route import router as category_route
 from app.domain.finance.expense.route import router as expense_route
 from app.domain.finance.income.route import router as income_route
+from app.domain.finance.persist_schema import PayloadPersistSchema
 from app.domain.finance.repository import FinanceRepository
-from app.domain.finance.schema import (
-    FinanceSchema,
-    FinancePersistResultSchema,
-    PayloadFinancePersistSchema,
-)
+from app.domain.finance.schema import FinanceSchema, FinancePersistResultSchema
 from app.domain.finance.service import FinanceService
 from app.domain.finance.transfer.route import router as transfer_route
 from app.models import User
-from app.shared.schemas import FilterPage
 
 router = APIRouter()
 
@@ -61,16 +57,6 @@ Service = Annotated[FinanceService, Depends(finance_service)]
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
-def finance_filter(
-    year: int | None = None,
-    clean_cache: bool = False,
-    with_deleted: bool = False,
-) -> FilterPage:
-    return FilterPage.build(
-        year=year, clean_cache=clean_cache, with_deleted=with_deleted
-    )
-
-
 @router.post(
     "",
     response_model=FinancePersistResultSchema,
@@ -79,21 +65,10 @@ def finance_filter(
 async def persist(
     service: Service,
     current_user: CurrentUser,
-    payloads: list[PayloadFinancePersistSchema],
+    payloads: list[PayloadPersistSchema],
 ):
     finance = validate_finance(current_user.finance)
     return await service.persist(finance=finance, payloads=payloads)
-
-
-@router.get("", response_model=FinanceSchema, status_code=HTTPStatus.OK)
-async def find_by_user(
-    service: Service,
-    current_user: CurrentUser,
-    page_filter: Annotated[FilterPage, Depends(finance_filter)] = None,
-):
-    return await service.find_by_user(
-        current_user=current_user, page_filter=page_filter
-    )
 
 
 @router.post(

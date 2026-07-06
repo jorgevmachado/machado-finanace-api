@@ -56,7 +56,7 @@ class IncomeMonthService(BaseService[IncomeMonthRepository, IncomeMonth]):
         reference_day: int,
         reference_year: int,
     ) -> list[IncomeMonth]:
-        print("# => len => months => ", len(months))
+
         persist_months = complete_months_in_year(
             months=months,
             reference_day=reference_day,
@@ -83,7 +83,7 @@ class IncomeMonthService(BaseService[IncomeMonthRepository, IncomeMonth]):
         reference_year: int,
         with_throw: bool = True,
     ) -> IncomeMonth:
-        print("# => income => id => ", income.id)
+
         received_at = validate_received_at(
             year=reference_year,
             day=reference_day,

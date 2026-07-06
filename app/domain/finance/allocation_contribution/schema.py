@@ -11,7 +11,6 @@ from app.domain.finance.months.schema import PayloadMonthPersistSchema
 
 class PayloadAllocationContributionCreateSchema(BaseModel):
     months: list[PayloadMonthPersistSchema]
-    account_id: UUID
     description: str
     allocation_id: UUID
     reference_day: int | None = None
@@ -34,8 +33,6 @@ class AllocationContributionSchema(BaseModel):
 
     id: UUID
     months: list[AllocationContributionMonthSchema] = []
-    account_id: UUID
-    finance_id: UUID
     allocation: AllocationSchema
     description: str | None = None
     contributor_name: str | None = None

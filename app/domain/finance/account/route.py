@@ -16,7 +16,6 @@ from app.domain.finance.account.schema import (
     AccountSchema,
     PayloadAccountCreateSchema,
     PayloadAccountUpdateSchema,
-    PayloadAccountCreateListSchema,
 )
 from app.domain.finance.account.service import AccountService
 from app.models import User
@@ -99,7 +98,7 @@ async def create(
     service: Service, current_user: CurrentUser, payload: PayloadAccountCreateSchema
 ):
     finance = validate_finance(current_user.finance)
-    return await service.persist(finance=finance, payload=payload)
+    return await service.create(finance=finance, payload=payload)
 
 
 @router.put("/{param}", response_model=AccountSchema, status_code=HTTPStatus.CREATED)
@@ -125,14 +124,6 @@ async def delete(
     return await service.soft_delete(
         param=param, user_request=current_user.username, finance_id=str(finance.id)
     )
-
-
-@router.post("/list", response_model=list[AccountSchema], status_code=HTTPStatus.OK)
-async def create_list(
-    service: Service, current_user: CurrentUser, payload: PayloadAccountCreateListSchema
-):
-    finance = validate_finance(current_user.finance)
-    return await service.create_list(finance=finance, payload=payload)
 
 
 @router.get(

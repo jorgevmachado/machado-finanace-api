@@ -2,14 +2,12 @@ from __future__ import annotations
 
 import logging
 from http import HTTPStatus
-from uuid import UUID
 
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import LoggingParams
 from app.core.service import BaseService
-from app.domain.finance.account.service import AccountService
 from app.domain.finance.allocation.service import AllocationService
 from app.domain.finance.allocation_contribution_month.service import (
     AllocationContributionMonthService,
@@ -25,7 +23,7 @@ from app.domain.finance.allocation_contribution.schema import (
     AllocationContributionSchema,
 )
 
-from app.models import AllocationContribution, Finance, Account, Allocation
+from app.models import AllocationContribution, Finance, Allocation
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +34,6 @@ class AllocationContributionService(
     def __init__(
         self,
         repository: AllocationContributionRepository,
-        account_service: AccountService | None = None,
         allocation_service: AllocationService | None = None,
         allocation_contribution_month_service: AllocationContributionMonthService
         | None = None,
@@ -53,7 +50,6 @@ class AllocationContributionService(
             cache_prefix="allocation-contribution",
         )
         session = repository.session
-        self.account_service = account_service or AccountService.from_session(session)
         self.allocation_service = allocation_service or AllocationService.from_session(
             session
         )
@@ -70,16 +66,20 @@ class AllocationContributionService(
         self, finance: Finance, payload: PayloadAllocationContributionCreateSchema
     ) -> AllocationContribution:
 
-        account, allocation = await self._validate_relations(
-            finance=finance,
-            account_id=payload.account_id,
-            allocation_id=payload.allocation_id,
+        allocation = await self.allocation_service.find_by(
+            id=payload.allocation_id,
+            finance_id=finance.id,
+            without_throw=True,
         )
+
+        if not allocation:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail=f"Allocation with this id {payload.allocation_id} does not exist",
+            )
 
         return await self.persist(
             months=payload.months,
-            finance=finance,
-            account=account,
             allocation=allocation,
             with_throw=True,
             description=payload.description,
@@ -88,34 +88,9 @@ class AllocationContributionService(
             contributor_name=payload.contributor_name,
         )
 
-    async def _validate_relations(
-        self, finance: Finance, account_id: UUID, allocation_id: UUID
-    ):
-        account = await self.account_service.find_by(
-            id=account_id, finance_id=finance.id, without_throw=True
-        )
-        if not account:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail=f"Account with this id {account_id} does not exist",
-            )
-
-        allocation = await self.allocation_service.find_by(
-            id=allocation_id, finance_id=finance.id, without_throw=True
-        )
-        if not allocation:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail=f"Allocation with this id {allocation_id} does not exist",
-            )
-
-        return account, allocation
-
     async def persist(
         self,
         months: list[PayloadMonthPersistSchema],
-        account: Account,
-        finance: Finance,
         allocation: Allocation,
         description: str,
         reference_day: int,
@@ -128,8 +103,6 @@ class AllocationContributionService(
         contributor_name_code = to_snake_case(contributor_name)
 
         allocation_contribution = await self.find_by(
-            finance_id=finance.id,
-            account_id=account.id,
             without_throw=True,
             allocation_id=allocation.id,
             reference_year=year,
@@ -154,8 +127,6 @@ class AllocationContributionService(
         else:
             created_allocation_contribution = await self.repository.save(
                 entity=AllocationContribution(
-                    finance_id=finance.id,
-                    account_id=account.id,
                     description=description,
                     allocation_id=allocation.id,
                     contributor_name=contributor_name,

@@ -32,12 +32,10 @@ def test_allocation_contribution_builds_service() -> None:
 
 
 def test_get_allocation_contribution_filter_builds_dynamic_filter():
-    account_id = uuid4()
     allocation_id = uuid4()
     page_filter = allocation_contribution_filter(
         page=1,
         limit=12,
-        account_id=str(account_id),
         clean_cache=True,
         with_deleted=False,
         allocation_id=str(allocation_id),
@@ -48,7 +46,6 @@ def test_get_allocation_contribution_filter_builds_dynamic_filter():
 
     assert page_filter.page == 1
     assert page_filter.limit == 12
-    assert page_filter.account_id == str(account_id)
     assert page_filter.clean_cache
     assert not page_filter.with_deleted
     assert page_filter.allocation_id == str(allocation_id)
@@ -62,7 +59,6 @@ async def test_finance_allocation_contribution_route_create() -> None:
     service = AsyncMock()
     payload = PayloadAllocationContributionCreateSchema(
         months=[],
-        account_id=uuid4(),
         description="Some Description",
         allocation_id=uuid4(),
         reference_day=10,
@@ -73,7 +69,6 @@ async def test_finance_allocation_contribution_route_create() -> None:
     expected = SimpleNamespace(
         id=uuid4(),
         contributor_name=payload.contributor_name,
-        account_id=payload.account_id,
         allocation_id=payload.allocation_id,
         description=payload.description,
         reference_year=payload.reference_year,
@@ -116,9 +111,7 @@ async def test_finance_allocation_contribution_route_list_all_paginate_and_filte
 
     assert (
         called_page_filter.model_dump()
-        == FilterPage.build(
-            page_filter=page_filter, finance_id="finance-id"
-        ).model_dump()
+        == FilterPage.build(page_filter=page_filter).model_dump()
     )
     assert service.list_all_cached.await_args.kwargs["user_request"] == "Finance User"
 
@@ -130,7 +123,6 @@ async def test_finance_allocation_contribution_route_find_one() -> None:
         id=uuid4(),
         contributor_name="Contributor Name",
         amount=100.0,
-        account_id=uuid4(),
         allocation_id=uuid4(),
         description="Some Description",
         reference_year=utcnow().year,
@@ -153,7 +145,6 @@ async def test_finance_allocation_contribution_route_find_one() -> None:
         user_request="Finance User",
         clean_cache=False,
         with_deleted=False,
-        finance_id="finance-id",
     )
 
 
@@ -162,7 +153,6 @@ async def test_finance_allocation_contribution_route_update() -> None:
     service = AsyncMock()
     expected = SimpleNamespace(
         id=uuid4(),
-        account_id=uuid4(),
         description="Some Description",
         allocation_id=uuid4(),
         reference_year=utcnow().year,
@@ -204,7 +194,5 @@ async def test_finance_allocation_contribution_route_delete() -> None:
 
     assert result is expected
     service.soft_delete.assert_awaited_once_with(
-        param="allocation-contribuition-id",
-        user_request="Finance User",
-        finance_id="finance-id",
+        param="allocation-contribuition-id", user_request="Finance User"
     )

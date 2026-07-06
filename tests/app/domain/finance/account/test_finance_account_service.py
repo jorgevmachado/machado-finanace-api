@@ -1,3 +1,6 @@
+from types import SimpleNamespace
+from uuid import uuid4
+
 import pytest
 from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -8,10 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.finance.account.repository import AccountRepository
 from app.domain.finance.account.service import AccountService
-from app.domain.finance.account.schema import (
-    PayloadAccountCreateSchema,
-    PayloadAccountCreateListSchema,
-)
+from app.domain.finance.account.schema import PayloadAccountCreateSchema
 from app.models import Account, Finance, AccountTypeEnum
 
 
@@ -25,7 +25,10 @@ def account_service(mock_session):
     repository = AccountRepository(mock_session)
     return AccountService(repository)
 
-
+@pytest.fixture
+def account_repository_mock() -> AsyncMock:
+    return AsyncMock()
+    
 @pytest.fixture
 def finance():
     finance = MagicMock(spec=Finance)
@@ -49,112 +52,80 @@ def account():
 
 class TestAccountServiceCreate:
     @pytest.mark.asyncio
-    async def test_create_account_success(self, account_service, finance, account):
-        payload = PayloadAccountCreateSchema(
-            name="Test Account",
-            type=AccountTypeEnum.BANK,
-            initial_balance=Decimal("1000.00"),
-        )
-
-        with patch.object(
-            account_service, "persist", new_callable=AsyncMock
-        ) as mock_persist:
-            mock_persist.return_value = account
-            result = await account_service.create(finance=finance, payload=payload)
-
-            assert result.id == "test-account-id"
-            mock_persist.assert_called_once_with(finance=finance, payload=payload)
-
-
-class TestAccountServiceCreateList:
-    @pytest.mark.asyncio
-    async def test_create_list_empty_raises_exception(self, account_service, finance):
-        payload = PayloadAccountCreateListSchema(accounts=[])
-
-        with pytest.raises(HTTPException) as exc_info:
-            await account_service.create_list(finance=finance, payload=payload)
-
-        assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
-        assert "cannot be empty" in exc_info.value.detail
-
-    @pytest.mark.asyncio
-    async def test_create_list_success(self, account_service, finance, account):
-        payload = PayloadAccountCreateListSchema(
-            accounts=[
-                PayloadAccountCreateSchema(
-                    name="Account 1",
-                    type=AccountTypeEnum.BANK,
-                    initial_balance=Decimal("1000.00"),
-                ),
-                PayloadAccountCreateSchema(
-                    name="Account 2",
-                    type=AccountTypeEnum.CASH,
-                    initial_balance=Decimal("500.00"),
-                ),
-            ]
-        )
-
-        with patch.object(
-            account_service, "persist", new_callable=AsyncMock
-        ) as mock_persist:
-            mock_persist.return_value = account
-            result = await account_service.create_list(finance=finance, payload=payload)
-
-            assert len(result) == 2
-            assert mock_persist.call_count == 2
-
-
-class TestAccountServicePersist:
-    @pytest.mark.asyncio
-    async def test_persist_existing_account_with_throw(
-        self, account_service, finance, account
+    async def test_account_service_create_account_success(
+        self, account_repository_mock, finance, account
     ):
         payload = PayloadAccountCreateSchema(
             name="Test Account",
             type=AccountTypeEnum.BANK,
-            initial_balance=Decimal("1000.00"),
+            initial_balance=1000.00,
         )
+        expected = SimpleNamespace(
+            id=uuid4(),
+            name=payload.name,
+            type=payload.type,
+            is_active=True,
+            initial_balance=payload.initial_balance,
+            current_balance=0,
+        )
+        account_repository_mock.save.return_value = expected
+        service = AccountService(repository=account_repository_mock)
+        service.find_by = AsyncMock(return_value=None)
 
+        result = await service.create(finance=finance, payload=payload)
+        assert result == expected
+        account_repository_mock.save.assert_awaited_once()
+        saved_entity = account_repository_mock.save.await_args.kwargs["entity"]
+        assert saved_entity.name == expected.name
+        assert saved_entity.type == expected.type
+        assert saved_entity.is_active == expected.is_active
+        assert saved_entity.initial_balance == expected.initial_balance
+        assert saved_entity.current_balance == expected.current_balance
+
+
+class TestAccountServicePersist:
+    @pytest.mark.asyncio
+    async def test_account_service_persist_existing_account_with_throw(
+        self, account_service, finance, account
+    ):
         with patch.object(
             account_service, "find_by", new_callable=AsyncMock
         ) as mock_find:
             mock_find.return_value = account
             with pytest.raises(HTTPException) as exc_info:
                 await account_service.persist(
-                    finance=finance, payload=payload, with_throw=True
+                    name="Test Account",
+                    type=AccountTypeEnum.BANK,
+                    finance=finance,
+                    initial_balance=1000.00,
+                    with_throw=True,
                 )
 
             assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
             assert "already exists" in exc_info.value.detail
 
     @pytest.mark.asyncio
-    async def test_persist_existing_account_without_throw(
+    async def test_account_service_persist_existing_account_without_throw(
         self, account_service, finance, account
     ):
-        payload = PayloadAccountCreateSchema(
-            name="Test Account",
-            type=AccountTypeEnum.BANK,
-            initial_balance=Decimal("1000.00"),
-        )
-
         with patch.object(
             account_service, "find_by", new_callable=AsyncMock
         ) as mock_find:
             mock_find.return_value = account
             result = await account_service.persist(
-                finance=finance, payload=payload, with_throw=False
+                name="Test Account",
+                type=AccountTypeEnum.BANK,
+                finance=finance,
+                initial_balance=1000.00,
+                with_throw=False,
             )
 
             assert result.id == "test-account-id"
 
     @pytest.mark.asyncio
-    async def test_persist_new_account(self, account_service, finance, account):
-        payload = PayloadAccountCreateSchema(
-            name="Test Account",
-            type=AccountTypeEnum.BANK,
-            initial_balance=Decimal("1000.00"),
-        )
-
+    async def test_account_service_persist_new_account(
+        self, account_service, finance, account
+    ):
         with patch.object(
             account_service, "find_by", new_callable=AsyncMock
         ) as mock_find:
@@ -163,7 +134,12 @@ class TestAccountServicePersist:
                 account_service.repository, "save", new_callable=AsyncMock
             ) as mock_save:
                 mock_save.return_value = account
-                result = await account_service.persist(finance=finance, payload=payload)
+                result = await account_service.persist(
+                    name="Test Account",
+                    type=AccountTypeEnum.BANK,
+                    finance=finance,
+                    initial_balance=1000.00,
+                )
 
                 assert result.id == "test-account-id"
                 mock_save.assert_called_once()
@@ -171,7 +147,9 @@ class TestAccountServicePersist:
 
 class TestAccountServiceRecalculate:
     @pytest.mark.asyncio
-    async def test_recalculate_balance_with_income(self, account_service, finance):
+    async def test_account_service_recalculate_balance_with_income(
+        self, account_service, finance
+    ):
         account_with_income = MagicMock(spec=Account)
         account_with_income.id = "test-account-id"
         account_with_income.finance_id = "test-finance-id"
@@ -199,7 +177,9 @@ class TestAccountServiceRecalculate:
                 mock_update.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_recalculate_balance_no_changes(self, account_service, finance):
+    async def test_account_service_recalculate_balance_no_changes(
+        self, account_service, finance
+    ):
         account_no_changes = MagicMock(spec=Account)
         account_no_changes.id = "test-account-id"
         account_no_changes.finance_id = "test-finance-id"

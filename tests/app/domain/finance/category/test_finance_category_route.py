@@ -8,7 +8,6 @@ import pytest
 
 from app.domain.finance.category.route import (
     create,
-    create_list,
     category_service,
     category_filter,
     list_all,
@@ -21,7 +20,6 @@ from app.domain.finance.category.schema import (
     PayloadCategoryUpdateSchema,
 )
 from app.domain.finance.category.service import CategoryService
-from app.models import CategoryTypeEnum
 from app.shared.schemas import FilterPage
 from app.shared.utils.string import to_snake_case
 
@@ -35,14 +33,12 @@ def test_get_category_filter_builds_dynamic_filter():
     page_filter = category_filter(
         page=1,
         name="Category Name",
-        type=CategoryTypeEnum.OTHER,
         limit=12,
         clean_cache=True,
     )
 
     assert page_filter.page == 1
     assert page_filter.name == "Category Name"
-    assert page_filter.type == "OTHER"
     assert page_filter.limit == 12
     assert page_filter.clean_cache
 
@@ -53,18 +49,16 @@ async def test_finance_category_route_create() -> None:
     finance_id = uuid4()
     payload = PayloadCategoryCreateSchema(
         name="Test Category",
-        type=CategoryTypeEnum.OTHER,
         description="Some Description",
     )
     expected = SimpleNamespace(
         id=uuid4(),
-        type=payload.type,
         name=payload.name,
         name_code=to_snake_case(payload.name),
         finance_id=finance_id,
         description=payload.description,
     )
-    service.persist.return_value = expected
+    service.create.return_value = expected
     current_user = SimpleNamespace(
         id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
     )
@@ -72,27 +66,7 @@ async def test_finance_category_route_create() -> None:
     result = await create(service=service, current_user=current_user, payload=payload)
 
     assert result is expected
-    service.persist.assert_awaited_once_with(
-        finance=current_user.finance, payload=payload
-    )
-
-
-@pytest.mark.asyncio
-async def test_finance_category_route_create_list() -> None:
-    service = AsyncMock()
-    payload = SimpleNamespace(categories=[])
-    expected = [SimpleNamespace(id="category-id")]
-    service.create_list.return_value = expected
-    current_user = SimpleNamespace(
-        id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
-    )
-
-    result = await create_list(
-        service=service, current_user=current_user, payload=payload
-    )
-
-    assert result == expected
-    service.create_list.assert_awaited_once_with(
+    service.create.assert_awaited_once_with(
         finance=current_user.finance, payload=payload
     )
 
@@ -132,7 +106,6 @@ async def test_finance_category_route_find_one() -> None:
     expected = SimpleNamespace(
         id="category-id",
         name="Test Category",
-        type=CategoryTypeEnum.OTHER,
         name_code="test_category",
         finance_id=uuid4(),
         description="Some Description",
@@ -164,7 +137,6 @@ async def test_finance_category_route_update() -> None:
     expected = SimpleNamespace(
         id="category-id",
         name="Test Category",
-        type=CategoryTypeEnum.OTHER,
         name_code="test_category",
         finance_id=uuid4(),
         description="Some Description",
