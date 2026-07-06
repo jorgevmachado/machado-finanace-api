@@ -17,6 +17,7 @@ class FinanceSchema(BaseModel):
     updated_at: datetime | None = None
     deleted_at: datetime | None = None
 
+
 class FinancePersistResultSchema(BaseModel):
     incomes: int
     accounts: int

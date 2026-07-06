@@ -214,7 +214,7 @@ class TestFinanceMonthsMergeMonthsByMonth:
             ),
             PayloadMonthPersistSchema(
                 amount=450.00, reference_day=16, reference_month=0
-            )
+            ),
         ]
         expected_result: list[PayloadMonthPersistSchema] = [
             PayloadMonthPersistSchema(

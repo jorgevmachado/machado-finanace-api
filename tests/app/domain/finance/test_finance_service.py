@@ -20,38 +20,54 @@ from app.domain.finance.persist_schema import (
     PayloadPersistChildrenExpenseSchema,
 )
 from app.domain.finance.service import FinanceService
-from app.models import Account, Allocation, Category, Finance, AccountTypeEnum, utcnow, Income, Expense
+from app.models import (
+    Account,
+    Allocation,
+    Category,
+    Finance,
+    AccountTypeEnum,
+    utcnow,
+    Income,
+    Expense,
+)
 
 
 @pytest.fixture
 def account_service_mock():
     return AsyncMock()
 
+
 @pytest.fixture
 def income_service_mock():
     return AsyncMock()
+
 
 @pytest.fixture
 def allocation_service_mock():
     return AsyncMock()
 
+
 @pytest.fixture
 def category_service_mock():
     return AsyncMock()
+
 
 @pytest.fixture
 def expense_service_mock():
     return AsyncMock()
 
+
 @pytest.fixture
 def allocation_contribution_service_mock():
     return AsyncMock()
+
 
 @pytest.fixture
 def finance():
     finance = MagicMock(spec=Finance)
     finance.id = uuid4()
     return finance
+
 
 @pytest.fixture
 def account():
@@ -61,6 +77,7 @@ def account():
     account.current_balance = 0
     return account
 
+
 @pytest.fixture()
 def income():
     income = MagicMock(spec=Income)
@@ -68,6 +85,7 @@ def income():
     income.source = "Test Income"
     income.description = "Test Income Description"
     return income
+
 
 @pytest.fixture
 def allocation():
@@ -77,30 +95,30 @@ def allocation():
     allocation.description = "Test Allocation Description"
     return allocation
 
+
 @pytest.fixture
 def category():
     category = MagicMock(spec=Category)
     category.id = uuid4()
     category.name = "Test Category"
-    category.description = "Test Category Description"   
+    category.description = "Test Category Description"
     return category
+
 
 @pytest.fixture
 def expense():
-    expense = MagicMock(spec=Expense)    
+    expense = MagicMock(spec=Expense)
     expense.id = uuid4()
     expense.payee = "Test Payee"
-    expense.description = "Test Expense Description"   
+    expense.description = "Test Expense Description"
     return expense
+
 
 @pytest.fixture
 def payload_months(value: float = 100.0):
     months: list[PayloadMonthPersistSchema] = []
     for i in range(1, 13):
-        months.append(PayloadMonthPersistSchema(
-            amount=value,
-            reference_month=i
-        ))
+        months.append(PayloadMonthPersistSchema(amount=value, reference_month=i))
     return months
 
 
@@ -156,18 +174,19 @@ class TestFinanceOnboardingService:
         result = await service.onboard(current_user=current_user)
         assert result == finance
 
+
 class TestFinancePersistService:
     @staticmethod
     @pytest.mark.asyncio
     async def test_finance_persist_with_empty_payloads(
-            finance_repository_mock,
-            account_service_mock,
-            income_service_mock,
-            allocation_service_mock,
-            category_service_mock,
-            expense_service_mock,
-            allocation_contribution_service_mock,
-            finance
+        finance_repository_mock,
+        account_service_mock,
+        income_service_mock,
+        allocation_service_mock,
+        category_service_mock,
+        expense_service_mock,
+        allocation_contribution_service_mock,
+        finance,
     ):
         payloads: list[PayloadPersistSchema] = []
         service = FinanceService(
@@ -177,7 +196,7 @@ class TestFinancePersistService:
             allocation_service=allocation_service_mock,
             category_service=category_service_mock,
             expense_service=expense_service_mock,
-            allocation_contribution_service=allocation_contribution_service_mock
+            allocation_contribution_service=allocation_contribution_service_mock,
         )
         result = await service.persist(finance=finance, payloads=payloads)
         assert result.accounts == 0
@@ -189,43 +208,42 @@ class TestFinancePersistService:
     @staticmethod
     @pytest.mark.asyncio
     async def test_finance_persist_with_only_accounts_in_payloads(
-            finance_repository_mock,
-            account_service_mock,
-            income_service_mock,
-            allocation_service_mock,
-            category_service_mock,
-            expense_service_mock,
-            allocation_contribution_service_mock,
-             finance,
-            account
+        finance_repository_mock,
+        account_service_mock,
+        income_service_mock,
+        allocation_service_mock,
+        category_service_mock,
+        expense_service_mock,
+        allocation_contribution_service_mock,
+        finance,
+        account,
     ):
-        
+
         reference_year = utcnow().year
         reference_day = 10
-        account_bank = account        
+        account_bank = account
         account_bank.type = AccountTypeEnum.BANK
-        account_bank.name = "Test Account Bank"        
+        account_bank.name = "Test Account Bank"
         account_bank.initial_balance = 1000
-        
+
         account_cash = account
         account_cash.id = uuid4()
-        account_cash.type = AccountTypeEnum.CASH        
+        account_cash.type = AccountTypeEnum.CASH
         account_cash.name = "Test Account Cash"
         account_cash.initial_balance = 2000
-        
+
         account_other = account
         account_other.id = uuid4()
-        account_other.type = AccountTypeEnum.OTHER        
+        account_other.type = AccountTypeEnum.OTHER
         account_other.name = "Test Account Other"
         account_other.initial_balance = 3000
-
 
         account_investment = account
         account_investment.id = uuid4()
         account_investment.type = AccountTypeEnum.INVESTMENT
         account_investment.name = "Test Account Investment"
         account_investment.initial_balance = 4000
-    
+
         payloads: list[PayloadPersistSchema] = [
             PayloadPersistSchema(
                 name=account_bank.name,
@@ -273,8 +291,13 @@ class TestFinancePersistService:
             expense_service=expense_service_mock,
             allocation_contribution_service=allocation_contribution_service_mock,
         )
-        account_service_mock.persist.side_effect = [account_bank, account_cash, account_other, account_investment]
-        
+        account_service_mock.persist.side_effect = [
+            account_bank,
+            account_cash,
+            account_other,
+            account_investment,
+        ]
+
         result = await service.persist(finance=finance, payloads=payloads)
         assert result.accounts == 4
         assert result.incomes == 0
@@ -336,8 +359,8 @@ class TestFinancePersistService:
             expense_service=expense_service_mock,
             allocation_contribution_service=allocation_contribution_service_mock,
         )
-        account_service_mock.persist.return_value=account_bank
-        income_service_mock.persist_list.return_value=[income]
+        account_service_mock.persist.return_value = account_bank
+        income_service_mock.persist_list.return_value = [income]
         result = await service.persist(finance=finance, payloads=payloads)
         assert result.accounts == 1
         assert result.incomes == 1
@@ -436,11 +459,9 @@ class TestFinancePersistService:
         allocation.account_id = account_bank.id
         category.finance_id = finance.id
 
-
         payload_categories: list[PayloadPersistCategorySchema] = [
             PayloadPersistCategorySchema(
-                name=category.name,
-                description=category.description
+                name=category.name, description=category.description
             )
         ]
         payload_allocations: list[PayloadPersistAllocationSchema] = [
@@ -511,9 +532,9 @@ class TestFinancePersistService:
         account_bank.initial_balance = 1000
 
         allocation.account_id = account_bank.id
-        
+
         category.finance_id = finance.id
-        
+
         expense.allocation_id = allocation.id
         expense.category_id = category.id
 
@@ -521,15 +542,15 @@ class TestFinancePersistService:
             PayloadPersistParentExpenseSchema(
                 name=expense.payee,
                 months=payload_months,
-                description=expense.description
+                description=expense.description,
             )
         ]
-        
+
         payload_categories: list[PayloadPersistCategorySchema] = [
             PayloadPersistCategorySchema(
                 name=category.name,
                 expenses=payload_parent_expenses,
-                description=category.description
+                description=category.description,
             )
         ]
         payload_allocations: list[PayloadPersistAllocationSchema] = [
@@ -607,11 +628,11 @@ class TestFinancePersistService:
 
         expense.allocation_id = allocation.id
         expense.category_id = category.id
-        
+
         child_category = category
         child_category.id = uuid4()
         child_category.name = "Child Category"
-        
+
         child_expense = expense
         child_expense.id = uuid4()
         child_expense.payee = "Child Expense"
@@ -621,7 +642,7 @@ class TestFinancePersistService:
             PayloadPersistChildrenExpenseSchema(
                 name=child_expense.payee,
                 months=payload_months,
-                description=child_expense.description
+                description=child_expense.description,
             )
         ]
 
@@ -633,7 +654,7 @@ class TestFinancePersistService:
                 description=child_category.description,
             )
         ]
-        
+
         payload_parent_expenses: list[PayloadPersistParentExpenseSchema] = [
             PayloadPersistParentExpenseSchema(
                 name=expense.payee,

@@ -37,6 +37,7 @@ def test_get_account_filter_builds_dynamic_filter():
         limit=12,
         is_active=True,
         clean_cache=True,
+        reference_year=2026,
     )
 
     assert page_filter.page == 1
@@ -45,6 +46,7 @@ def test_get_account_filter_builds_dynamic_filter():
     assert page_filter.limit == 12
     assert page_filter.is_active
     assert page_filter.clean_cache
+    assert page_filter.reference_year == 2026
 
 
 @pytest.mark.asyncio

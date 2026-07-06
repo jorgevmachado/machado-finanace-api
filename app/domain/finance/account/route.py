@@ -43,6 +43,7 @@ def account_filter(
     is_active: bool | None = None,
     clean_cache: bool = False,
     with_deleted: bool = False,
+    reference_year: int | None = None,
 ) -> FilterPage:
     return FilterPage.build(
         page=page,
@@ -53,6 +54,7 @@ def account_filter(
         is_active=is_active,
         clean_cache=clean_cache,
         with_deleted=with_deleted,
+        reference_year=reference_year,
     )
 
 

@@ -25,10 +25,12 @@ def account_service(mock_session):
     repository = AccountRepository(mock_session)
     return AccountService(repository)
 
+
 @pytest.fixture
 def account_repository_mock() -> AsyncMock:
     return AsyncMock()
-    
+
+
 @pytest.fixture
 def finance():
     finance = MagicMock(spec=Finance)

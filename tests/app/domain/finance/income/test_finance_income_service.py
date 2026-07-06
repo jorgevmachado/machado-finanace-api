@@ -39,6 +39,7 @@ def account():
     account.finance_id = uuid4()
     return account
 
+
 @pytest.fixture()
 def income():
     income = MagicMock(spec=Income)
@@ -52,10 +53,7 @@ def income():
 def payload_months(value: float = 100.0):
     months: list[PayloadMonthPersistSchema] = []
     for i in range(1, 13):
-        months.append(PayloadMonthPersistSchema(
-            amount=value,
-            reference_month=i
-        ))
+        months.append(PayloadMonthPersistSchema(amount=value, reference_month=i))
     return months
 
 
@@ -364,20 +362,18 @@ class TestFinanceIncomePersistService:
         )
         assert result == created_income
         income_repository_mock.save.assert_awaited_once()
-        
+
+
 class TestFinanceIncomePersistListService:
     @staticmethod
     @pytest.mark.asyncio
     async def test_finance_income_persist_list_service_successfully(
-        income_repository_mock, 
-            income,
-        account,
-            payload_months
+        income_repository_mock, income, account, payload_months
     ):
 
         reference_day = 10
-        reference_year = utcnow().year        
-        
+        reference_year = utcnow().year
+
         second_income = income
         second_income.id = uuid4()
         second_income.source = "Second Income"
@@ -404,7 +400,7 @@ class TestFinanceIncomePersistListService:
             payloads=payload_incomes,
             with_throw=False,
             reference_day=reference_day,
-            reference_year=reference_year,            
+            reference_year=reference_year,
         )
         assert len(result) == 2
         assert result[0] == income

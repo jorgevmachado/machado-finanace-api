@@ -36,7 +36,7 @@ class AccountService(BaseService[AccountRepository, Account]):
                 logger=logger, service="AccountService", operation="account"
             ),
             schema_class=AccountSchema,
-            cache_prefix="account",
+            cache_prefix="account:v2",
         )
 
     @classmethod
@@ -60,7 +60,7 @@ class AccountService(BaseService[AccountRepository, Account]):
         type: AccountTypeEnum,
         finance: Finance,
         initial_balance: float,
-        current_balance: float  = 0,
+        current_balance: float = 0,
         with_throw: bool = True,
     ) -> Account:
 

@@ -5,10 +5,12 @@ from datetime import datetime
 from app.domain.finance.income_month.schema import IncomeMonthSchema
 from app.domain.finance.months.schema import PayloadMonthPersistSchema
 
+
 class PayloadIncomePersistSchema(BaseModel):
     months: list[PayloadMonthPersistSchema]
     source: str
     description: str
+
 
 class PayloadIncomeCreateSchema(BaseModel):
     months: list[PayloadMonthPersistSchema]

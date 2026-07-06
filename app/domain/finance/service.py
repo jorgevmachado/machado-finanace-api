@@ -106,19 +106,22 @@ class FinanceService(BaseService[FinanceRepository, Finance]):
             reference_day = payload.reference_day or 10
             reference_year = payload.reference_year
 
-            incomes.extend(await self.income_service.persist_list(
-                account=account,
-                with_throw=False,
-                payloads=payload.incomes,
-                reference_day=reference_day,
-                reference_year=reference_year,
-            ))
+            incomes.extend(
+                await self.income_service.persist_list(
+                    account=account,
+                    with_throw=False,
+                    payloads=payload.incomes,
+                    reference_day=reference_day,
+                    reference_year=reference_year,
+                )
+            )
 
             for payload_allocation in payload.allocations:
                 allocation = await self.allocation_service.persist(
                     name=payload_allocation.name,
                     account=account,
-                    description=payload_allocation.description or payload_allocation.name,                    
+                    description=payload_allocation.description
+                    or payload_allocation.name,
                     with_throw=False,
                 )
                 allocations.append(allocation)
@@ -126,7 +129,8 @@ class FinanceService(BaseService[FinanceRepository, Finance]):
                     category = await self.category_service.persist(
                         name=payload_category.name,
                         finance=finance,
-                        description=payload_category.description or payload_category.name,                        
+                        description=payload_category.description
+                        or payload_category.name,
                         with_throw=False,
                     )
                     categories.append(category)
@@ -152,7 +156,8 @@ class FinanceService(BaseService[FinanceRepository, Finance]):
                                 children_category = await self.category_service.persist(
                                     name=payload_expense_children_category.name,
                                     finance=finance,
-                                    description=payload_expense_children_category.description or payload_expense_children_category.name,                                    
+                                    description=payload_expense_children_category.description
+                                    or payload_expense_children_category.name,
                                     with_throw=False,
                                 )
                                 categories.append(children_category)
@@ -165,7 +170,8 @@ class FinanceService(BaseService[FinanceRepository, Finance]):
                                     ) in payload_children_expenses:
                                         child_expense = await self.expense_service.persist(
                                             payee=payload_children_expense.name,
-                                            months=payload_children_expense.months or [],
+                                            months=payload_children_expense.months
+                                            or [],
                                             category=children_category,
                                             allocation=allocation,
                                             with_throw=False,

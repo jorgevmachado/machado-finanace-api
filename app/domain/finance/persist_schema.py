@@ -4,6 +4,7 @@ from app.domain.finance.income.schema import PayloadIncomePersistSchema
 from app.domain.finance.months.schema import PayloadMonthPersistSchema
 from app.models import AccountTypeEnum
 
+
 class PayloadPersistChildrenExpenseSchema(BaseModel):
     name: str
     months: list[PayloadMonthPersistSchema] | None = []
