@@ -166,6 +166,17 @@ class TestBaseServiceFindOne:
 
     @staticmethod
     @pytest.mark.asyncio
+    async def test_find_one_by_id_with_reference_year(base_service, mock_repository):
+        mock_repository.find_by.return_value = MOCK_RESULT
+        result = await base_service.find_one(param=MOCK_RESULT["id"], with_deleted=False, reference_year=2023)
+        assert result["id"] == MOCK_RESULT["id"]
+        assert result["name"] == MOCK_RESULT["name"]
+        mock_repository.find_by.assert_awaited_once_with(
+            id=MOCK_RESULT["id"], with_deleted=False, reference_year=2023
+        )
+
+    @staticmethod
+    @pytest.mark.asyncio
     async def test_find_one_not_found(base_service, mock_repository):
         mock_repository.find_by.return_value = None
         with pytest.raises(HTTPException) as exc_info:

@@ -93,11 +93,16 @@ class BaseService[
         finance_id = kwargs.get("finance_id") if kwargs else None
         user_request = kwargs.get("user_request") if kwargs else None
         with_deleted = kwargs.get("with_deleted") if kwargs else False
+        reference_year = kwargs.get("reference_year") if kwargs else None
         finance_id = cast(str, finance_id) if finance_id else None
+        reference_year = cast(int, reference_year) if reference_year else None
         try:
-            find_by_filters: dict[str, str] = (
+            find_by_filters: dict[str, str | int] = (
                 {"finance_id": finance_id} if finance_id else {}
             )
+            if reference_year is not None:
+                find_by_filters["reference_year"] = reference_year
+
             if is_valid_uuid(param):
                 result = await self.repository.find_by(
                     id=param, with_deleted=with_deleted, **find_by_filters

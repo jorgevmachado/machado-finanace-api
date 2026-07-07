@@ -347,3 +347,85 @@ class TestFinanceAccountRepositoryListAll:
         result_allocation_contributions = result_allocation.allocation_contributions
         result_allocation_contribution = result_allocation_contributions[0]
         assert len(result_allocation_contribution.months) == 12
+
+class TestFinanceAccountRepositoryFindBy:
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_account_repository_find_by_with_reference_year_none(
+         account
+    ):
+        expected_entity = account
+        mock_session = AsyncMock()
+        mock_session.scalar = AsyncMock(return_value=expected_entity)
+
+        repository = AccountRepository(session=mock_session)
+        result = await repository.find_by(id=account.id)
+
+        assert result == expected_entity
+        mock_session.scalar.assert_awaited_once()
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_account_repository_find_by_with_reference_year(
+            account
+    ):
+        expected_entity = account
+        mock_session = AsyncMock()
+        mock_session.scalar = AsyncMock(return_value=expected_entity)
+
+        repository = AccountRepository(session=mock_session)
+        result = await repository.find_by(id=account.id, reference_year=2025)
+
+        assert result == expected_entity
+        if result is not None:
+            result_incomes = result.incomes
+            result_income = result_incomes[0]
+            assert len(result_income.months) == 12
+
+            result_allocations = result.allocations
+            result_allocation = result_allocations[0]
+
+            result_expenses = result_allocation.expenses
+            result_expense = result_expenses[0]
+            assert len(result_expense.months) == 12
+
+            result_allocation_contributions = result_allocation.allocation_contributions
+            result_allocation_contribution = result_allocation_contributions[0]
+            assert len(result_allocation_contribution.months) == 12
+        
+        mock_session.scalar.assert_awaited_once()
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_account_repository_find_by_with_reference_year_with_allocations_empty(account):
+        expected_entity = account
+        mock_session = AsyncMock()
+        mock_session.scalar = AsyncMock(return_value=expected_entity)
+
+        repository = AccountRepository(session=mock_session)
+        result = await repository.find_by(id=account.id, reference_year=2000)
+
+        assert result == expected_entity
+        if result is not None:
+            result_incomes = result.incomes
+            assert len(result_incomes) == 0
+
+            result_allocations = result.allocations
+            assert len(result_allocations) == 0
+
+        mock_session.scalar.assert_awaited_once()
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_account_repository_find_by_with_reference_year_return_none(
+        account,
+    ):
+        mock_session = AsyncMock()
+        mock_session.scalar = AsyncMock(return_value=None)
+
+        repository = AccountRepository(session=mock_session)
+        result = await repository.find_by(id=account.id, reference_year=2000)
+
+        assert result is None
+        mock_session.scalar.assert_awaited_once()
+

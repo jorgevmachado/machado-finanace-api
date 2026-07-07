@@ -20,7 +20,7 @@ from app.domain.finance.account.schema import (
     PayloadAccountUpdateSchema,
 )
 from app.domain.finance.account.service import AccountService
-from app.models import AccountTypeEnum
+from app.models import AccountTypeEnum, utcnow
 from app.shared.schemas import FilterPage
 
 
@@ -108,6 +108,7 @@ async def test_finance_account_route_list_all_paginate_and_filter() -> None:
 @pytest.mark.asyncio
 async def test_finance_account_route_find_one() -> None:
     service = AsyncMock()
+    current_datetime = utcnow()
     expected = SimpleNamespace(
         id="account-id",
         name="Test Account",
@@ -125,6 +126,7 @@ async def test_finance_account_route_find_one() -> None:
         param="account-id",
         current_user=current_user,
         service=service,
+        reference_year=current_datetime.year,
     )
 
     assert result is expected
@@ -134,6 +136,7 @@ async def test_finance_account_route_find_one() -> None:
         clean_cache=False,
         with_deleted=False,
         finance_id="finance-id",
+        reference_year=current_datetime.year,
     )
 
 

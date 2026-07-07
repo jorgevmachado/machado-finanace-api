@@ -114,3 +114,15 @@ class AccountRepository(BaseRepository[Account]):
             return result
 
         return result
+
+    async def find_by(self, **kwargs) -> Account | None:
+        reference_year = cast(
+            Optional[int], kwargs.pop("reference_year", None)
+        )
+
+        result = await super().find_by(**kwargs)
+
+        if result is not None and reference_year is not None:
+            return  self._filter_account(cast(Account, result), reference_year)
+
+        return result
