@@ -270,6 +270,37 @@ class TestFinanceAccountRepositoryListAll:
 
     @staticmethod
     @pytest.mark.asyncio
+    async def test_finance_account_repository_list_all_with_reference_year_and_list_with_allocations_empty(
+        account,
+    ):
+        expected_items = [account]
+        scalars_result = Mock()
+        scalars_result.all.return_value = expected_items
+
+        mock_session = AsyncMock()
+        mock_session.scalars = AsyncMock(return_value=scalars_result)
+        page_filter = FilterPage()
+
+        repository = AccountRepository(session=mock_session)
+
+        with patch("app.core.repository.base.is_paginate", return_value=False):
+            result = await repository.list_all(
+                page_filter=FilterPage.build(
+                    page_filter=page_filter, reference_year=2000
+                )
+            )
+
+        result_account = result[0]
+        result_incomes = result_account.incomes
+        assert len(result_incomes) == 0
+
+        result_allocations = result_account.allocations
+        assert len(result_allocations) == 0
+
+        mock_session.scalars.assert_awaited_once()
+
+    @staticmethod
+    @pytest.mark.asyncio
     async def test_finance_account_repository_list_all_with_reference_year_and_paginate(
          account
     ):
