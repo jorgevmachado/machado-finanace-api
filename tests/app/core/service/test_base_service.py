@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict
 
 from app.core.logging import LoggingParams
 from app.core.service.base import BaseService
+from app.models import utcnow
 from app.shared.schemas import FilterPage
 
 
@@ -254,6 +255,27 @@ class TestBaseServiceFindOneCached:
         base_service.cache_service.cache.delete_cache.assert_awaited_once_with(
             cache_key
         )
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_base_service_find_one_cached_success_with_reference_year(base_service, mock_repository):
+        """Should return complete pokemon when found"""
+        reference_year = utcnow().year
+        item = BaseModelSchema(id="1", name="item1", value=1)
+        mock_repository.find_by.return_value = item
+        base_service.cache_service.build_key_one = AsyncMock(
+            return_value=f"test_service:{item.name}:{reference_year}"
+        )
+        base_service.cache_service.get_one = AsyncMock(return_value=item)
+        result = await base_service.find_one_cached(
+            param=item.name,
+            user_request="user1",
+            reference_year=reference_year
+        )
+        assert result is not None
+        assert result.id == item.id
+        assert result.name == item.name
+        assert result.value == item.value
 
 
 class TestBaseServiceFindBy:

@@ -152,9 +152,14 @@ class BaseService[
     ):
         cache_key = param
         finance_id = kwargs.get("finance_id") if kwargs else None
-        finance_id = cast(str, finance_id) if finance_id else None
+        finance_id = cast(str, finance_id) if finance_id else None        
         if finance_id:
             cache_key = f"{finance_id}:{param}"
+
+        reference_year = kwargs.get("reference_year") if kwargs else None
+        reference_year = cast(int, reference_year) if reference_year else None
+        if reference_year:
+            cache_key = f"{cache_key}:{reference_year}"
         key = self.cache_service.build_key_one(param=cache_key)
         clean_cache = kwargs.get("clean_cache") if kwargs else False
 
