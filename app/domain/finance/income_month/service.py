@@ -104,8 +104,8 @@ class IncomeMonthService(BaseService[IncomeMonthRepository, IncomeMonth]):
                     detail="Income Month already exists",
                 )
             else:
-                income.amount = Decimal(str(month.amount))
-                income.received_at = received_at
+                income_month.amount = Decimal(str(month.amount))
+                income_month.received_at = received_at
                 return await self.repository.update(entity=income_month)
 
         else:
