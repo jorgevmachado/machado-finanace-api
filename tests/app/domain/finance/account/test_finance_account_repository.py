@@ -295,7 +295,7 @@ class TestFinanceAccountRepositoryListAll:
         assert len(result_incomes) == 0
 
         result_allocations = result_account.allocations
-        assert len(result_allocations) == 0
+        assert len(result_allocations) == 1
 
         mock_session.scalars.assert_awaited_once()
 
@@ -411,7 +411,7 @@ class TestFinanceAccountRepositoryFindBy:
             assert len(result_incomes) == 0
 
             result_allocations = result.allocations
-            assert len(result_allocations) == 0
+            assert len(result_allocations) == 1
 
         mock_session.scalar.assert_awaited_once()
 

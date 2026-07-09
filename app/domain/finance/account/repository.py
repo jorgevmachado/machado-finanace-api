@@ -50,15 +50,13 @@ class AccountRepository(BaseRepository[Account]):
         self,
         allocation: Allocation,
        reference_year: int
-    ) -> Allocation | None:
+    ) -> Allocation:
         allocation.expenses = self._filter_expenses(allocation.expenses, reference_year)
         allocation.allocation_contributions = self._filter_allocation_contributions(
             allocation.allocation_contributions,
             reference_year
         )
-        if allocation.expenses or allocation.allocation_contributions:
-            return allocation
-        return None
+        return allocation
 
     def _filter_allocations(
         self, allocations: list[Allocation], reference_year: int
