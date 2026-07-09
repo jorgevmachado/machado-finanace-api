@@ -97,9 +97,9 @@ class ExpenseMonthService(BaseService[ExpenseMonthRepository, ExpenseMonth]):
                     detail="Expense Month already exists",
                 )
             else:
-                expense.status = status
-                expense.amount = month.amount
-                expense.paid_at = paid_at
+                expense_month.status = status
+                expense_month.amount = month.amount
+                expense_month.paid_at = paid_at
                 return await self.repository.update(entity=expense_month)
 
         else:
