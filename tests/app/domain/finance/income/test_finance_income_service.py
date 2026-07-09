@@ -12,6 +12,7 @@ from app.domain.finance.income.service import IncomeService
 from app.domain.finance.income.schema import (
     PayloadIncomeCreateSchema,
     PayloadIncomePersistSchema,
+    PayloadIncomeUpdateSchema,
 )
 from app.domain.finance.months.schema import PayloadMonthPersistSchema
 from app.models import utcnow, Account, Income
@@ -44,6 +45,7 @@ def account():
 def income():
     income = MagicMock(spec=Income)
     income.id = uuid4()
+    income.months = []
     income.source = "Test Income"
     income.description = "Test Income Description"
     return income
@@ -406,3 +408,441 @@ class TestFinanceIncomePersistListService:
         assert result[0] == income
         assert result[1] == second_income
         income_repository_mock.save.assert_awaited()
+
+class TestFinanceIncomeUpdateService:
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_income_update_service_with_payload_none(
+        income_repository_mock, income, account, payload_months
+    ):
+
+        payload = PayloadIncomeUpdateSchema(
+            months=None,
+            source=None,
+            account_id=None,
+            description=None,
+            reference_year=None,
+        )
+
+        service = IncomeService(repository=income_repository_mock)
+        service.find_one = AsyncMock(return_value=income)
+
+
+        result = await service.update(
+            param=str(income.id),
+            payload=payload,
+            finance_id=account.finance_id,
+            user_request="test_user",
+        )
+        assert result == income
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_income_update_service_with_payload_not_changed(
+        income_repository_mock, income, account, payload_months
+    ):
+
+        income.account = account
+        payload = PayloadIncomeUpdateSchema(
+            months=income.months,
+            source=income.source,
+            account_id=income.account.id,
+            description=income.description,
+            reference_year=None,
+        )
+
+        service = IncomeService(repository=income_repository_mock)
+        service.find_one = AsyncMock(return_value=income)
+
+        result = await service.update(
+            param=str(income.id),
+            payload=payload,
+            finance_id=account.finance_id,
+            user_request="test_user",
+        )
+        assert result == income
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_income_update_service_with_payload_account_changed(
+        income_repository_mock, income, account, payload_months
+    ):
+        new_account_id = uuid4()
+
+        income.account = account
+        payload = PayloadIncomeUpdateSchema(
+            months=income.months,
+            source=income.source,
+            account_id=new_account_id,
+            description=income.description,
+            reference_year=None,
+        )
+
+        income_expected = income
+
+        service = IncomeService(repository=income_repository_mock)
+        service.find_one = AsyncMock(return_value=income)
+        service.account_service.find_by = AsyncMock(return_value=account)
+        service.cache_service.delete_domain = AsyncMock()
+        income_repository_mock.update.return_value = income_expected
+
+        result = await service.update(
+            param=str(income.id),
+            payload=payload,
+            finance_id=account.finance_id,
+            user_request="test_user",
+        )
+        assert result == income_expected
+        income_repository_mock.update.assert_called_once()
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_income_update_service_with_payload_account_not_found(
+        income_repository_mock, income, account, payload_months, account_service_mock
+    ):
+        new_account_id = uuid4()
+
+        income.account = account
+        payload = PayloadIncomeUpdateSchema(
+            months=income.months,
+            source=income.source,
+            account_id=new_account_id,
+            description=income.description,
+            reference_year=None,
+        )
+
+        account_service_mock.find_by.return_value = None
+        service = IncomeService(repository=income_repository_mock, account_service=account_service_mock)
+        service.find_one = AsyncMock(return_value=income)
+
+        with pytest.raises(HTTPException) as exc_info:
+            await service.update(
+                param=str(income.id),
+                payload=payload,
+                finance_id=account.finance_id,
+                user_request="test_user",
+            )
+
+        assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
+        account_service_mock.find_by.assert_awaited_once()
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_income_update_service_with_payload_source_changed(
+        income_repository_mock, income, account, payload_months
+    ):
+        new_source = "New Source"
+        income.account = account
+        income.source_code = "test_income"
+        payload = PayloadIncomeUpdateSchema(
+            months=income.months,
+            source=new_source,
+            account_id=income.account.id,
+            description=income.description,
+            reference_year=None,
+        )
+
+        income_expected = income
+
+        service = IncomeService(repository=income_repository_mock)
+        service.find_by = AsyncMock(return_value=None)
+        service.find_one = AsyncMock(return_value=income)
+        service.cache_service.delete_domain = AsyncMock()
+        income_repository_mock.update.return_value = income_expected
+
+        result = await service.update(
+            param=str(income.id),
+            payload=payload,
+            finance_id=account.finance_id,
+            user_request="test_user",
+        )
+        assert result == income_expected
+        income_repository_mock.update.assert_called_once()
+        service.cache_service.delete_domain.assert_called_once()
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_income_update_service_with_payload_source_changed_exists(
+        income_repository_mock, income, account, payload_months
+    ):
+        reference_year = utcnow().year
+        new_source = "New Source"
+        income.account = account
+        payload = PayloadIncomeUpdateSchema(
+            months=income.months,
+            source=new_source,
+            account_id=income.account.id,
+            description=income.description,
+            reference_year=reference_year,
+        )
+
+        service = IncomeService(repository=income_repository_mock)
+        service.find_by = AsyncMock(return_value=income)
+        service.find_one = AsyncMock(return_value=income)
+
+        with pytest.raises(HTTPException) as exc_info:
+            await service.update(
+                param=str(income.id),
+                payload=payload,
+                finance_id=account.finance_id,
+                user_request="test_user",
+            )
+
+        assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
+        assert exc_info.value.detail == f"Income with this year {reference_year} and source {payload.source} already exists"
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_income_update_service_with_payload_description_changed(
+        income_repository_mock, income, account, payload_months
+    ):
+
+        income.account = account
+        payload = PayloadIncomeUpdateSchema(
+            months=income.months,
+            source=income.source,
+            account_id=income.account.id,
+            description="New Description",
+            reference_year=None,
+        )
+
+        income_expected = income
+
+        service = IncomeService(repository=income_repository_mock)
+        service.find_one = AsyncMock(return_value=income)
+        service.cache_service.delete_domain = AsyncMock()
+        income_repository_mock.update.return_value = income_expected
+
+        result = await service.update(
+            param=str(income.id),
+            payload=payload,
+            finance_id=account.finance_id,
+            user_request="test_user",
+        )
+        assert result == income_expected
+        income_repository_mock.update.assert_called_once()
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_income_update_service_with_payload_months_empty(
+        income_repository_mock, income, account
+    ):
+        income.account = account
+        payload = PayloadIncomeUpdateSchema(
+            months=[],
+            source=income.source,
+            account_id=income.account.id,
+            description=income.description,
+            reference_year=None,
+        )
+
+        service = IncomeService(repository=income_repository_mock)
+        service.find_one = AsyncMock(return_value=income)
+
+        result = await service.update(
+            param=str(income.id),
+            payload=payload,
+            finance_id=account.finance_id,
+            user_request="test_user",
+        )
+        assert result == income
+        income_repository_mock.update.assert_not_called()
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_income_update_service_with_payload_months_changed(
+        income_repository_mock, income, account, payload_months, income_month_service_mock
+    ):
+        income.account = account
+        income.months = []
+        new_months = payload_months[:3]
+        
+        payload = PayloadIncomeUpdateSchema(
+            months=new_months,
+            source=income.source,
+            account_id=income.account.id,
+            description=income.description,
+            reference_year=None,
+        )
+
+        income_expected = income
+        income_expected.months = new_months
+
+        service = IncomeService(
+            repository=income_repository_mock,
+            income_month_service=income_month_service_mock
+        )
+        service.find_one = AsyncMock(return_value=income)
+        service.cache_service.delete_domain = AsyncMock()
+        income_month_service_mock.persist_list = AsyncMock(return_value=new_months)
+        income_repository_mock.update.return_value = income_expected
+
+        result = await service.update(
+            param=str(income.id),
+            payload=payload,
+            finance_id=account.finance_id,
+            user_request="test_user",
+        )
+        assert result == income_expected
+        income_month_service_mock.persist_list.assert_awaited_once()
+        income_repository_mock.update.assert_called_once()
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_income_update_service_with_payload_account_and_source_changed(
+        income_repository_mock, income, account
+    ):
+        new_account = MagicMock(spec=Account)
+        new_account.id = uuid4()
+        new_account.finance_id = uuid4()
+        new_source = "New Source"
+
+        income.account = account
+        income.source_code = "test_income"
+        payload = PayloadIncomeUpdateSchema(
+            months=income.months,
+            source=new_source,
+            account_id=new_account.id,
+            description=income.description,
+            reference_year=None,
+        )
+
+        income_expected = income
+
+        service = IncomeService(repository=income_repository_mock)
+        service.find_one = AsyncMock(return_value=income)
+        service.account_service.find_by = AsyncMock(return_value=new_account)
+        service.find_by = AsyncMock(return_value=None)
+        service.cache_service.delete_domain = AsyncMock()
+        income_repository_mock.update.return_value = income_expected
+
+        result = await service.update(
+            param=str(income.id),
+            payload=payload,
+            finance_id=new_account.finance_id,
+            user_request="test_user",
+        )
+        assert result == income_expected
+        service.account_service.find_by.assert_awaited_once()
+        service.find_by.assert_awaited_once()
+        income_repository_mock.update.assert_called_once()
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_income_update_service_with_payload_reference_year_set(
+        income_repository_mock, income, account, income_month_service_mock, payload_months
+    ):
+        reference_year = 2024
+        income.account = account
+        income.months = []
+
+        payload = PayloadIncomeUpdateSchema(
+            months=payload_months[:2],
+            source=income.source,
+            account_id=income.account.id,
+            description=income.description,
+            reference_year=reference_year,
+        )
+
+        income_expected = income
+        income_expected.months = payload_months[:2]
+
+        service = IncomeService(
+            repository=income_repository_mock,
+            income_month_service=income_month_service_mock
+        )
+        service.find_one = AsyncMock(return_value=income)
+        service.cache_service.delete_domain = AsyncMock()
+        income_month_service_mock.persist_list = AsyncMock(return_value=payload_months[:2])
+        income_repository_mock.update.return_value = income_expected
+
+        result = await service.update(
+            param=str(income.id),
+            payload=payload,
+            finance_id=account.finance_id,
+            user_request="test_user",
+        )
+        
+        assert result == income_expected
+        call_args = income_month_service_mock.persist_list.call_args
+        assert call_args.kwargs["reference_year"] == reference_year
+        income_repository_mock.update.assert_called_once()
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_income_update_service_with_payload_reference_day_set(
+        income_repository_mock, income, account, income_month_service_mock, payload_months
+    ):
+        reference_day = 15
+        income.account = account
+        income.months = []
+
+        payload = PayloadIncomeUpdateSchema(
+            months=payload_months[:2],
+            source=income.source,
+            account_id=income.account.id,
+            description=income.description,
+            reference_year=None,
+            reference_day=reference_day,
+        )
+
+        income_expected = income
+        income_expected.months = payload_months[:2]
+
+        service = IncomeService(
+            repository=income_repository_mock,
+            income_month_service=income_month_service_mock
+        )
+        service.find_one = AsyncMock(return_value=income)
+        service.cache_service.delete_domain = AsyncMock()
+        income_month_service_mock.persist_list = AsyncMock(return_value=payload_months[:2])
+        income_repository_mock.update.return_value = income_expected
+
+        result = await service.update(
+            param=str(income.id),
+            payload=payload,
+            finance_id=account.finance_id,
+            user_request="test_user",
+        )
+        
+        assert result == income_expected
+        call_args = income_month_service_mock.persist_list.call_args
+        assert call_args.kwargs["reference_day"] == reference_day
+        income_repository_mock.update.assert_called_once()
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_income_update_service_with_payload_source_and_description_changed(
+        income_repository_mock, income, account
+    ):
+        new_source = "New Source"
+        new_description = "New Description"
+
+        income.account = account
+        income.source_code = "test_income"
+        payload = PayloadIncomeUpdateSchema(
+            months=income.months,
+            source=new_source,
+            account_id=income.account.id,
+            description=new_description,
+            reference_year=None,
+        )
+
+        income_expected = income
+
+        service = IncomeService(repository=income_repository_mock)
+        service.find_one = AsyncMock(return_value=income)
+        service.find_by = AsyncMock(return_value=None)
+        service.cache_service.delete_domain = AsyncMock()
+        income_repository_mock.update.return_value = income_expected
+
+        result = await service.update(
+            param=str(income.id),
+            payload=payload,
+            finance_id=account.finance_id,
+            user_request="test_user",
+        )
+        
+        assert result == income_expected
+        assert income.source == new_source
+        assert income.description == new_description
+        income_repository_mock.update.assert_called_once()

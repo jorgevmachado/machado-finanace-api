@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from http import HTTPStatus
+from typing import cast
 
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,10 +17,10 @@ from app.domain.finance.income.repository import IncomeRepository
 from app.domain.finance.income.schema import (
     PayloadIncomeCreateSchema,
     IncomeSchema,
-    PayloadIncomePersistSchema,
+    PayloadIncomePersistSchema, PayloadIncomeUpdateSchema,
 )
 
-from app.models import Income, Finance, Account
+from app.models import Income, Finance, Account, utcnow
 from app.shared.utils.string import to_snake_case
 
 logger = logging.getLogger(__name__)
@@ -74,6 +75,67 @@ class IncomeService(BaseService[IncomeRepository, Income]):
             reference_day=payload.reference_day or 10,
             reference_year=payload.reference_year,
         )
+
+    async def update(self, param: str, payload: PayloadIncomeUpdateSchema, **kwargs) -> Income:
+        finance_id = kwargs.get("finance_id") if kwargs else None
+        finance_id = cast(str, finance_id) if finance_id else None
+        reference_year = payload.reference_year if payload.reference_year else utcnow().year
+        entity = await self.find_one(param=param)
+        has_change = False
+        account = entity.account
+
+        if payload.account_id and payload.account_id != account.id:
+            has_change = True
+            account = await self.account_service.find_by(
+                id=payload.account_id, finance_id=finance_id, without_throw=True
+            )
+            if not account:
+                raise HTTPException(
+                    status_code=HTTPStatus.BAD_REQUEST,
+                    detail=f"Account with this id {payload.account_id} does not exist",
+                )
+        if payload.source and payload.source != entity.source:
+            has_change = True
+            source_code = to_snake_case(payload.source or '')
+            existing_income = await self.find_by(
+                account_id=account.id,
+                source_code=source_code,
+                without_throw=True,
+            )
+            if existing_income:
+                raise HTTPException(
+                    status_code=HTTPStatus.BAD_REQUEST,
+                    detail=f"Income with this year {reference_year} and source {payload.source} already exists",
+                )
+            entity.source = payload.source
+            entity.source_code = source_code
+
+        if payload.description and payload.description !=  entity.description:
+            has_change = True
+            entity.description = payload.description
+
+        if payload.months and len(payload.months) > 0:
+            has_change = True
+            payload_months = [
+                PayloadMonthPersistSchema(
+                    amount=month.amount,
+                    reference_day=payload.reference_day or 10,
+                    reference_month=month.reference_month,
+                    transaction_date=month.transaction_date,
+                )
+                for month in payload.months
+            ]
+            await self.income_month_service.persist_list(
+                income=entity,
+                months=payload_months,
+                reference_day=payload.reference_day or 10,
+                reference_year=reference_year,
+            )
+
+        if not has_change:
+            return entity
+        await self.cache_service.delete_domain()
+        return await self.repository.update(entity=entity)
 
     async def persist(
         self,

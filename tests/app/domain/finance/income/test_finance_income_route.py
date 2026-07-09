@@ -143,7 +143,7 @@ async def test_finance_income_route_find_one() -> None:
         user_request="Finance User",
         clean_cache=False,
         with_deleted=False,
-        finance_id="finance-id",
+        reference_year=None,
     )
 
 
@@ -169,8 +169,9 @@ async def test_finance_income_route_update() -> None:
     assert result is expected
     service.update.assert_awaited_once_with(
         param="income-id",
-        user_request="Finance User",
-        update_schema=payload,
+        payload=payload,
+        finance_id=current_user.finance.id,
+        user_request=current_user.username,
     )
 
 

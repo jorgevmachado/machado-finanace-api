@@ -19,15 +19,15 @@ class PayloadIncomeCreateSchema(BaseModel):
     description: str
     reference_year: int
     reference_day: int | None = None
-    reference_month: int | None = None
 
 
 class PayloadIncomeUpdateSchema(BaseModel):
-    months: list[PayloadMonthPersistSchema]
+    months: list[PayloadMonthPersistSchema] | None = None
     source: str | None = None
     account_id: UUID | None = None
     description: str | None = None
-
+    reference_day: int | None = None
+    reference_year: int | None = None
 
 class IncomeSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
