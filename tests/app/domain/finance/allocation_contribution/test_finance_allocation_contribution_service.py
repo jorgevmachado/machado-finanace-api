@@ -15,15 +15,7 @@ from app.domain.finance.allocation_contribution.service import (
     AllocationContributionService,
 )
 from app.domain.finance.months.schema import PayloadMonthPersistSchema
-from app.models import Account, Allocation, Finance, utcnow
-
-
-@pytest.fixture
-def finance():
-    finance = MagicMock(spec=Finance)
-    finance.id = uuid4()
-    return finance
-
+from app.models import Account, Allocation, utcnow
 
 @pytest.fixture
 def account():
@@ -57,7 +49,7 @@ class TestFinanceAllocationContributionCreateService:
     @staticmethod
     @pytest.mark.asyncio
     async def test_allocation_contribution_create_with_invalid_allocation(
-        allocation_contribution_repository_mock, finance, account, allocation
+        allocation_contribution_repository_mock,  account, allocation
     ):
         current_year = utcnow().year
         payload = PayloadAllocationContributionCreateSchema(
@@ -76,7 +68,7 @@ class TestFinanceAllocationContributionCreateService:
         service.allocation_service.find_by = AsyncMock(return_value=None)
 
         with pytest.raises(HTTPException) as exc_info:
-            await service.create(finance=finance, payload=payload)
+            await service.create(payload=payload)
 
         assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
         assert (
@@ -87,7 +79,7 @@ class TestFinanceAllocationContributionCreateService:
     @staticmethod
     @pytest.mark.asyncio
     async def test_allocation_contribution_create_with_existing_allocation_contribution(
-        allocation_contribution_repository_mock, finance, account, allocation
+        allocation_contribution_repository_mock,  account, allocation
     ):
         current_year = utcnow().year
         payload = PayloadAllocationContributionCreateSchema(
@@ -112,14 +104,14 @@ class TestFinanceAllocationContributionCreateService:
         service.find_by = AsyncMock(return_value=existing_allocation_contribution)
 
         with pytest.raises(HTTPException) as exc_info:
-            await service.create(finance=finance, payload=payload)
+            await service.create(payload=payload)
 
         assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
 
     @staticmethod
     @pytest.mark.asyncio
     async def test_allocation_contribution_create_successfully(
-        allocation_contribution_repository_mock, finance, account, allocation
+        allocation_contribution_repository_mock, account, allocation
     ):
         current_year = utcnow().year
         payload = PayloadAllocationContributionCreateSchema(
@@ -150,7 +142,7 @@ class TestFinanceAllocationContributionCreateService:
             saved_allocation_contribution
         )
 
-        result = await service.create(finance=finance, payload=payload)
+        result = await service.create(payload=payload)
         assert result == saved_allocation_contribution
 
 
@@ -158,7 +150,7 @@ class TestFinanceAllocationContributionPersistService:
     @staticmethod
     @pytest.mark.asyncio
     async def test_finance_allocation_contribution_persist_service_invalid_year(
-        allocation_contribution_repository_mock, finance, account, allocation
+        allocation_contribution_repository_mock, account, allocation
     ):
         months = [
             PayloadMonthPersistSchema(
@@ -201,7 +193,7 @@ class TestFinanceAllocationContributionPersistService:
     @staticmethod
     @pytest.mark.asyncio
     async def test_finance_allocation_contribution_persist_service_exist_allocation_contribution_with_throw(
-        allocation_contribution_repository_mock, finance, account, allocation
+        allocation_contribution_repository_mock, account, allocation
     ):
         months = [
             PayloadMonthPersistSchema(
@@ -253,7 +245,7 @@ class TestFinanceAllocationContributionPersistService:
     @staticmethod
     @pytest.mark.asyncio
     async def test_finance_allocation_contribution_persist_service_exist_allocation_contribution_without_throw(
-        allocation_contribution_repository_mock, finance, account, allocation
+        allocation_contribution_repository_mock,  account, allocation
     ):
         months = [
             PayloadMonthPersistSchema(
@@ -306,7 +298,7 @@ class TestFinanceAllocationContributionPersistService:
     @staticmethod
     @pytest.mark.asyncio
     async def test_finance_allocation_contribution_persist_service_save_when_not_exist_allocation_contribution(
-        allocation_contribution_repository_mock, finance, account, allocation
+        allocation_contribution_repository_mock,  account, allocation
     ):
         months = [
             PayloadMonthPersistSchema(

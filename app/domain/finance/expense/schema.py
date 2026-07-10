@@ -1,15 +1,12 @@
+from __future__ import annotations
 from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from datetime import datetime
 
-from app.domain.finance.allocation.schema import (
-    AllocationRelationSchema,
-    AllocationSchema,
-)
+from app.domain.finance.allocation.schema import AllocationRelationSchema
 from app.domain.finance.category.schema import CategorySchema
 from app.domain.finance.expense_month.schema import ExpenseMonthSchema
 from app.domain.finance.months.schema import PayloadMonthPersistSchema
-
 
 class PayloadExpenseCreateSchema(BaseModel):
     payee: str
@@ -78,8 +75,5 @@ class ExpenseDetailSchema(BaseModel):
     updated_at: datetime | None = None
     deleted_at: datetime | None = None
 
-
 ExpenseSchema.model_rebuild()
 ExpenseDetailSchema.model_rebuild()
-
-AllocationSchema.model_rebuild(_types_namespace={"ExpenseSchema": ExpenseSchema})

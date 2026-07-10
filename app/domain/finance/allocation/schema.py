@@ -4,11 +4,9 @@ from uuid import UUID
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-# from app.domain.finance.allocation_contribution.schema import AllocationContributionSchema
-
 if TYPE_CHECKING:
     from app.domain.finance.expense.schema import ExpenseSchema
-
+    from app.domain.finance.allocation_contribution.schema import AllocationContributionSchema
 
 class PayloadAllocationCreateSchema(BaseModel):
     name: str
@@ -47,7 +45,7 @@ class AllocationSchema(BaseModel):
     is_active: bool
     account_id: UUID
     description: str | None = None
-    # allocation_contributions: list[AllocationContributionSchema]
+    allocation_contributions: list[AllocationContributionSchema]
     created_at: datetime
     updated_at: datetime | None = None
     deleted_at: datetime | None = None

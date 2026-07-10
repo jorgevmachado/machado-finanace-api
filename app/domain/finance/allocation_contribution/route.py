@@ -111,8 +111,8 @@ async def create(
     current_user: CurrentUser,
     payload: PayloadAllocationContributionCreateSchema,
 ):
-    finance = validate_finance(current_user.finance)
-    return await service.create(finance=finance, payload=payload)
+    validate_finance(current_user.finance)
+    return await service.create(payload=payload)
 
 
 @router.put(

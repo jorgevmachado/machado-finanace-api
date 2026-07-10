@@ -61,9 +61,7 @@ async def test_finance_allocation_contribution_route_create() -> None:
         months=[],
         description="Some Description",
         allocation_id=uuid4(),
-        reference_day=10,
         reference_year=utcnow().year,
-        reference_month=1,
         contributor_name="Contributor Name",
     )
     expected = SimpleNamespace(
@@ -72,7 +70,6 @@ async def test_finance_allocation_contribution_route_create() -> None:
         allocation_id=payload.allocation_id,
         description=payload.description,
         reference_year=payload.reference_year,
-        reference_month=payload.reference_month,
     )
     service.create.return_value = expected
     current_user = SimpleNamespace(
@@ -82,9 +79,7 @@ async def test_finance_allocation_contribution_route_create() -> None:
     result = await create(service=service, current_user=current_user, payload=payload)
 
     assert result is expected
-    service.create.assert_awaited_once_with(
-        finance=current_user.finance, payload=payload
-    )
+    service.create.assert_awaited_once_with(payload=payload)
 
 
 @pytest.mark.asyncio

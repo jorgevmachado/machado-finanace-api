@@ -23,7 +23,7 @@ from app.domain.finance.allocation_contribution.schema import (
     AllocationContributionSchema,
 )
 
-from app.models import AllocationContribution, Finance, Allocation
+from app.models import AllocationContribution, Allocation
 
 logger = logging.getLogger(__name__)
 
@@ -63,12 +63,11 @@ class AllocationContributionService(
         return cls(AllocationContributionRepository(session))
 
     async def create(
-        self, finance: Finance, payload: PayloadAllocationContributionCreateSchema
+        self, payload: PayloadAllocationContributionCreateSchema
     ) -> AllocationContribution:
 
         allocation = await self.allocation_service.find_by(
             id=payload.allocation_id,
-            finance_id=finance.id,
             without_throw=True,
         )
 
