@@ -93,6 +93,7 @@ async def find_one(
     current_user: CurrentUser,
     clean_cache: bool = False,
     with_deleted: bool = False,
+    reference_year: int | None = None
 ):
     validate_finance(current_user.finance)
     return await service.find_one_cached(
@@ -100,6 +101,7 @@ async def find_one(
         user_request=current_user.username,
         clean_cache=clean_cache,
         with_deleted=with_deleted,
+        reference_year=reference_year,
     )
 
 

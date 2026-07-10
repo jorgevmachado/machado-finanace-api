@@ -83,9 +83,7 @@ async def test_finance_allocation_contribution_route_create() -> None:
 
 
 @pytest.mark.asyncio
-async def test_finance_allocation_contribution_route_list_all_paginate_and_filter() -> (
-    None
-):
+async def test_finance_allocation_contribution_route_list_all_paginate_and_filter() -> None:
     service = AsyncMock()
     page_filter = allocation_contribution_filter(page=1, limit=12)
     expected = SimpleNamespace(items=[])
@@ -140,6 +138,7 @@ async def test_finance_allocation_contribution_route_find_one() -> None:
         user_request="Finance User",
         clean_cache=False,
         with_deleted=False,
+        reference_year=None
     )
 
 
