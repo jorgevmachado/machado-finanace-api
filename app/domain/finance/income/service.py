@@ -94,6 +94,7 @@ class IncomeService(BaseService[IncomeRepository, Income]):
                     status_code=HTTPStatus.BAD_REQUEST,
                     detail=f"Account with this id {payload.account_id} does not exist",
                 )
+
         if payload.source and payload.source != entity.source:
             has_change = True
             source_code = to_snake_case(payload.source or '')

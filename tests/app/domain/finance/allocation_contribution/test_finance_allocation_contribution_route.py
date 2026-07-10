@@ -168,8 +168,8 @@ async def test_finance_allocation_contribution_route_update() -> None:
     assert result is expected
     service.update.assert_awaited_once_with(
         param="allocation-contribuition-id",
+        payload=payload,
         user_request="Finance User",
-        update_schema=payload,
     )
 
 

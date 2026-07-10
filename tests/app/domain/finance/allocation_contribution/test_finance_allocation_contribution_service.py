@@ -10,12 +10,14 @@ from fastapi import HTTPException
 
 from app.domain.finance.allocation_contribution.schema import (
     PayloadAllocationContributionCreateSchema,
+    PayloadAllocationContributionUpdateSchema,
 )
 from app.domain.finance.allocation_contribution.service import (
     AllocationContributionService,
 )
 from app.domain.finance.months.schema import PayloadMonthPersistSchema
-from app.models import Account, Allocation, utcnow
+from app.models import Account, Allocation, utcnow, AllocationContribution
+
 
 @pytest.fixture
 def account():
@@ -24,13 +26,38 @@ def account():
     account.finance_id = uuid4()
     return account
 
-
 @pytest.fixture
 def allocation():
     allocation = MagicMock(spec=Allocation)
     allocation.id = uuid4()
     return allocation
 
+@pytest.fixture
+def payload_months(value: float = 100.0):
+    months: list[PayloadMonthPersistSchema] = []
+    for i in range(1, 13):
+        months.append(PayloadMonthPersistSchema(amount=value, reference_month=i))
+    return months
+
+@pytest.fixture
+def allocation_contribution(allocation):
+    allocation_contribution = MagicMock(spec=AllocationContribution)
+    allocation_contribution.id = uuid4()
+    allocation_contribution.months = []
+    allocation_contribution.allocation = allocation
+    allocation_contribution.description = "Some Description"
+    allocation_contribution.contribution_name = "Some Contribution Name"
+    allocation_contribution.contribution_name_code = "some_contribution_name"
+    allocation_contribution.allocation_id = allocation.id
+    return allocation_contribution
+
+@pytest.fixture
+def allocation_service_mock():
+    return AsyncMock()
+
+@pytest.fixture
+def allocation_contribution_month_service_mock():
+    return AsyncMock()
 
 @pytest.fixture
 def allocation_contribution_repository_mock() -> AsyncMock:
@@ -347,3 +374,216 @@ class TestFinanceAllocationContributionPersistService:
 
         assert result == created_allocation_contribution
         allocation_contribution_repository_mock.save.assert_awaited_once()
+
+
+class TestFinanceAllocationContributionUpdateService:
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_allocation_contribution_update_service_with_payload_none(
+        allocation_contribution_repository_mock, allocation_contribution
+    ):
+        payload = PayloadAllocationContributionUpdateSchema(            
+            months=None,            
+            allocation_id=None,
+            description=None,
+            reference_day=None,
+            reference_year=None,
+            contributor_name=None
+        )
+
+        service = AllocationContributionService(repository=allocation_contribution_repository_mock)
+        service.find_one = AsyncMock(return_value=allocation_contribution)
+        result = await service.update(
+            param=str(allocation_contribution.id), payload=payload, user_request="test_user"
+        )
+        assert result == allocation_contribution
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_allocation_contribution_update_service_with_payload_allocation_not_found(
+        allocation_contribution_repository_mock, allocation_contribution, allocation_service_mock
+    ):
+        payload = PayloadAllocationContributionUpdateSchema(            
+            months=None,
+            allocation_id=uuid4(),
+            description=None,
+            reference_day=None,
+            reference_year=None,
+            contributor_name=None,
+        )
+
+        allocation_service_mock.find_by.return_value = None
+        service = AllocationContributionService(
+            repository=allocation_contribution_repository_mock,
+            allocation_service=allocation_service_mock,
+        )
+        service.find_one = AsyncMock(return_value=allocation_contribution)
+        with pytest.raises(HTTPException) as exc_info:
+            await service.update(
+                param=str(allocation_contribution.id), payload=payload, user_request="test_user"
+            )
+        assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
+        assert (
+            exc_info.value.detail
+            == f"Allocation with this id {payload.allocation_id} does not exist"
+        )
+        allocation_service_mock.find_by.assert_awaited_once()
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_allocation_contribution_update_service_with_payload_allocation_changed(
+        allocation_contribution_repository_mock, allocation_contribution, allocation_service_mock
+    ):
+        new_allocation = allocation_contribution.allocation
+        new_allocation.id = uuid4()
+        payload = PayloadAllocationContributionUpdateSchema(            
+            months=None,
+            allocation_id=new_allocation.id,
+            description=None,
+            reference_day=None,
+            reference_year=None,
+            contributor_name=None,
+        )
+
+        allocation_service_mock.find_by.return_value = new_allocation
+        service = AllocationContributionService(
+            repository=allocation_contribution_repository_mock,
+            allocation_service=allocation_service_mock,
+        )
+        service.find_one = AsyncMock(return_value=allocation_contribution)
+        service.cache_service.delete_domain = AsyncMock()
+        allocation_contribution_repository_mock.update.return_value = allocation_contribution
+        result = await service.update(
+            param=str(allocation_contribution.id), payload=payload, user_request="test_user"
+        )
+        assert result == allocation_contribution
+        allocation_service_mock.find_by.assert_awaited_once()
+        allocation_contribution_repository_mock.update.assert_awaited_once()
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_allocation_contribution_update_service_with_payload_contribution_name_with_error(
+        allocation_contribution_repository_mock, allocation_contribution
+    ):
+
+        payload = PayloadAllocationContributionUpdateSchema(
+            months=None,            
+            allocation_id=None,
+            description=None,
+            reference_day=None,
+            reference_year=None,
+            contributor_name="New Contribution Name",
+        )
+
+        service = AllocationContributionService(
+            repository=allocation_contribution_repository_mock,
+        )
+        other_allocation_contribution = allocation_contribution
+        other_allocation_contribution.id = uuid4()
+        service.find_one = AsyncMock(return_value=allocation_contribution)
+        service.find_by = AsyncMock(return_value=other_allocation_contribution)
+        with pytest.raises(HTTPException) as exc_info:
+            await service.update(
+                param=str(allocation_contribution.id), payload=payload, user_request="test_user"
+            )
+        assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
+        assert (
+            exc_info.value.detail
+            == f"Allocation Contribution with contributor {payload.contributor_name} already exists"
+        )
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_allocation_contribution_update_service_with_payload_contribution_name_changed(
+        allocation_contribution_repository_mock, allocation_contribution
+    ):
+
+        payload = PayloadAllocationContributionUpdateSchema(            
+            months=None,            
+            allocation_id=None,
+            description=None,
+            reference_day=None,
+            reference_year=None,
+            contributor_name="New Contribution Name",
+        )
+
+        service = AllocationContributionService(
+            repository=allocation_contribution_repository_mock,
+        )
+        other_allocation_contribution = allocation_contribution
+        other_allocation_contribution.id = uuid4()
+        service.find_one = AsyncMock(return_value=allocation_contribution)
+        service.find_by = AsyncMock(return_value=None)
+        service.cache_service.delete_domain = AsyncMock()
+        allocation_contribution_repository_mock.update.return_value = allocation_contribution
+        result = await service.update(
+            param=str(allocation_contribution.id), payload=payload, user_request="test_user"
+        )
+        assert result.contributor_name == payload.contributor_name
+        allocation_contribution_repository_mock.update.assert_awaited_once()
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_allocation_contribution_update_service_with_payload_description_changed(
+        allocation_contribution_repository_mock, allocation_contribution
+    ):
+
+        payload = PayloadAllocationContributionUpdateSchema(
+            months=None,
+            allocation_id=None,
+            description="New Description",
+            reference_day=None,
+            reference_year=None,
+            contributor_name=None,
+        )
+
+        service = AllocationContributionService(
+            repository=allocation_contribution_repository_mock,
+        )
+        other_allocation_contribution = allocation_contribution
+        other_allocation_contribution.id = uuid4()
+        service.find_one = AsyncMock(return_value=allocation_contribution)
+        service.cache_service.delete_domain = AsyncMock()
+        allocation_contribution_repository_mock.update.return_value = allocation_contribution
+        result = await service.update(
+            param=str(allocation_contribution.id), payload=payload, user_request="test_user"
+        )
+        assert result.description == payload.description
+        allocation_contribution_repository_mock.update.assert_awaited_once()
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_allocation_contribution_update_service_with_payload_months_changed(
+        allocation_contribution_repository_mock,
+        allocation_contribution,
+        payload_months,
+        allocation_contribution_month_service_mock,
+    ):
+
+        new_months = payload_months[:3]
+
+        payload = PayloadAllocationContributionUpdateSchema(
+            months=new_months,
+            allocation_id=None,
+            description=None,
+            reference_year=None,
+            contributor_name=None
+        )
+
+        service = AllocationContributionService(
+            repository=allocation_contribution_repository_mock,
+            allocation_contribution_month_service=allocation_contribution_month_service_mock,
+        )
+        service.find_one = AsyncMock(return_value=allocation_contribution)
+        service.cache_service.delete_domain = AsyncMock()
+        allocation_contribution_month_service_mock.persist_list = AsyncMock(return_value=new_months)
+        allocation_contribution_repository_mock.update.return_value = allocation_contribution
+
+        result = await service.update(
+            param=str(allocation_contribution.id),
+            payload=payload,
+            user_request="test_user",
+        )
+        assert result == allocation_contribution
+        allocation_contribution_month_service_mock.persist_list.assert_awaited_once()
+        allocation_contribution_repository_mock.update.assert_awaited_once()

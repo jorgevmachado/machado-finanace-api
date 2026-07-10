@@ -20,10 +20,10 @@ from app.domain.finance.allocation_contribution.repository import (
 )
 from app.domain.finance.allocation_contribution.schema import (
     PayloadAllocationContributionCreateSchema,
-    AllocationContributionSchema,
+    AllocationContributionSchema, PayloadAllocationContributionUpdateSchema,
 )
 
-from app.models import AllocationContribution, Allocation
+from app.models import AllocationContribution, Allocation, utcnow
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +61,76 @@ class AllocationContributionService(
     @classmethod
     def from_session(cls, session: AsyncSession):
         return cls(AllocationContributionRepository(session))
+    
+    async def update(
+            self,
+            param: str,
+            payload: PayloadAllocationContributionUpdateSchema,
+            **kwargs
+    ) -> AllocationContribution:
+
+        reference_year = (
+            payload.reference_year if payload.reference_year else utcnow().year
+        )
+        entity = await self.find_one(param=param)
+        has_change = False
+
+        allocation = entity.allocation
+        if payload.allocation_id and payload.allocation_id != entity.allocation_id:
+            allocation = await self.allocation_service.find_by(
+                id=payload.allocation_id, without_throw=True
+            )
+            if not allocation:
+                raise HTTPException(
+                    status_code=HTTPStatus.BAD_REQUEST,
+                    detail=f"Allocation with this id {payload.allocation_id} does not exist",
+                )
+            entity.allocation_id = allocation.id
+            has_change = True
+            
+        if payload.contributor_name and payload.contributor_name != entity.contributor_name:
+            has_change = True
+            contributor_name_code = to_snake_case(payload.contributor_name or '')
+            existing_allocation_contribution = await self.find_by(
+                allocation_id=allocation.id,
+                without_throw=True,
+                contributor_name_code=contributor_name_code,
+            )
+            if existing_allocation_contribution:
+                raise HTTPException(
+                    status_code=HTTPStatus.BAD_REQUEST,
+                    detail=f"Allocation Contribution with contributor {payload.contributor_name} already exists",
+                )
+            entity.contributor_name = payload.contributor_name
+            entity.contributor_name_code = contributor_name_code
+            
+        if payload.description and payload.description !=  entity.description:
+            has_change = True
+            entity.description = payload.description
+            
+        if payload.months and payload.months != entity.months:
+            payload_months = [
+                PayloadMonthPersistSchema(
+                    amount=month.amount,                    
+                    reference_day=payload.reference_day or 10,
+                    reference_month=month.reference_month,
+                    transaction_date=month.transaction_date,
+                )
+                for month in payload.months or []
+            ]
+            await self.allocation_contribution_month_service.persist_list(
+                months=payload_months,
+                reference_day=payload.reference_day or 10,
+                reference_year=reference_year,
+                allocation_contribution=entity,
+            )
+            has_change = True
+
+        if not has_change:
+            return entity
+        await self.cache_service.delete_domain()
+        return await self.repository.update(entity=entity)
+        
 
     async def create(
         self, payload: PayloadAllocationContributionCreateSchema

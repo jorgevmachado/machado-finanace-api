@@ -130,7 +130,9 @@ async def update(
 ):
     validate_finance(current_user.finance)
     return await service.update(
-        param=param, user_request=current_user.username, update_schema=payload
+        param=param,
+        payload=payload,
+        user_request=current_user.username,
     )
 
 
