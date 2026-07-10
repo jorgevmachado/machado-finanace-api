@@ -14,20 +14,23 @@ from app.domain.finance.months.schema import PayloadMonthPersistSchema
 class PayloadExpenseCreateSchema(BaseModel):
     payee: str
     months: list[PayloadMonthPersistSchema]
+    parent_id: UUID | None = None
     category_id: UUID
     description: str
     allocation_id: UUID
     reference_year: int
     reference_day: int | None = None
-    reference_month: int | None = None
-    parent_id: UUID | None = None
 
 
 class PayloadExpenseUpdateSchema(BaseModel):
-    months: list[ExpenseMonthSchema] = []
+    payee: str | None = None
+    months: list[PayloadMonthPersistSchema] | None = None
+    parent_id: UUID | None = None
     category_id: UUID | None = None
     description: str | None = None
     allocation_id: UUID | None = None
+    reference_day: int | None = None
+    reference_year: int | None = None
 
 
 class ExpenseParentSchema(BaseModel):

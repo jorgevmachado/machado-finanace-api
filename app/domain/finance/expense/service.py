@@ -19,7 +19,7 @@ from app.domain.finance.expense.repository import (
 )
 from app.domain.finance.expense.schema import (
     ExpenseSchema,
-    PayloadExpenseCreateSchema,
+    PayloadExpenseCreateSchema, PayloadExpenseUpdateSchema,
 )
 from app.domain.finance.expense_month.service import ExpenseMonthService
 from app.domain.finance.months.schema import PayloadMonthPersistSchema
@@ -29,6 +29,7 @@ from app.models import (
     Finance,
     Allocation,
     Category,
+    utcnow,
 )
 from app.shared.utils.string import to_snake_case
 from app.shared.utils.validator import validate_year
@@ -70,6 +71,94 @@ class ExpenseService(BaseService[ExpenseRepository, Expense]):
     def from_session(cls, session: AsyncSession):
         return cls(ExpenseRepository(session))
 
+    async def update(self, param: str, payload: PayloadExpenseUpdateSchema, **kwargs) -> Expense:
+        reference_year = payload.reference_year if payload.reference_year else utcnow().year
+        entity = await self.find_one(param=param)
+        has_change = False
+        
+        allocation = entity.allocation
+        if payload.allocation_id and payload.allocation_id != entity.allocation_id:
+            allocation = await self.allocation_service.find_by(
+                id=payload.allocation_id, without_throw=True
+            )
+            if not allocation:
+                raise HTTPException(
+                    status_code=HTTPStatus.BAD_REQUEST,
+                    detail=f"Allocation with this id {payload.allocation_id} does not exist",
+                )
+            entity.allocation_id = allocation.id
+            has_change = True
+        
+        category = entity.category
+        if payload.category_id and payload.category_id != entity.category_id:
+            category = await self.category_service.find_by(
+                id=payload.category_id,
+                finance_id=entity.category.finance_id,
+                without_throw=True,
+            )
+            if not category:
+                raise HTTPException(
+                    status_code=HTTPStatus.BAD_REQUEST,
+                    detail=f"Category {payload.category_id} not found",
+                )
+            entity.category_id = category
+            has_change = True
+        
+        if payload.payee and payload.payee != entity.payee: 
+            payee_code = to_snake_case(payload.payee or '')
+            existing_expense = await self.find_by(
+                payee_code=payee_code,
+                category_id=category.id,
+                allocation_id=allocation.id,
+                without_throw=True,
+            )
+            if existing_expense and existing_expense.id != entity.id:
+                raise HTTPException(
+                    status_code=HTTPStatus.BAD_REQUEST,
+                    detail=f"Expense with payee {payload.payee} already exists",
+                )
+            entity.payee = payload.payee
+            entity.payee_code = payee_code
+            has_change = True
+            
+        if payload.description and payload.description != entity.description: 
+            entity.description = payload.description
+            has_change = True
+        
+        if payload.parent_id and payload.parent_id != entity.parent_id:
+            parent = await self.find_by(id=payload.parent_id, without_throw=True)
+            if not parent:
+                raise HTTPException(
+                    status_code=HTTPStatus.BAD_REQUEST,
+                    detail=f"Parent expense with id {payload.parent_id} does not exist",
+                )
+            entity.parent_id = payload.parent_id
+            has_change = True
+        
+        if payload.months and payload.months != entity.months:
+            payload_months = [
+                PayloadMonthPersistSchema(
+                    amount=month.amount,
+                    status=month.status,
+                    reference_day=payload.reference_day or 10,
+                    reference_month=month.reference_month,
+                    transaction_date=month.transaction_date,
+                )
+                for month in payload.months or []
+            ]
+            await self.expense_month_service.persist_list(
+                expense=entity,
+                months=payload_months,
+                reference_day=payload.reference_day or 10,
+                reference_year=reference_year,
+            )
+            has_change = True
+
+        if not has_change:
+            return entity
+        await self.cache_service.delete_domain()
+        return await self.repository.update(entity=entity)
+        
     async def create(
         self, finance: Finance, payload: PayloadExpenseCreateSchema
     ) -> Expense:
