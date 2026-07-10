@@ -88,14 +88,15 @@ async def find_one(
     current_user: CurrentUser,
     clean_cache: bool = False,
     with_deleted: bool = False,
+    reference_year: int | None = None
 ):
-    finance = validate_finance(current_user.finance)
+    validate_finance(current_user.finance)
     return await service.find_one_cached(
         param=param,
         user_request=current_user.username,
         clean_cache=clean_cache,
         with_deleted=with_deleted,
-        finance_id=str(finance.id),
+        reference_year=reference_year,
     )
 
 

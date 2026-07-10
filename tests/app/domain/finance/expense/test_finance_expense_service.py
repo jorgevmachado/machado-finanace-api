@@ -24,8 +24,6 @@ from app.models import (
     Finance,
     utcnow,
 )
-from tests.app.domain.finance.income.test_finance_income_service import payload_months
-
 
 @pytest.fixture
 def expense_repository_mock():

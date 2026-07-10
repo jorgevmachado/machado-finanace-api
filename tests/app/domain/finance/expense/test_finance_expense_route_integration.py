@@ -13,6 +13,7 @@ from app.domain.finance.expense.route import (
     delete,
     expense_service,
 )
+from app.domain.finance.expense.schema import PayloadExpenseUpdateSchema
 from app.domain.finance.expense.service import ExpenseService
 from app.shared.schemas import FilterPage
 
@@ -67,6 +68,7 @@ async def test_finance_expense_route_find_one() -> None:
         param="expense-id",
         current_user=current_user,
         service=service,
+        reference_year=2026
     )
 
     assert result is expected
@@ -75,7 +77,7 @@ async def test_finance_expense_route_find_one() -> None:
         user_request="Finance User",
         clean_cache=False,
         with_deleted=False,
-        finance_id="finance-id",
+        reference_year=2026
     )
 
 
@@ -111,25 +113,37 @@ async def test_finance_expense_route_create() -> None:
 @pytest.mark.asyncio
 async def test_finance_expense_route_update() -> None:
     service = AsyncMock()
-    payload = SimpleNamespace(description="Updated Expense")
+    payload = PayloadExpenseUpdateSchema(
+        payee="New Payee",
+        months=None,
+        category_id=None,
+        allocation_id=None,
+        description=None,
+        reference_day=None,
+        reference_year=None,
+    )
     expected = SimpleNamespace(
         id="expense-id",
-        description="Updated Expense",
+        payee="New Payee",
     )
     service.update.return_value = expected
     current_user = SimpleNamespace(
         id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
     )
+    
 
     result = await update(
-        param="expense-id", current_user=current_user, service=service, payload=payload
+        param="expense-id",
+        service=service,
+        current_user=current_user,
+        payload=payload
     )
 
     assert result is expected
     service.update.assert_awaited_once_with(
         param="expense-id",
+        payload=payload,
         user_request="Finance User",
-        update_schema=payload,
     )
 
 
