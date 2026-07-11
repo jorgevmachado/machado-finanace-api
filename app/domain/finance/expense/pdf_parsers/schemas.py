@@ -14,7 +14,6 @@ class ParsedPDFExpenseSchema(BaseModel):
     total_of_installments: int
 
 class ParsedPDFSchema(BaseModel):
-    year: int
     bank: BankEnum
     error: bool
     message: str

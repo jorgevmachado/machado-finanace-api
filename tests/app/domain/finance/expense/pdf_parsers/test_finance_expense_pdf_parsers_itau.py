@@ -211,3 +211,24 @@ def test_parse_itau_marks_reference_month_mismatch() -> None:
 
     assert result.error is True
     assert result.message == "Reference month is different from document"
+
+def test_parse_itau_with_error_when_expense_list_is_empty() -> None:
+    allocation = _allocation_schema()
+    lines = [
+        "Vencimento: 15/07/2026 = Total desta fatura 4.022,54",
+        "Emissão: 08/07/2026",
+        "Lançamentos: compras e saques",
+        "supermercado BRASILIA",
+        "Lançamentos: produtos e serviços",
+        "Lançamentos produtos e serviços 0,00",
+    ]
+
+    result = parse_itau(
+        lines=lines,
+        allocation=allocation,
+        reference_year=2026,
+        reference_month=7,
+    )
+
+    assert result.error is True
+    assert result.message == "No expenses found in the document"

@@ -5,6 +5,7 @@ import pdfplumber
 
 from app.domain.finance.allocation.schema import AllocationSchema
 from app.domain.finance.expense.pdf_parsers.itau import parse_itau
+from app.domain.finance.expense.pdf_parsers.nubank import parse_nubank
 from app.domain.finance.expense.pdf_parsers.schemas import ParsedPDFSchema
 from app.models import BankEnum, Allocation
 
@@ -28,10 +29,9 @@ def parse_pdf(
     lines = generate_lines_pdf(file)
     allocation_schema = AllocationSchema.model_validate(allocation)
     fallback_result = ParsedPDFSchema(
-            year=reference_year or datetime.now().year,
             bank=bank,
             error=True,
-            message=f"Not implemented yet for bank: {bank}",
+            message=f"Not implemented yet for bank: {bank.value}",
             expenses=[],
             allocation=allocation_schema,
             bill_total=0.0,
@@ -52,6 +52,11 @@ def parse_pdf(
                 reference_month=reference_month,
             )
         case BankEnum.NUBANK:
-            return fallback_result
+            return parse_nubank(
+                lines=lines,
+                allocation=allocation_schema,
+                reference_year=reference_year,
+                reference_month=reference_month,
+            )
         case BankEnum.CAIXA:
             return fallback_result

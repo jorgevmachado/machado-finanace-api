@@ -1,3 +1,4 @@
+from datetime import date
 from http import HTTPStatus
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock
@@ -8,6 +9,7 @@ from fastapi import HTTPException
 
 from app.domain.finance.allocation.service import AllocationService
 from app.domain.finance.category.service import CategoryService
+from app.domain.finance.expense.pdf_parsers.schemas import ParsedPDFExpenseSchema
 from app.domain.finance.expense.repository import ExpenseRepository
 from app.domain.finance.expense.schema import (
     PayloadExpenseCreateSchema,
@@ -793,9 +795,31 @@ class TestFinanceExpenseUploadService:
         allocation,
         monkeypatch,
     ):
-        expected = SimpleNamespace(bank=BankEnum.ITAU, expenses=[])
+        expenses: list[ParsedPDFExpenseSchema] = [
+            ParsedPDFExpenseSchema(
+                date=date(2026, 7, 1),
+                payee="Payee One",
+                amount=100.0,
+                category=None,
+                reference_month=7,
+                current_installment=1,
+                total_of_installments=1,
+            ),
+            ParsedPDFExpenseSchema(
+                date=date(2026, 7, 2),
+                payee="Payee Two",
+                amount=100.0,
+                category=None,
+                reference_month=7,
+                current_installment=1,
+                total_of_installments=1,
+            ),
+        ] 
+        expense_with_category = SimpleNamespace(id=uuid4(), payee="Payee Two", payee_code="payee_two", category=SimpleNamespace(id=uuid4(), name="Category Two"))
+        expected = SimpleNamespace(bank=BankEnum.ITAU, error=False, expenses=expenses)
         service = ExpenseService(repository=expense_repository_mock)
         service.allocation_service.find_by = AsyncMock(return_value=allocation)
+        service.find_by = AsyncMock(side_effect=[None, expense_with_category])
         file = SimpleNamespace(content_type="application/pdf", read=AsyncMock(return_value=b"pdf"))
 
         captured = {}
@@ -819,6 +843,9 @@ class TestFinanceExpenseUploadService:
         )
 
         assert result is expected
+        assert len(result.expenses) == 2
+        assert result.expenses[0].category is None
+        assert result.expenses[1].category == "Category Two"
         assert captured == {
             "file": b"pdf",
             "bank": BankEnum.ITAU,
@@ -827,6 +854,47 @@ class TestFinanceExpenseUploadService:
             "reference_month": 7,
         }
 
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_expense_upload_service_with_error_when_parsed_error(
+        expense_repository_mock,
+        allocation,
+        monkeypatch,
+    ):
+        expected = SimpleNamespace(bank=BankEnum.ITAU, error=True, expenses=[], message="Error parsing PDF")
+        service = ExpenseService(repository=expense_repository_mock)
+        service.allocation_service.find_by = AsyncMock(return_value=allocation)
+        file = SimpleNamespace(
+            content_type="application/pdf", read=AsyncMock(return_value=b"pdf")
+        )
+
+        captured = {}
+
+        def _fake_parse_pdf(
+            file, bank, allocation, reference_year=None, reference_month=None
+        ):
+            captured["file"] = file
+            captured["bank"] = bank
+            captured["allocation"] = allocation
+            captured["reference_year"] = reference_year
+            captured["reference_month"] = reference_month
+            return expected
+
+        monkeypatch.setattr(
+            "app.domain.finance.expense.service.parse_pdf", _fake_parse_pdf
+        )
+        with pytest.raises(HTTPException) as exc_info:
+            await service.upload(
+                file=file,
+                bank=BankEnum.ITAU,
+                allocation_id=str(allocation.id),
+                reference_year=2026,
+                reference_month=7,
+            )
+
+        assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
+        assert exc_info.value.detail == "Error parsing PDF"
+        
     @staticmethod
     def test_finance_expense_service_from_session():
         session = AsyncMock()

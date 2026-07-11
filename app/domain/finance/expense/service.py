@@ -14,7 +14,10 @@ from app.domain.finance.allocation.service import AllocationService
 
 from app.domain.finance.category.service import CategoryService
 from app.domain.finance.expense.business import parse_pdf
-from app.domain.finance.expense.pdf_parsers.schemas import ParsedPDFSchema
+from app.domain.finance.expense.pdf_parsers.schemas import (
+    ParsedPDFSchema,
+    ParsedPDFExpenseSchema,
+)
 
 from app.domain.finance.expense.repository import (
     ExpenseRepository,
@@ -284,10 +287,26 @@ class ExpenseService(BaseService[ExpenseRepository, Expense]):
             )
 
         contents = await file.read()
-        return parse_pdf(
+
+        parsed = parse_pdf(
             file=contents,
             bank=bank,
             allocation=allocation,
             reference_year=reference_year,
             reference_month=reference_month,
         )
+
+        if parsed.error:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail=parsed.message,
+            )
+        pdf_expenses: list[ParsedPDFExpenseSchema] = []
+        for parsed_expense in parsed.expenses:
+            parsed_expense_payee_code = to_snake_case(parsed_expense.payee)
+            exist_expense = await self.find_by(payee_code=parsed_expense_payee_code, without_throw=True)
+            if exist_expense:
+                parsed_expense.category = exist_expense.category.name if exist_expense.category else parsed_expense.category
+            pdf_expenses.append(parsed_expense)
+        parsed.expenses = pdf_expenses
+        return parsed

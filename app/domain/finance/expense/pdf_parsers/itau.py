@@ -294,8 +294,11 @@ def parse_itau(
 
     expenses = build_parsed_pdf_expenses(year, month, parsed_expenses)
 
+    if len(expenses) == 0:
+        error = True
+        message = "No expenses found in the document"
+
     return ParsedPDFSchema(
-        year=year,
         bank=BankEnum.ITAU,
         error=error,
         message=message,
