@@ -4,6 +4,7 @@ from app.models.enums import (
     RoleEnum,
     AccountTypeEnum,
     MonthStatusEnum,
+    BankEnum
 )
 from app.models.user import User
 from app.models.finance import Finance
@@ -35,5 +36,6 @@ __all__ = [
     "StatusEnum",
     "AccountTypeEnum",
     "MonthStatusEnum",
+    "BankEnum",
     "utcnow",
 ]

@@ -4,7 +4,7 @@ import logging
 from http import HTTPStatus
 from uuid import UUID
 
-from fastapi import HTTPException
+from fastapi import HTTPException, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import LoggingParams
@@ -13,6 +13,8 @@ from app.core.service import BaseService
 from app.domain.finance.allocation.service import AllocationService
 
 from app.domain.finance.category.service import CategoryService
+from app.domain.finance.expense.business import parse_pdf
+from app.domain.finance.expense.pdf_parsers.schemas import ParsedPDFSchema
 
 from app.domain.finance.expense.repository import (
     ExpenseRepository,
@@ -30,6 +32,7 @@ from app.models import (
     Allocation,
     Category,
     utcnow,
+    BankEnum,
 )
 from app.shared.utils.string import to_snake_case
 from app.shared.utils.validator import validate_year
@@ -257,3 +260,34 @@ class ExpenseService(BaseService[ExpenseRepository, Expense]):
             saved_expense = await self.find_by(id=created_expense.id)
             saved_expense.months = saved_months
             return saved_expense
+
+    async def upload(
+            self,
+            file: UploadFile,
+            bank: BankEnum,
+            allocation_id: str,
+            reference_year: int | None = None,
+            reference_month: int | None = None
+    ) -> ParsedPDFSchema:
+        allocation = await self.allocation_service.find_by(
+            id=allocation_id, without_throw=True
+        )
+        if not allocation:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail=f"Allocation with this id {allocation_id} does not exist",
+            )
+        if file.content_type != 'application/pdf':
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail="File must be a PDF",
+            )
+
+        contents = await file.read()
+        return parse_pdf(
+            file=contents,
+            bank=bank,
+            allocation=allocation,
+            reference_year=reference_year,
+            reference_month=reference_month,
+        )

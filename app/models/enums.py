@@ -35,3 +35,8 @@ class MonthStatusEnum(str, Enum):
     PAID = "PAID"
     PENDING = "PENDING"
     CANCELLED = "CANCELLED"
+
+class BankEnum(str, Enum):
+    ITAU = "ITAU"
+    CAIXA = "CAIXA"
+    NUBANK = "NUBANK"

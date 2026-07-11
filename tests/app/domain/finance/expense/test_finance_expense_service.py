@@ -6,7 +6,6 @@ from uuid import uuid4
 import pytest
 from fastapi import HTTPException
 
-from app.domain.finance.account.service import AccountService
 from app.domain.finance.allocation.service import AllocationService
 from app.domain.finance.category.service import CategoryService
 from app.domain.finance.expense.repository import ExpenseRepository
@@ -23,6 +22,7 @@ from app.models import (
     Category,
     Finance,
     utcnow,
+    BankEnum,
 )
 
 @pytest.fixture
@@ -50,14 +50,12 @@ def expense_month_service_mock():
 def expense_service_with_mocks(mock_session):
     repository = AsyncMock(spec=ExpenseRepository)
     repository.session = mock_session
-    account_service = AsyncMock(spec=AccountService)
     category_service = AsyncMock(spec=CategoryService)
     allocation_service = AsyncMock(spec=AllocationService)
     expense_month_service = AsyncMock(spec=ExpenseMonthService)
 
     return ExpenseService(
         repository=repository,
-        account_service=account_service,
         category_service=category_service,
         allocation_service=allocation_service,
         expense_month_service=expense_month_service,
@@ -742,3 +740,95 @@ class TestFinanceExpenseUpdateService:
         assert result == expense
         expense_month_service_mock.persist_list.assert_awaited_once()
         expense_repository_mock.update.assert_awaited_once()
+
+
+class TestFinanceExpenseUploadService:
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_expense_upload_service_allocation_not_found(
+        expense_repository_mock,
+    ):
+        service = ExpenseService(repository=expense_repository_mock)
+        service.allocation_service.find_by = AsyncMock(return_value=None)
+        file = SimpleNamespace(content_type="application/pdf", read=AsyncMock())
+
+        with pytest.raises(HTTPException) as exc_info:
+            await service.upload(
+                file=file,
+                bank=BankEnum.ITAU,
+                allocation_id=str(uuid4()),
+                reference_year=2026,
+                reference_month=7,
+            )
+
+        assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
+        assert "Allocation with this id" in exc_info.value.detail
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_expense_upload_service_invalid_content_type(
+        expense_repository_mock,
+        allocation,
+    ):
+        service = ExpenseService(repository=expense_repository_mock)
+        service.allocation_service.find_by = AsyncMock(return_value=allocation)
+        file = SimpleNamespace(content_type="text/plain", read=AsyncMock())
+
+        with pytest.raises(HTTPException) as exc_info:
+            await service.upload(
+                file=file,
+                bank=BankEnum.ITAU,
+                allocation_id=str(allocation.id),
+                reference_year=2026,
+                reference_month=7,
+            )
+
+        assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
+        assert exc_info.value.detail == "File must be a PDF"
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_expense_upload_service_success(
+        expense_repository_mock,
+        allocation,
+        monkeypatch,
+    ):
+        expected = SimpleNamespace(bank=BankEnum.ITAU, expenses=[])
+        service = ExpenseService(repository=expense_repository_mock)
+        service.allocation_service.find_by = AsyncMock(return_value=allocation)
+        file = SimpleNamespace(content_type="application/pdf", read=AsyncMock(return_value=b"pdf"))
+
+        captured = {}
+
+        def _fake_parse_pdf(file, bank, allocation, reference_year=None, reference_month=None):
+            captured["file"] = file
+            captured["bank"] = bank
+            captured["allocation"] = allocation
+            captured["reference_year"] = reference_year
+            captured["reference_month"] = reference_month
+            return expected
+
+        monkeypatch.setattr("app.domain.finance.expense.service.parse_pdf", _fake_parse_pdf)
+
+        result = await service.upload(
+            file=file,
+            bank=BankEnum.ITAU,
+            allocation_id=str(allocation.id),
+            reference_year=2026,
+            reference_month=7,
+        )
+
+        assert result is expected
+        assert captured == {
+            "file": b"pdf",
+            "bank": BankEnum.ITAU,
+            "allocation": allocation,
+            "reference_year": 2026,
+            "reference_month": 7,
+        }
+
+    @staticmethod
+    def test_finance_expense_service_from_session():
+        session = AsyncMock()
+        service = ExpenseService.from_session(session)
+        assert isinstance(service, ExpenseService)

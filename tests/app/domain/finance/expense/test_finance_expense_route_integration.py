@@ -11,10 +11,12 @@ from app.domain.finance.expense.route import (
     find_one,
     update,
     delete,
+    upload,
     expense_service,
 )
 from app.domain.finance.expense.schema import PayloadExpenseUpdateSchema
 from app.domain.finance.expense.service import ExpenseService
+from app.models import BankEnum
 from app.shared.schemas import FilterPage
 
 
@@ -165,4 +167,34 @@ async def test_finance_expense_route_delete() -> None:
         param="expense-id",
         user_request="Finance User",
         finance_id="finance-id",
+    )
+
+
+@pytest.mark.asyncio
+async def test_finance_expense_route_upload() -> None:
+    service = AsyncMock()
+    expected = SimpleNamespace(bank=BankEnum.ITAU, expenses=[])
+    service.upload.return_value = expected
+    current_user = SimpleNamespace(
+        id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
+    )
+    file = SimpleNamespace(filename="invoice.pdf")
+
+    result = await upload(
+        service=service,
+        current_user=current_user,
+        file=file,
+        bank=BankEnum.ITAU,
+        allocation_id="alloc-id",
+        reference_year=2026,
+        reference_month=7,
+    )
+
+    assert result is expected
+    service.upload.assert_awaited_once_with(
+        file=file,
+        bank=BankEnum.ITAU,
+        allocation_id="alloc-id",
+        reference_year=2026,
+        reference_month=7,
     )
