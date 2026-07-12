@@ -10,14 +10,13 @@ from app.core.database import get_session
 from app.core.pagination import CustomLimitOffsetPage
 from app.core.security import get_current_user
 from app.core.security.security import validate_finance
-from app.domain.finance.expense.pdf_parsers.schemas import ParsedPDFSchema
-
 from app.domain.finance.expense.repository import ExpenseRepository
 from app.domain.finance.expense.schema import (
     ExpenseSchema,
     PayloadExpenseCreateSchema,
     PayloadExpenseUpdateSchema,
     ExpenseDetailSchema,
+    UploadedResultSchema,
 )
 from app.domain.finance.expense.service import ExpenseService
 from app.models import User, BankEnum
@@ -135,7 +134,7 @@ async def delete(
         param=param, user_request=current_user.username, finance_id=str(finance.id)
     )
 
-@router.post("/upload", response_model=ParsedPDFSchema, status_code=HTTPStatus.CREATED)
+@router.post("/upload", response_model=UploadedResultSchema, status_code=HTTPStatus.CREATED)
 async def upload(
     service: Service,
     current_user: CurrentUser,
@@ -145,10 +144,11 @@ async def upload(
     reference_year: int | None = Form(None),
     reference_month: int | None = Form(None),
 ):
-    validate_finance(current_user.finance)
+    finance = validate_finance(current_user.finance)
     return await service.upload(
         file=file,
         bank=bank,
+        finance=finance,
         allocation_id=allocation_id,
         reference_year=reference_year,
         reference_month=reference_month,

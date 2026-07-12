@@ -8,7 +8,7 @@ class ParsedPDFExpenseSchema(BaseModel):
     date: date
     payee: str
     amount: float
-    category: str | None = None
+    category: str
     reference_month: int
     current_installment: int
     total_of_installments: int

@@ -7,6 +7,7 @@ from app.domain.finance.expense.pdf_parsers.itau import (
     _extract_expenses_from_section,
     _extract_products_and_services,
     build_parsed_pdf_expenses,
+    clean_category,
     parse_expenses,
     parse_header,
     parse_itau,
@@ -139,6 +140,22 @@ def test_itau_internal_extract_helpers_edge_cases() -> None:
     assert _extract_categories("outros Rio de Janeir Centro Sul Extra") == [
         "outros Rio de Janeir Centro"
     ]
+
+
+def test_clean_category_returns_others_when_category_is_none() -> None:
+    assert clean_category(None) == "OTHERS"
+
+
+def test_clean_category_uppercases_and_strips_without_city_suffix() -> None:
+    assert clean_category("  supermercado premium  ") == "SUPERMERCADO PREMIUM"
+
+
+def test_clean_category_removes_city_suffix_and_maps_outros_to_others() -> None:
+    assert clean_category("outros BRASILIA") == "OTHERS"
+
+
+def test_clean_category_removes_city_suffix_and_keeps_non_outros_value() -> None:
+    assert clean_category("restaurante OSASCO") == "RESTAURANTE"
 
 
 def test_build_parsed_pdf_expenses_fallback_date() -> None:

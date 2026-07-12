@@ -174,9 +174,10 @@ async def test_finance_expense_route_delete() -> None:
 async def test_finance_expense_route_upload() -> None:
     service = AsyncMock()
     expected = SimpleNamespace(bank=BankEnum.ITAU, expenses=[])
+    finance = SimpleNamespace(id="finance-id")
     service.upload.return_value = expected
     current_user = SimpleNamespace(
-        id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
+        id="user-id", username="Finance User", finance=finance
     )
     file = SimpleNamespace(filename="invoice.pdf")
 
@@ -194,6 +195,7 @@ async def test_finance_expense_route_upload() -> None:
     service.upload.assert_awaited_once_with(
         file=file,
         bank=BankEnum.ITAU,
+        finance=finance,
         allocation_id="alloc-id",
         reference_year=2026,
         reference_month=7,

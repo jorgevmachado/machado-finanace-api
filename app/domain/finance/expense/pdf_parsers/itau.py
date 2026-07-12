@@ -2,7 +2,7 @@ import re
 from datetime import date
 
 from app.domain.finance.allocation.schema import AllocationSchema
-from app.domain.finance.expense.pdf_parsers.schemas import (
+from app.domain.finance.expense.pdf_parsers.schema import (
     ParsedPDFSchema,
     ParsedPDFExpenseSchema,
 )
@@ -42,6 +42,14 @@ STOP_CATEGORY_TOKENS = {
     "fique",
     "%",
 }
+
+REMOVE_CATEGORY_CITY = [
+    "BRASILIA",
+    "OSASCO",
+    "ALEXANIA"
+    "RIO DE JANEIR",
+    "EMBU"
+]
 
 def parse_header(lines: list[str]) -> dict:
     current_datetime = utcnow()
@@ -247,6 +255,17 @@ def parse_expenses(lines: list[str]) -> list[dict]:
     products_and_services = _extract_products_and_services(lines)
     return _sort_expenses(purchases + products_and_services)
 
+def clean_category(category: str | None) -> str:
+    if not category:
+        return "OTHERS"
+    cleaned = category.strip().upper()
+    for city in REMOVE_CATEGORY_CITY:
+        if cleaned.endswith(city):
+            cleaned = cleaned[: -len(city)].strip()
+            if cleaned == "OUTROS":
+                cleaned = "OTHERS"
+    return cleaned
+
 def build_parsed_pdf_expenses(year: int, month: int, expenses: list[dict]) -> list[ParsedPDFExpenseSchema]:
     parsed_list: list[ParsedPDFExpenseSchema] = []
     for expense in expenses:
@@ -259,7 +278,7 @@ def build_parsed_pdf_expenses(year: int, month: int, expenses: list[dict]) -> li
             date=parsed_date,
             payee=expense["payee"],
             amount=expense["amount"],
-            category=expense["category"],
+            category=clean_category(expense["category"]),
             reference_month=reference_month,
             current_installment=expense["current_installment"],
             total_of_installments=expense["total_of_installments"],

@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from app.domain.finance.allocation.schema import AllocationSchema
 from app.domain.finance.expense import business
-from app.domain.finance.expense.pdf_parsers.schemas import ParsedPDFSchema
+from app.domain.finance.expense.pdf_parsers.schema import ParsedPDFSchema
 from app.models import BankEnum
 
 

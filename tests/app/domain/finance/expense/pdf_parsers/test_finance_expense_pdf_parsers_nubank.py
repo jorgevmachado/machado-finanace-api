@@ -62,7 +62,7 @@ def test_parse_expenses_extracts_nubank_transactions() -> None:
         "total_of_installments": 1,
         "current_installment": 1,
         "amount": 9.99,
-        "category": None,
+        "category": "OTHERS",
         "reference_month": 6,
     }
     assert result[2] == {
@@ -71,7 +71,7 @@ def test_parse_expenses_extracts_nubank_transactions() -> None:
         "total_of_installments": 12,
         "current_installment": 1,
         "amount": 49.72,
-        "category": None,
+        "category": "OTHERS",
         "reference_month": 6,
     }
     assert result[-1] == {
@@ -80,7 +80,7 @@ def test_parse_expenses_extracts_nubank_transactions() -> None:
         "total_of_installments": 2,
         "current_installment": 1,
         "amount": 149.08,
-        "category": None,
+        "category": "OTHERS",
         "reference_month": 7,
     }
 
@@ -93,7 +93,7 @@ def test_parse_nubank_builds_parsed_expense_schema() -> None:
     assert result.expenses[0].date.isoformat() == "2026-06-04"
     assert result.expenses[0].payee == "Dl*Google Google"
     assert result.expenses[0].amount == 9.99
-    assert result.expenses[0].category is None
+    assert result.expenses[0].category == "OTHERS"
     assert result.expenses[0].reference_month == 6
     assert result.expenses[0].current_installment == 1
     assert result.expenses[0].total_of_installments == 1
@@ -181,7 +181,7 @@ def test_build_parsed_pdf_expenses_with_default_parsed_date() -> None:
                 "date": "XX/YY",
                 "payee": "TESTE",
                 "amount": 10.0,
-                "category": None,
+                "category": "OTHERS",
                 "current_installment": 1,
                 "total_of_installments": 1,
             },
@@ -189,7 +189,7 @@ def test_build_parsed_pdf_expenses_with_default_parsed_date() -> None:
                 "date": "XX/YY",
                 "payee": "TESTE 2",
                 "amount": 20.0,
-                "category": None,
+                "category": "OTHERS",
                 "current_installment": 1,
                 "total_of_installments": 1,
             }

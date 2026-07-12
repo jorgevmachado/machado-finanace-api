@@ -6,7 +6,7 @@ import pdfplumber
 from app.domain.finance.allocation.schema import AllocationSchema
 from app.domain.finance.expense.pdf_parsers.itau import parse_itau
 from app.domain.finance.expense.pdf_parsers.nubank import parse_nubank
-from app.domain.finance.expense.pdf_parsers.schemas import ParsedPDFSchema
+from app.domain.finance.expense.pdf_parsers.schema import ParsedPDFSchema
 from app.models import BankEnum, Allocation
 
 def generate_lines_pdf(file) -> list[str]:

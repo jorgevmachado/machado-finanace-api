@@ -1,12 +1,17 @@
 from __future__ import annotations
 from pydantic import BaseModel, ConfigDict
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime, date
 
-from app.domain.finance.allocation.schema import AllocationRelationSchema
+from app.domain.finance.allocation.schema import (
+    AllocationRelationSchema,
+    AllocationSchema,
+)
 from app.domain.finance.category.schema import CategorySchema
 from app.domain.finance.expense_month.schema import ExpenseMonthSchema
 from app.domain.finance.months.schema import PayloadMonthPersistSchema
+from app.models import BankEnum
+
 
 class PayloadExpenseCreateSchema(BaseModel):
     payee: str
@@ -29,6 +34,28 @@ class PayloadExpenseUpdateSchema(BaseModel):
     reference_day: int | None = None
     reference_year: int | None = None
 
+class UploadedExpenseResultSchema(BaseModel):
+    date: date
+    payee: str
+    amount: float
+    category: CategorySchema
+    reference_month: int
+    current_installment: int
+    total_of_installments: int
+
+class UploadedResultSchema(BaseModel):
+    bank: BankEnum
+    error: bool
+    message: str
+    expenses: list[UploadedExpenseResultSchema]
+    allocation: AllocationSchema
+    bill_total: float
+    bill_due_date: date | None = None
+    date_of_issue: date | None = None
+    reference_year: int
+    reference_month: int
+    previous_bill_total: float
+    previous_bill_due_date: date | None = None
 
 class ExpenseParentSchema(BaseModel):
     """Simplified expense schema for parent references, preventing infinite recursion."""

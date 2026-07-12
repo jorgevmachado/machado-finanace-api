@@ -2,7 +2,7 @@ import re
 from datetime import date
 
 from app.domain.finance.allocation.schema import AllocationSchema
-from app.domain.finance.expense.pdf_parsers.schemas import (
+from app.domain.finance.expense.pdf_parsers.schema import (
     ParsedPDFSchema,
     ParsedPDFExpenseSchema,
 )
@@ -128,7 +128,7 @@ def parse_expenses(lines: list[str]) -> list[dict]:
                 "total_of_installments": total_of_installments,
                 "current_installment": current_installment,
                 "amount": parse_amount(match.group("amount")),
-                "category": None,
+                "category": "OTHERS",
                 "reference_month": expense_date.month,
             }
         )

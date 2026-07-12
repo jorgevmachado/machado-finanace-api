@@ -11,20 +11,20 @@ from app.core.logging import LoggingParams
 from app.core.service import BaseService
 
 from app.domain.finance.allocation.service import AllocationService
+from app.domain.finance.category.schema import CategorySchema
 
 from app.domain.finance.category.service import CategoryService
 from app.domain.finance.expense.business import parse_pdf
-from app.domain.finance.expense.pdf_parsers.schemas import (
-    ParsedPDFSchema,
-    ParsedPDFExpenseSchema,
-)
 
 from app.domain.finance.expense.repository import (
     ExpenseRepository,
 )
 from app.domain.finance.expense.schema import (
     ExpenseSchema,
-    PayloadExpenseCreateSchema, PayloadExpenseUpdateSchema,
+    PayloadExpenseCreateSchema,
+    PayloadExpenseUpdateSchema,
+    UploadedResultSchema,
+    UploadedExpenseResultSchema,
 )
 from app.domain.finance.expense_month.service import ExpenseMonthService
 from app.domain.finance.months.schema import PayloadMonthPersistSchema
@@ -268,10 +268,11 @@ class ExpenseService(BaseService[ExpenseRepository, Expense]):
             self,
             file: UploadFile,
             bank: BankEnum,
+            finance: Finance,
             allocation_id: str,
             reference_year: int | None = None,
             reference_month: int | None = None
-    ) -> ParsedPDFSchema:
+    ) -> UploadedResultSchema:
         allocation = await self.allocation_service.find_by(
             id=allocation_id, without_throw=True
         )
@@ -301,12 +302,46 @@ class ExpenseService(BaseService[ExpenseRepository, Expense]):
                 status_code=HTTPStatus.BAD_REQUEST,
                 detail=parsed.message,
             )
-        pdf_expenses: list[ParsedPDFExpenseSchema] = []
+        uploaded_expenses_result: list[UploadedExpenseResultSchema] = []
         for parsed_expense in parsed.expenses:
             parsed_expense_payee_code = to_snake_case(parsed_expense.payee)
             exist_expense = await self.find_by(payee_code=parsed_expense_payee_code, without_throw=True)
-            if exist_expense:
-                parsed_expense.category = exist_expense.category.name if exist_expense.category else parsed_expense.category
-            pdf_expenses.append(parsed_expense)
-        parsed.expenses = pdf_expenses
-        return parsed
+            category_name = parsed_expense.category
+            category = exist_expense.category if exist_expense else None
+            category_schema = await self.upload_validate_category(finance, category, category_name)
+            uploaded_expenses_result.append(UploadedExpenseResultSchema(
+                date=parsed_expense.date,
+                payee=parsed_expense.payee,
+                amount=parsed_expense.amount,
+                category=category_schema,
+                reference_month=parsed_expense.reference_month,
+                current_installment=parsed_expense.current_installment,
+                total_of_installments=parsed_expense.total_of_installments
+            ))
+        return UploadedResultSchema(
+            bank=parsed.bank,
+            error=parsed.error,
+            message=parsed.message,
+            expenses=uploaded_expenses_result,
+            allocation=parsed.allocation,
+            bill_total=parsed.bill_total,
+            bill_due_date=parsed.bill_due_date,
+            date_of_issue=parsed.date_of_issue,
+            reference_year=parsed.reference_year,
+            reference_month=parsed.reference_month,
+            previous_bill_total=parsed.previous_bill_total,
+            previous_bill_due_date=parsed.previous_bill_due_date
+        )
+
+    async def upload_validate_category(self, finance: Finance, category: Category | None = None, category_name: str | None = None) -> CategorySchema:
+        if category:
+            return CategorySchema.model_validate(category)
+        category_name = category_name if category_name else "OTHERS"
+        description = f"Category {category_name} generated from file upload" if category_name else "Default category for expenses without a specific category"
+        category = await self.category_service.persist(
+            name=category_name,
+            finance=finance,
+            description=description,
+            with_throw=False,
+        )
+        return CategorySchema.model_validate(category)

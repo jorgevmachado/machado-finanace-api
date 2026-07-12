@@ -8,8 +8,9 @@ import pytest
 from fastapi import HTTPException
 
 from app.domain.finance.allocation.service import AllocationService
+from app.domain.finance.category.schema import CategorySchema
 from app.domain.finance.category.service import CategoryService
-from app.domain.finance.expense.pdf_parsers.schemas import ParsedPDFExpenseSchema
+from app.domain.finance.expense.pdf_parsers.schema import ParsedPDFExpenseSchema
 from app.domain.finance.expense.repository import ExpenseRepository
 from app.domain.finance.expense.schema import (
     PayloadExpenseCreateSchema,
@@ -748,7 +749,7 @@ class TestFinanceExpenseUploadService:
     @staticmethod
     @pytest.mark.asyncio
     async def test_finance_expense_upload_service_allocation_not_found(
-        expense_repository_mock,
+        finance,expense_repository_mock,
     ):
         service = ExpenseService(repository=expense_repository_mock)
         service.allocation_service.find_by = AsyncMock(return_value=None)
@@ -758,6 +759,7 @@ class TestFinanceExpenseUploadService:
             await service.upload(
                 file=file,
                 bank=BankEnum.ITAU,
+                finance=finance,
                 allocation_id=str(uuid4()),
                 reference_year=2026,
                 reference_month=7,
@@ -769,6 +771,7 @@ class TestFinanceExpenseUploadService:
     @staticmethod
     @pytest.mark.asyncio
     async def test_finance_expense_upload_service_invalid_content_type(
+            finance,
         expense_repository_mock,
         allocation,
     ):
@@ -780,6 +783,7 @@ class TestFinanceExpenseUploadService:
             await service.upload(
                 file=file,
                 bank=BankEnum.ITAU,
+                finance=finance,
                 allocation_id=str(allocation.id),
                 reference_year=2026,
                 reference_month=7,
@@ -791,6 +795,7 @@ class TestFinanceExpenseUploadService:
     @staticmethod
     @pytest.mark.asyncio
     async def test_finance_expense_upload_service_success(
+            finance,
         expense_repository_mock,
         allocation,
         monkeypatch,
@@ -800,7 +805,7 @@ class TestFinanceExpenseUploadService:
                 date=date(2026, 7, 1),
                 payee="Payee One",
                 amount=100.0,
-                category=None,
+                category="OTHERS",
                 reference_month=7,
                 current_installment=1,
                 total_of_installments=1,
@@ -809,17 +814,59 @@ class TestFinanceExpenseUploadService:
                 date=date(2026, 7, 2),
                 payee="Payee Two",
                 amount=100.0,
-                category=None,
+                category="OTHERS",
                 reference_month=7,
                 current_installment=1,
                 total_of_installments=1,
             ),
-        ] 
-        expense_with_category = SimpleNamespace(id=uuid4(), payee="Payee Two", payee_code="payee_two", category=SimpleNamespace(id=uuid4(), name="Category Two"))
-        expected = SimpleNamespace(bank=BankEnum.ITAU, error=False, expenses=expenses)
+        ]
+        expense_with_category = SimpleNamespace(
+            id=uuid4(),
+            payee="Payee Two",
+            payee_code="payee_two",
+            category=SimpleNamespace(id=uuid4(), name="Category Two"),
+        )
+        parsed_allocation = SimpleNamespace(
+            id=allocation.id,
+            name="Default Allocation",
+            expenses=[],
+            name_code="default_allocation",
+            is_active=True,
+            account_id=uuid4(),
+            description="Default allocation",
+            allocation_contributions=[],
+            created_at=utcnow(),
+            updated_at=None,
+            deleted_at=None,
+        )
+        parsed_result = SimpleNamespace(
+            bank=BankEnum.ITAU,
+            error=False,
+            message="Create Successfully!",
+            expenses=expenses,
+            allocation=parsed_allocation,
+            bill_total=200.0,
+            bill_due_date=date(2026, 7, 10),
+            date_of_issue=date(2026, 7, 1),
+            reference_year=2026,
+            reference_month=7,
+            previous_bill_total=100.0,
+            previous_bill_due_date=date(2026, 6, 10),
+        )
+        category_schema = CategorySchema(
+            id=uuid4(),
+            name="OTHERS",
+            name_code="others",
+            finance_id=finance.id,
+            description="Default category",
+            created_at=utcnow(),
+            updated_at=None,
+            deleted_at=None,
+        )
         service = ExpenseService(repository=expense_repository_mock)
         service.allocation_service.find_by = AsyncMock(return_value=allocation)
         service.find_by = AsyncMock(side_effect=[None, expense_with_category])
+        service.upload_validate_category = AsyncMock(return_value=category_schema)
         file = SimpleNamespace(content_type="application/pdf", read=AsyncMock(return_value=b"pdf"))
 
         captured = {}
@@ -830,22 +877,25 @@ class TestFinanceExpenseUploadService:
             captured["allocation"] = allocation
             captured["reference_year"] = reference_year
             captured["reference_month"] = reference_month
-            return expected
+            return parsed_result
 
         monkeypatch.setattr("app.domain.finance.expense.service.parse_pdf", _fake_parse_pdf)
 
         result = await service.upload(
             file=file,
             bank=BankEnum.ITAU,
+            finance=finance,
             allocation_id=str(allocation.id),
             reference_year=2026,
             reference_month=7,
         )
 
-        assert result is expected
+        assert result.bank == BankEnum.ITAU
+        assert result.error is False
         assert len(result.expenses) == 2
-        assert result.expenses[0].category is None
-        assert result.expenses[1].category == "Category Two"
+        assert result.expenses[0].category.name == "OTHERS"
+        assert result.expenses[1].category.name == "OTHERS"
+        assert service.upload_validate_category.await_count == 2
         assert captured == {
             "file": b"pdf",
             "bank": BankEnum.ITAU,
@@ -860,6 +910,7 @@ class TestFinanceExpenseUploadService:
         expense_repository_mock,
         allocation,
         monkeypatch,
+            finance
     ):
         expected = SimpleNamespace(bank=BankEnum.ITAU, error=True, expenses=[], message="Error parsing PDF")
         service = ExpenseService(repository=expense_repository_mock)
@@ -887,6 +938,7 @@ class TestFinanceExpenseUploadService:
             await service.upload(
                 file=file,
                 bank=BankEnum.ITAU,
+                finance=finance,
                 allocation_id=str(allocation.id),
                 reference_year=2026,
                 reference_month=7,
@@ -900,3 +952,102 @@ class TestFinanceExpenseUploadService:
         session = AsyncMock()
         service = ExpenseService.from_session(session)
         assert isinstance(service, ExpenseService)
+
+
+class TestFinanceExpenseUploadValidateCategoryService:
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_expense_upload_validate_category_with_category(
+        expense_repository_mock,
+        finance,
+    ):
+        category = MagicMock(spec=Category)
+        category.id = uuid4()
+        category.name = "TRANSPORT"
+        category.name_code = "transport"
+        category.finance_id = finance.id
+        category.description = "Transport category"
+        category.created_at = utcnow()
+        category.updated_at = None
+        category.deleted_at = None
+
+        service = ExpenseService(repository=expense_repository_mock)
+        service.category_service.find_by = AsyncMock()
+        service.category_service.persist = AsyncMock()
+
+        result = await service.upload_validate_category(
+            finance=finance,
+            category=category,
+        )
+
+        assert result.name == "TRANSPORT"
+        assert result.finance_id == finance.id
+        service.category_service.find_by.assert_not_awaited()
+        service.category_service.persist.assert_not_awaited()
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_expense_upload_validate_category_without_category_with_category_name(
+        expense_repository_mock,
+        finance,
+    ):
+        generated_category = MagicMock(spec=Category)
+        generated_category.id = uuid4()
+        generated_category.name = "SUPERMARKET"
+        generated_category.name_code = "supermarket"
+        generated_category.finance_id = finance.id
+        generated_category.description = "Category SUPERMARKET generated from file upload"
+        generated_category.created_at = utcnow()
+        generated_category.updated_at = None
+        generated_category.deleted_at = None
+
+        service = ExpenseService(repository=expense_repository_mock)
+        service.category_service.find_by = AsyncMock()
+        service.category_service.persist = AsyncMock(return_value=generated_category)
+
+        result = await service.upload_validate_category(
+            finance=finance,
+            category_name="SUPERMARKET",
+        )
+
+        assert result.name == "SUPERMARKET"
+        assert result.finance_id == finance.id
+        service.category_service.find_by.assert_not_awaited()
+        service.category_service.persist.assert_awaited_once_with(
+            name="SUPERMARKET",
+            finance=finance,
+            description="Category SUPERMARKET generated from file upload",
+            with_throw=False,
+        )
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_finance_expense_upload_validate_category_without_category_and_without_category_name(
+        expense_repository_mock,
+        finance,
+    ):
+        default_category = MagicMock(spec=Category)
+        default_category.id = uuid4()
+        default_category.name = "OTHERS"
+        default_category.name_code = "others"
+        default_category.finance_id = finance.id
+        default_category.description = "Category OTHERS generated from file upload"
+        default_category.created_at = utcnow()
+        default_category.updated_at = None
+        default_category.deleted_at = None
+
+        service = ExpenseService(repository=expense_repository_mock)
+        service.category_service.find_by = AsyncMock()
+        service.category_service.persist = AsyncMock(return_value=default_category)
+
+        result = await service.upload_validate_category(finance=finance)
+
+        assert result.name == "OTHERS"
+        assert result.finance_id == finance.id
+        service.category_service.find_by.assert_not_awaited()
+        service.category_service.persist.assert_awaited_once_with(
+            name="OTHERS",
+            finance=finance,
+            description="Category OTHERS generated from file upload",
+            with_throw=False,
+        )
