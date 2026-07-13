@@ -71,6 +71,20 @@ class ExpenseParentSchema(BaseModel):
     description: str
     created_at: datetime
 
+class ExpenseBaseSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    payee: str
+    months: list[ExpenseMonthSchema] = []
+    category: CategorySchema
+    payee_code: str
+    allocation: AllocationRelationSchema
+    description: str
+    parent_id: UUID | None = None
+    created_at: datetime
+    updated_at: datetime | None = None
+    deleted_at: datetime | None = None
 
 class ExpenseSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -86,6 +100,7 @@ class ExpenseSchema(BaseModel):
     created_at: datetime
     updated_at: datetime | None = None
     deleted_at: datetime | None = None
+    children: list[ExpenseBaseSchema] | None = []
 
 
 class ExpenseDetailSchema(BaseModel):

@@ -357,7 +357,7 @@ class ExpenseService(BaseService[ExpenseRepository, Expense]):
         for expense_payload in payload.expenses:
             if parent_expense:
                 expense_payload.parent_id = parent_expense.id
-            expense = await self.create(finance=finance, payload=expense_payload)
+            expense = await self.create(finance=finance, payload=expense_payload, with_throw=False)
             expenses.append(expense)
         if parent_expense:
             parent_expense.children = expenses

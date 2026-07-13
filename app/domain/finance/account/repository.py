@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Annotated, cast, Optional
 
 from fastapi import Query
+from sqlalchemy.orm import selectinload
 
 from app.core.pagination import CustomLimitOffsetPage
 from app.core.repository.base import BaseRepository
@@ -13,6 +14,9 @@ from app.shared.schemas import FilterPage
 
 class AccountRepository(BaseRepository[Account]):
     model = Account
+    relations = (
+        selectinload(Account.allocations).selectinload(Allocation.expenses).selectinload(Expense.children),
+    )
 
     @staticmethod
     def _filter_expenses(expenses: list[Expense], reference_year: int) -> list[Expense]:
