@@ -147,7 +147,7 @@ def test_clean_category_returns_others_when_category_is_none() -> None:
 
 
 def test_clean_category_uppercases_and_strips_without_city_suffix() -> None:
-    assert clean_category("  supermercado premium  ") == "SUPERMERCADO PREMIUM"
+    assert clean_category("  supermercado premium  ") == "SUPERMARKET PREMIUM"
 
 
 def test_clean_category_removes_city_suffix_and_maps_outros_to_others() -> None:
@@ -155,7 +155,7 @@ def test_clean_category_removes_city_suffix_and_maps_outros_to_others() -> None:
 
 
 def test_clean_category_removes_city_suffix_and_keeps_non_outros_value() -> None:
-    assert clean_category("restaurante OSASCO") == "RESTAURANTE"
+    assert clean_category("restaurante OSASCO") == "RESTAURANT"
 
 
 def test_build_parsed_pdf_expenses_fallback_date() -> None:

@@ -51,6 +51,16 @@ REMOVE_CATEGORY_CITY = [
     "EMBU"
 ]
 
+TRANSLATED_CATEGORY = {
+    "SUPERMERCADO": "SUPERMARKET",
+    "RESTAURANTE": "RESTAURANT",
+    "SAÚDE": "HEALTH",
+    "HEALTH": "HEALTH",
+    "OUTROS": "OTHERS",
+    "VESTUÁRIO": "CLOTHING",
+    "SAUDE": "HEALTH"
+}
+
 def parse_header(lines: list[str]) -> dict:
     current_datetime = utcnow()
     year = current_datetime.year
@@ -255,16 +265,22 @@ def parse_expenses(lines: list[str]) -> list[dict]:
     products_and_services = _extract_products_and_services(lines)
     return _sort_expenses(purchases + products_and_services)
 
+def translate_category(text: str) -> str:
+    words = text.split()
+    return " ".join(
+        TRANSLATED_CATEGORY.get(word, word)
+        for word in words
+    )
+
 def clean_category(category: str | None) -> str:
     if not category:
         return "OTHERS"
     cleaned = category.strip().upper()
+    
     for city in REMOVE_CATEGORY_CITY:
         if cleaned.endswith(city):
             cleaned = cleaned[: -len(city)].strip()
-            if cleaned == "OUTROS":
-                cleaned = "OTHERS"
-    return cleaned
+    return translate_category(cleaned)
 
 def build_parsed_pdf_expenses(year: int, month: int, expenses: list[dict]) -> list[ParsedPDFExpenseSchema]:
     parsed_list: list[ParsedPDFExpenseSchema] = []
