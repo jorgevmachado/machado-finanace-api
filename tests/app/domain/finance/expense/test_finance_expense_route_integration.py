@@ -13,6 +13,7 @@ from app.domain.finance.expense.route import (
     delete,
     upload,
     expense_service,
+    persist_list,
 )
 from app.domain.finance.expense.schema import PayloadExpenseUpdateSchema
 from app.domain.finance.expense.service import ExpenseService
@@ -199,4 +200,39 @@ async def test_finance_expense_route_upload() -> None:
         allocation_id="alloc-id",
         reference_year=2026,
         reference_month=7,
+    )
+
+
+@pytest.mark.asyncio
+async def test_finance_expense_route_persist_list() -> None:
+    service = AsyncMock()
+    payload_expense = SimpleNamespace(
+        account_id="account-id",
+        category_id="category-id",
+        allocation_id="allocation-id",
+        description="Test Expense",
+        reference_day=1,
+        reference_year=2026,
+        months=[],
+    )
+
+    expected = SimpleNamespace(
+        id="expense-id",
+        description=payload_expense.description,
+    )
+    
+    payload = SimpleNamespace(expenses=[payload_expense])
+    
+    
+    service.persist_list.return_value = [expected]
+    
+    current_user = SimpleNamespace(
+        id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
+    )
+
+    result = await persist_list(service=service, current_user=current_user, payload=payload)
+
+    assert result == [expected]
+    service.persist_list.assert_awaited_once_with(
+        finance=current_user.finance, payload=payload
     )

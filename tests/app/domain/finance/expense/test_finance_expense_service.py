@@ -15,6 +15,7 @@ from app.domain.finance.expense.repository import ExpenseRepository
 from app.domain.finance.expense.schema import (
     PayloadExpenseCreateSchema,
     PayloadExpenseUpdateSchema,
+    PayloadExpenseListPersist,
 )
 from app.domain.finance.expense.service import ExpenseService
 from app.domain.finance.expense_month.service import ExpenseMonthService
@@ -853,6 +854,18 @@ class TestFinanceExpenseUploadService:
             previous_bill_total=100.0,
             previous_bill_due_date=date(2026, 6, 10),
         )
+
+        parent_category_schema = CategorySchema(
+            id=uuid4(),
+            name="Credit Card",
+            name_code="credit_card",
+            finance_id=finance.id,
+            description="Category Credit Card generated from file upload",
+            created_at=utcnow(),
+            updated_at=None,
+            deleted_at=None,
+        )
+        
         category_schema = CategorySchema(
             id=uuid4(),
             name="OTHERS",
@@ -863,10 +876,11 @@ class TestFinanceExpenseUploadService:
             updated_at=None,
             deleted_at=None,
         )
+        
         service = ExpenseService(repository=expense_repository_mock)
         service.allocation_service.find_by = AsyncMock(return_value=allocation)
         service.find_by = AsyncMock(side_effect=[None, expense_with_category])
-        service.upload_validate_category = AsyncMock(return_value=category_schema)
+        service.upload_validate_category = AsyncMock(side_effect=[parent_category_schema, category_schema, category_schema])
         file = SimpleNamespace(content_type="application/pdf", read=AsyncMock(return_value=b"pdf"))
 
         captured = {}
@@ -895,7 +909,7 @@ class TestFinanceExpenseUploadService:
         assert len(result.expenses) == 2
         assert result.expenses[0].category.name == "OTHERS"
         assert result.expenses[1].category.name == "OTHERS"
-        assert service.upload_validate_category.await_count == 2
+        assert service.upload_validate_category.await_count == 3
         assert captured == {
             "file": b"pdf",
             "bank": BankEnum.ITAU,
@@ -1051,3 +1065,111 @@ class TestFinanceExpenseUploadValidateCategoryService:
             description="Category OTHERS generated from file upload",
             with_throw=False,
         )
+        
+class TestFinanceExpensePersistList:
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_expense_persist_list_without_parent(
+        expense_repository_mock,
+        finance,
+        category,
+        allocation,
+    ):
+        current_year = utcnow().year
+
+        expense_payload_create = PayloadExpenseCreateSchema(
+            payee="Test Payee",
+            months=[],
+            category_id=category.id,
+            allocation_id=allocation.id,
+            description="Test Expense",
+            reference_day=10,
+            reference_year=current_year,
+        )
+        
+        payload = PayloadExpenseListPersist(
+            expenses=[expense_payload_create]
+        )
+        
+        saved_expenses = []
+        for expense_payload in payload.expenses:
+            saved_expense = SimpleNamespace(
+                id=uuid4(),
+                payee=expense_payload.payee,
+                category_id=expense_payload.category_id,
+                description=expense_payload.description,
+                allocation_id=expense_payload.allocation_id,
+            )
+            saved_expenses.append(saved_expense)
+            expense_repository_mock.save.return_value = saved_expense
+
+        service = ExpenseService(repository=expense_repository_mock)
+        service.allocation_service.find_by = AsyncMock(return_value=allocation)
+        service.category_service.find_by = AsyncMock(return_value=category)
+        service.find_by = AsyncMock(side_effect=[None, saved_expenses[0]])
+        service.expense_month_service.persist_list = AsyncMock(return_value=[])
+
+        result = await service.persist_list(finance=finance, payload=payload)
+        assert result == saved_expenses
+
+    @staticmethod
+    @pytest.mark.asyncio
+    async def test_expense_persist_list_with_parent(
+        expense_repository_mock,
+        finance,
+        category,
+        allocation,
+    ):
+        current_year = utcnow().year
+
+        parent_expense_payload_create = PayloadExpenseCreateSchema(
+            payee="Parent Payee",
+            months=[],
+            category_id=category.id,
+            allocation_id=allocation.id,
+            description="Parent Expense",
+            reference_day=10,
+            reference_year=current_year,
+        )
+
+        expense_payload_create = PayloadExpenseCreateSchema(
+            payee="Test Payee",
+            months=[],
+            category_id=category.id,
+            allocation_id=allocation.id,
+            description="Test Expense",
+            reference_day=10,
+            reference_year=current_year,
+        )
+
+        payload = PayloadExpenseListPersist(parent=parent_expense_payload_create, expenses=[expense_payload_create])
+
+        saved_parent_expense = SimpleNamespace(
+            id=uuid4(),
+            payee=parent_expense_payload_create.payee,
+            category_id=parent_expense_payload_create.category_id,
+            description=parent_expense_payload_create.description,
+            allocation_id=parent_expense_payload_create.allocation_id,
+        )
+        expense_repository_mock.save.return_value = saved_parent_expense
+
+        saved_expenses = []
+        for expense_payload in payload.expenses:
+            saved_expense = SimpleNamespace(
+                id=uuid4(),
+                payee=expense_payload.payee,
+                category_id=expense_payload.category_id,
+                description=expense_payload.description,
+                allocation_id=expense_payload.allocation_id,
+            )
+            saved_expenses.append(saved_expense)
+            expense_repository_mock.save.return_value = saved_expense
+
+        service = ExpenseService(repository=expense_repository_mock)
+        service.allocation_service.find_by = AsyncMock(side_effect=[allocation, allocation])
+        service.category_service.find_by = AsyncMock(side_effect=[category, category])
+        service.find_by = AsyncMock(side_effect=[None, saved_parent_expense, None, saved_expenses[0]])
+        service.expense_month_service.persist_list = AsyncMock(return_value=[])
+
+        result = await service.persist_list(finance=finance, payload=payload)
+        assert result == [saved_parent_expense]

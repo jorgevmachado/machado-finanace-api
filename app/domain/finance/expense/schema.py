@@ -47,6 +47,7 @@ class UploadedResultSchema(BaseModel):
     bank: BankEnum
     error: bool
     message: str
+    category: CategorySchema
     expenses: list[UploadedExpenseResultSchema]
     allocation: AllocationSchema
     bill_total: float
@@ -56,6 +57,10 @@ class UploadedResultSchema(BaseModel):
     reference_month: int
     previous_bill_total: float
     previous_bill_due_date: date | None = None
+
+class PayloadExpenseListPersist(BaseModel):
+    parent: PayloadExpenseCreateSchema | None = None
+    expenses: list[PayloadExpenseCreateSchema]
 
 class ExpenseParentSchema(BaseModel):
     """Simplified expense schema for parent references, preventing infinite recursion."""

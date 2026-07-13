@@ -24,7 +24,7 @@ from app.domain.finance.expense.schema import (
     PayloadExpenseCreateSchema,
     PayloadExpenseUpdateSchema,
     UploadedResultSchema,
-    UploadedExpenseResultSchema,
+    UploadedExpenseResultSchema, PayloadExpenseListPersist,
 )
 from app.domain.finance.expense_month.service import ExpenseMonthService
 from app.domain.finance.months.schema import PayloadMonthPersistSchema
@@ -166,7 +166,7 @@ class ExpenseService(BaseService[ExpenseRepository, Expense]):
         return await self.repository.update(entity=entity)
         
     async def create(
-        self, finance: Finance, payload: PayloadExpenseCreateSchema
+        self, finance: Finance, payload: PayloadExpenseCreateSchema, with_throw: bool = True,
     ) -> Expense:
 
         allocation = await self.allocation_service.find_by(
@@ -194,8 +194,9 @@ class ExpenseService(BaseService[ExpenseRepository, Expense]):
             payee=payload.payee,
             months=payload.months,
             category=category,
+            parent_id=payload.parent_id,
             allocation=allocation,
-            with_throw=True,
+            with_throw=with_throw,
             description=payload.description,
             reference_day=payload.reference_day or 10,
             reference_year=payload.reference_year,
@@ -302,6 +303,7 @@ class ExpenseService(BaseService[ExpenseRepository, Expense]):
                 status_code=HTTPStatus.BAD_REQUEST,
                 detail=parsed.message,
             )
+        parent_category: CategorySchema = await self.upload_validate_category(finance, category_name="Credit Card")
         uploaded_expenses_result: list[UploadedExpenseResultSchema] = []
         for parsed_expense in parsed.expenses:
             parsed_expense_payee_code = to_snake_case(parsed_expense.payee)
@@ -322,6 +324,7 @@ class ExpenseService(BaseService[ExpenseRepository, Expense]):
             bank=parsed.bank,
             error=parsed.error,
             message=parsed.message,
+            category=parent_category,
             expenses=uploaded_expenses_result,
             allocation=parsed.allocation,
             bill_total=parsed.bill_total,
@@ -345,3 +348,18 @@ class ExpenseService(BaseService[ExpenseRepository, Expense]):
             with_throw=False,
         )
         return CategorySchema.model_validate(category)
+    
+    async def persist_list(self, finance: Finance, payload: PayloadExpenseListPersist) -> list[Expense]:
+        parent_expense = None
+        if payload.parent:
+            parent_expense = await self.create(finance=finance, payload=payload.parent, with_throw=False)
+        expenses = []
+        for expense_payload in payload.expenses:
+            if parent_expense:
+                expense_payload.parent_id = parent_expense.id
+            expense = await self.create(finance=finance, payload=expense_payload)
+            expenses.append(expense)
+        if parent_expense:
+            parent_expense.children = expenses
+            return [parent_expense]
+        return expenses

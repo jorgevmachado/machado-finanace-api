@@ -17,6 +17,7 @@ from app.domain.finance.expense.schema import (
     PayloadExpenseUpdateSchema,
     ExpenseDetailSchema,
     UploadedResultSchema,
+    PayloadExpenseListPersist,
 )
 from app.domain.finance.expense.service import ExpenseService
 from app.models import User, BankEnum
@@ -152,4 +153,16 @@ async def upload(
         allocation_id=allocation_id,
         reference_year=reference_year,
         reference_month=reference_month,
+    )
+
+@router.post("/persist-list", response_model=list[ExpenseSchema], status_code=HTTPStatus.CREATED)
+async def persist_list(
+    service: Service,
+    current_user: CurrentUser,
+    payload: PayloadExpenseListPersist,
+):
+    finance = validate_finance(current_user.finance)
+    return await service.persist_list(
+        finance=finance,
+        payload=payload
     )
