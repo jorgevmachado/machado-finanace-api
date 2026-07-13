@@ -149,6 +149,10 @@ def test_clean_category_returns_others_when_category_is_none() -> None:
 def test_clean_category_uppercases_and_strips_without_city_suffix() -> None:
     assert clean_category("  supermercado premium  ") == "SUPERMARKET PREMIUM"
 
+def test_clean_category_uppercases_and_strips_with_city_suffix() -> None:
+    assert clean_category("  supermercado premium BRASILIA  ") == "SUPERMARKET PREMIUM"
+    assert clean_category("  OTHERS RIO DE JANEIR  ") == "OTHERS"
+    assert clean_category("  RESTAURANT ALEXANIA  ") == "RESTAURANT"
 
 def test_clean_category_removes_city_suffix_and_maps_outros_to_others() -> None:
     assert clean_category("outros BRASILIA") == "OTHERS"
