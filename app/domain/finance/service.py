@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import LoggingParams
 from app.core.service import BaseService
+from app.domain.finance.account.business import DEFAULT_ACCOUNTS
 
 from app.domain.finance.account.service import AccountService
 
@@ -15,6 +16,7 @@ from app.domain.finance.allocation.service import AllocationService
 from app.domain.finance.allocation_contribution.service import (
     AllocationContributionService,
 )
+from app.domain.finance.category.business import DEFAULT_CATEGORIES
 from app.domain.finance.category.service import CategoryService
 from app.domain.finance.expense.service import ExpenseService
 from app.domain.finance.income.service import IncomeService
@@ -82,7 +84,24 @@ class FinanceService(BaseService[FinanceRepository, Finance]):
                 status_code=HTTPStatus.BAD_REQUEST,
                 detail=f"User {current_user.username} already onboarded",
             )
-        return await self.repository.save(entity=Finance(user_id=current_user.id))
+        finance = await self.repository.save(entity=Finance(user_id=current_user.id))
+        for account in DEFAULT_ACCOUNTS:
+            await self.account_service.persist(
+                name=account.name,
+                type=account.type,
+                finance=finance,
+                with_throw=False,
+                initial_balance=account.initial_balance or 0,
+            )
+        for category in DEFAULT_CATEGORIES:
+            await self.category_service.persist(
+                name=category.name,
+                finance=finance,
+                description=category.description or category.name,
+                with_throw=False,
+            )
+
+        return finance
 
     async def persist(
         self, finance: Finance, payloads: list[PayloadPersistSchema]

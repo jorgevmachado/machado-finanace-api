@@ -143,23 +143,23 @@ def test_itau_internal_extract_helpers_edge_cases() -> None:
 
 
 def test_clean_category_returns_others_when_category_is_none() -> None:
-    assert clean_category(None) == "OTHERS"
+    assert clean_category(None) == "Others"
 
 
 def test_clean_category_uppercases_and_strips_without_city_suffix() -> None:
-    assert clean_category("  supermercado premium  ") == "SUPERMARKET PREMIUM"
+    assert clean_category("  supermercado premium  ") == "Supermarket PREMIUM"
 
 def test_clean_category_uppercases_and_strips_with_city_suffix() -> None:
-    assert clean_category("  supermercado premium BRASILIA  ") == "SUPERMARKET PREMIUM"
+    assert clean_category("  supermercado premium BRASILIA  ") == "Supermarket PREMIUM"
     assert clean_category("  OTHERS RIO DE JANEIR  ") == "OTHERS"
     assert clean_category("  RESTAURANT ALEXANIA  ") == "RESTAURANT"
 
 def test_clean_category_removes_city_suffix_and_maps_outros_to_others() -> None:
-    assert clean_category("outros BRASILIA") == "OTHERS"
+    assert clean_category("outros BRASILIA") == "Others"
 
 
 def test_clean_category_removes_city_suffix_and_keeps_non_outros_value() -> None:
-    assert clean_category("restaurante OSASCO") == "RESTAURANT"
+    assert clean_category("restaurante OSASCO") == "Restaurant"
 
 
 def test_build_parsed_pdf_expenses_fallback_date() -> None:

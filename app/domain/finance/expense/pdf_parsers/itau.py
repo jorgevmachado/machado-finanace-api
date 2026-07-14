@@ -52,13 +52,13 @@ REMOVE_CATEGORY_CITY = [
 ]
 
 TRANSLATED_CATEGORY = {
-    "SUPERMERCADO": "SUPERMARKET",
-    "RESTAURANTE": "RESTAURANT",
-    "SAÚDE": "HEALTH",
-    "HEALTH": "HEALTH",
-    "OUTROS": "OTHERS",
-    "VESTUÁRIO": "CLOTHING",
-    "SAUDE": "HEALTH"
+    "SUPERMERCADO": "Supermarket",
+    "RESTAURANTE": "Restaurant",
+    "SAÚDE": "Healthcare",
+    "HEALTH": "Healthcare",
+    "OUTROS": "Others",
+    "VESTUÁRIO": "Clothing",
+    "SAUDE": "Healthcare"
 }
 
 def parse_header(lines: list[str]) -> dict:
@@ -274,7 +274,7 @@ def translate_category(text: str) -> str:
 
 def clean_category(category: str | None) -> str:
     if not category:
-        return "OTHERS"
+        return "Others"
     cleaned = category.strip().upper()
     
     for city in REMOVE_CATEGORY_CITY:
