@@ -1,4 +1,5 @@
 from datetime import date
+from decimal import Decimal
 from http import HTTPStatus
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock
@@ -336,6 +337,20 @@ class TestFinanceExpensePersistService:
             category_id=category.id,
             description=description,
             allocation_id=allocation.id,
+            months=[
+                SimpleNamespace(
+                    amount=Decimal("75.00"),
+                    status=None,
+                    reference_month=1,
+                    paid_at=None,
+                ),
+                SimpleNamespace(
+                    amount=Decimal("25.00"),
+                    status=None,
+                    reference_month=7,
+                    paid_at=None,
+                ),
+            ],
         )
         expense_repository_mock.find_by.return_value = exist_expense
         expense_repository_mock.update.return_value = exist_expense
@@ -354,6 +369,14 @@ class TestFinanceExpensePersistService:
         assert result == exist_expense
         expense_repository_mock.find_by.assert_awaited_once()
         expense_repository_mock.update.assert_awaited_once()
+        persisted_call = service.expense_month_service.persist_list.await_args.kwargs
+        persisted_months = persisted_call["months"]
+        persisted_by_reference_month = {
+            month.reference_month: month.amount for month in persisted_months
+        }
+        assert persisted_by_reference_month[1] == 175.0
+        assert persisted_by_reference_month[6] == 150.0
+        assert persisted_by_reference_month[7] == 25.0
 
     @staticmethod
     @pytest.mark.asyncio

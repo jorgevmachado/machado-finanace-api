@@ -27,6 +27,7 @@ from app.domain.finance.expense.schema import (
     UploadedExpenseResultSchema, PayloadExpenseListPersist,
 )
 from app.domain.finance.expense_month.service import ExpenseMonthService
+from app.domain.finance.months.business import merge_months_by_month
 from app.domain.finance.months.schema import PayloadMonthPersistSchema
 
 from app.models import (
@@ -235,8 +236,19 @@ class ExpenseService(BaseService[ExpenseRepository, Expense]):
             else:
                 expense.description = description
                 expense.parent_id = parent_id
+                persisted_months = [
+                    PayloadMonthPersistSchema(
+                        amount=float(month.amount),
+                        status=month.status,
+                        reference_month=month.reference_month,
+                        transaction_date=month.paid_at.date() if month.paid_at else None,
+                        reference_day=reference_day,
+                    )
+                    for month in (expense.months or [])
+                ]
+                merged_months = merge_months_by_month([*persisted_months, *months])
                 await self.expense_month_service.persist_list(
-                    months=months,
+                    months=merged_months,
                     expense=expense,
                     reference_year=year,
                     reference_day=reference_day,
