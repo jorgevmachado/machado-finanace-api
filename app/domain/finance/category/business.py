@@ -44,5 +44,9 @@ DEFAULT_CATEGORIES: list[PayloadCategoryCreateSchema] = [
     PayloadCategoryCreateSchema(
         name="Services",
         description="Payments for professional services, subscriptions, and other service-related expenses."
-    )
+    ),
+    PayloadCategoryCreateSchema(
+        name="Supermarket",
+        description="Expenses related to groceries, household supplies, and other supermarket purchases."
+    ),
 ]
