@@ -14,7 +14,7 @@ from app.domain.finance.allocation.service import AllocationService
 from app.domain.finance.category.schema import CategorySchema
 
 from app.domain.finance.category.service import CategoryService
-from app.domain.finance.expense.business import parse_pdf, generate_months_by_year
+from app.domain.finance.expense.business import parse_pdf
 
 from app.domain.finance.expense.repository import (
     ExpenseRepository,
@@ -363,19 +363,7 @@ class ExpenseService(BaseService[ExpenseRepository, Expense]):
     
     async def persist_list(self, finance: Finance, payload: PayloadExpenseListPersist) -> list[Expense]:
         parent_expense = None
-        reference_year = utcnow().year
-        reference_day = 10
         if payload.parent:
-            reference_year = (
-                payload.parent.reference_year
-                if payload.parent.reference_year
-                else reference_year
-            )
-            reference_day = (
-                payload.parent.reference_day
-                if payload.parent.reference_day
-                else reference_day
-            )
             parent_expense = await self.create(finance=finance, payload=payload.parent, with_throw=False)
         expenses = []
         for expense_payload in payload.expenses:
@@ -384,15 +372,6 @@ class ExpenseService(BaseService[ExpenseRepository, Expense]):
             expense = await self.create(finance=finance, payload=expense_payload, with_throw=False)
             expenses.append(expense)
         if parent_expense:
-            months_by_year = generate_months_by_year(expenses)
-            for year, months in months_by_year.items():
-                await self.expense_month_service.persist_list(
-                    months=months,
-                    expense=parent_expense,
-                    reference_year=year,
-                    reference_day=reference_day
-                )
-            parent_expense = await self.repository.update(entity=parent_expense)    
             parent_expense.children = expenses
             return [parent_expense]
         return expenses

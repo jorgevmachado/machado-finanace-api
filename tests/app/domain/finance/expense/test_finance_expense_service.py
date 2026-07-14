@@ -1239,7 +1239,6 @@ class TestFinanceExpensePersistList:
         service.category_service.find_by = AsyncMock(side_effect=[category, category])
 
         service.find_by = AsyncMock(side_effect=[None, saved_parent_expense, None, saved_children_expense])
-        expense_repository_mock.update = AsyncMock(return_value=saved_parent_expense)
 
         result = await service.persist_list(finance=finance, payload=payload)
         assert result == [saved_parent_expense]
