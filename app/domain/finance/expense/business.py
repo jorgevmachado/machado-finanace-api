@@ -1,3 +1,4 @@
+from collections import defaultdict
 from datetime import datetime
 import io
 
@@ -7,7 +8,9 @@ from app.domain.finance.allocation.schema import AllocationSchema
 from app.domain.finance.expense.pdf_parsers.itau import parse_itau
 from app.domain.finance.expense.pdf_parsers.nubank import parse_nubank
 from app.domain.finance.expense.pdf_parsers.schema import ParsedPDFSchema
-from app.models import BankEnum, Allocation
+from app.domain.finance.months.schema import PayloadMonthPersistSchema
+from app.models import BankEnum, Allocation, Expense
+
 
 def generate_lines_pdf(file) -> list[str]:
     text = ""
@@ -60,3 +63,37 @@ def parse_pdf(
             )
         case BankEnum.CAIXA:
             return fallback_result
+        
+def generate_months_by_year(expenses: list[Expense]) -> dict[int, list[PayloadMonthPersistSchema]]:
+    months_aggregated: dict[tuple[int, int], dict] = defaultdict(
+        lambda: {"amount": 0.0, "status": None}
+    )
+
+    years_found: set[int] = set()
+
+    for expense in expenses:
+        for month in expense.months:
+            amount = float(month.amount)
+            years_found.add(month.reference_year)
+            key = (month.reference_year, month.reference_month)
+            months_aggregated[key]["amount"] += amount
+            if months_aggregated[key]["status"] is None:
+                months_aggregated[key]["status"] = month.status
+                    
+    
+    result: dict[int, list[PayloadMonthPersistSchema]] = {}
+
+    for year in sorted(years_found):
+        result[year] = []
+        for month_num in range(1, 13):
+            key = (year, month_num)
+            data = months_aggregated.get(key, {"amount": 0.0, "status": None})
+            result[year].append(
+                PayloadMonthPersistSchema(
+                    amount=data["amount"],
+                    status=data["status"],
+                    reference_month=month_num,
+                )
+            )
+
+    return result
