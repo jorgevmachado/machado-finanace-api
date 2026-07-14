@@ -19,6 +19,7 @@ from app.domain.finance.expense.schema import (
     PayloadExpenseListPersist,
 )
 from app.domain.finance.expense.service import ExpenseService
+from app.domain.finance.expense_month.schema import ExpenseMonthSchema
 from app.domain.finance.expense_month.service import ExpenseMonthService
 from app.domain.finance.months.schema import PayloadMonthPersistSchema
 
@@ -28,6 +29,7 @@ from app.models import (
     Finance,
     utcnow,
     BankEnum,
+    MonthStatusEnum,
 )
 
 @pytest.fixture
@@ -1143,8 +1145,11 @@ class TestFinanceExpensePersistList:
         category,
         allocation,
     ):
-        current_year = utcnow().year
-
+        current_datetime = utcnow()
+        current_year = current_datetime.year
+        current_month = current_datetime.month
+        
+        parent_expense_id = uuid4()
         parent_expense_payload_create = PayloadExpenseCreateSchema(
             payee="Parent Payee",
             months=[],
@@ -1154,10 +1159,47 @@ class TestFinanceExpensePersistList:
             reference_day=10,
             reference_year=current_year,
         )
+        expense_id = uuid4()    
+        parent_payload_months: list[PayloadMonthPersistSchema] = []
+        payload_months: list[PayloadMonthPersistSchema] = []
+        expense_months: list[ExpenseMonthSchema] = []
+        parent_expense_months: list[ExpenseMonthSchema] = []
+        for i in range(1, 13):
+            status = MonthStatusEnum.PAID if i < current_month else MonthStatusEnum.PENDING
+            amount = 100.00
+            reference_month = i
+            payload_months.append(PayloadMonthPersistSchema(
+                amount=amount,
+                status=status,
+                reference_month=reference_month,
+            ))
+            expense_months.append(ExpenseMonthSchema(
+                id=uuid4(),
+                amount=amount,
+                status=status,
+                expense_id=expense_id,
+                reference_month=reference_month,
+                reference_year=current_year,
+                created_at=utcnow(),
+            ))
+            parent_payload_months.append(PayloadMonthPersistSchema(
+                amount=amount,
+                status=status,
+                reference_month=reference_month,
+            ))
+            parent_expense_months.append(ExpenseMonthSchema(
+                id=uuid4(),
+                amount=amount,
+                status=status,
+                expense_id=parent_expense_id,
+                reference_month=reference_month,
+                reference_year=current_year,
+                created_at=utcnow(),
+            ))
 
         expense_payload_create = PayloadExpenseCreateSchema(
             payee="Test Payee",
-            months=[],
+            months=payload_months,
             category_id=category.id,
             allocation_id=allocation.id,
             description="Test Expense",
@@ -1165,34 +1207,39 @@ class TestFinanceExpensePersistList:
             reference_year=current_year,
         )
 
-        payload = PayloadExpenseListPersist(parent=parent_expense_payload_create, expenses=[expense_payload_create])
-
         saved_parent_expense = SimpleNamespace(
-            id=uuid4(),
+            id=parent_expense_id,
             payee=parent_expense_payload_create.payee,
+            months=parent_expense_months,
             category_id=parent_expense_payload_create.category_id,
             description=parent_expense_payload_create.description,
             allocation_id=parent_expense_payload_create.allocation_id,
         )
+        
+        saved_children_expense = SimpleNamespace(
+            id=expense_id,
+            payee=expense_payload_create.payee,
+            months=expense_months,
+            category_id=expense_payload_create.category_id,
+            description=expense_payload_create.description,
+            allocation_id=expense_payload_create.allocation_id,
+        )
+
+        payload = PayloadExpenseListPersist(parent=parent_expense_payload_create, expenses=[expense_payload_create])
+
+        
         expense_repository_mock.save.return_value = saved_parent_expense
 
-        saved_expenses = []
-        for expense_payload in payload.expenses:
-            saved_expense = SimpleNamespace(
-                id=uuid4(),
-                payee=expense_payload.payee,
-                category_id=expense_payload.category_id,
-                description=expense_payload.description,
-                allocation_id=expense_payload.allocation_id,
-            )
-            saved_expenses.append(saved_expense)
-            expense_repository_mock.save.return_value = saved_expense
+        expense_repository_mock.save.return_value = saved_children_expense
 
         service = ExpenseService(repository=expense_repository_mock)
+
         service.allocation_service.find_by = AsyncMock(side_effect=[allocation, allocation])
+
         service.category_service.find_by = AsyncMock(side_effect=[category, category])
-        service.find_by = AsyncMock(side_effect=[None, saved_parent_expense, None, saved_expenses[0]])
-        service.expense_month_service.persist_list = AsyncMock(return_value=[])
+
+        service.find_by = AsyncMock(side_effect=[None, saved_parent_expense, None, saved_children_expense])
+        expense_repository_mock.update = AsyncMock(return_value=saved_parent_expense)
 
         result = await service.persist_list(finance=finance, payload=payload)
         assert result == [saved_parent_expense]
