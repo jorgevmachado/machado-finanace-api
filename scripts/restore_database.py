@@ -7,7 +7,7 @@ database = "machadoFinanceDB"
 user = "machado"
 password = "machado"
 
-dump_file = Path("./migrations/backup.dump")
+dump_file = Path("./migrations/backup_db.dump")
 
 if not dump_file.exists():
     raise FileNotFoundError(f"Arquivo '{dump_file}' não encontrado.")

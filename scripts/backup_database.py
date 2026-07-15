@@ -6,7 +6,7 @@ database = "machadoFinanceDB"
 user = "machado"
 password = "machado"
 
-output_file = "./migrations/backup.dump"
+output_file = "./migrations/backup_db.dump"
 
 command = [
     "docker",
