@@ -32,6 +32,7 @@ class AccountService(BaseService[AccountRepository, Account]):
         super().__init__(
             alias="Account",
             repository=repository,
+            parents_alias=["finance"],
             logger_params=LoggingParams(
                 logger=logger, service="AccountService", operation="account"
             ),
@@ -79,7 +80,7 @@ class AccountService(BaseService[AccountRepository, Account]):
             else:
                 return account
         else:
-            return await self.repository.save(
+            saved_account = await self.repository.save(
                 entity=Account(
                     name=name,
                     name_code=name_code,
@@ -90,6 +91,8 @@ class AccountService(BaseService[AccountRepository, Account]):
                     current_balance=current_balance,
                 )
             )
+            await self.cache_service.delete_with_parent_cache(self.parents_alias)
+            return saved_account
 
     async def recalculate(self, param: str, finance: Finance) -> Account:
         entity = await self.find_one(param=param, finance_id=finance.id)
@@ -112,5 +115,6 @@ class AccountService(BaseService[AccountRepository, Account]):
 
         if entity.current_balance != current_balance:
             entity.current_balance = current_balance
+            await self.cache_service.delete_with_parent_cache(self.parents_alias)
             return await self.update_entity(entity=entity)
         return entity

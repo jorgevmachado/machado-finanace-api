@@ -112,7 +112,7 @@ def expense(category, allocation):
     return expense
 
 
-class TestFinanceExpenseServiceCreate:
+class TestFinanceExpenseCreateService:
     @staticmethod
     @pytest.mark.asyncio
     async def test_expense_create_with_invalid_allocation(
@@ -211,6 +211,7 @@ class TestFinanceExpenseServiceCreate:
         service.category_service.find_by = AsyncMock(return_value=category)
         service.find_by = AsyncMock(side_effect=[None, saved_expense])
         service.expense_month_service.persist_list = AsyncMock(return_value=[])
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
 
         result = await service.create(finance=finance, payload=payload)
         assert result == saved_expense
@@ -358,6 +359,7 @@ class TestFinanceExpensePersistService:
         expense_repository_mock.update.return_value = exist_expense
         service = ExpenseService(repository=expense_repository_mock)
         service.expense_month_service.persist_list = AsyncMock(return_value=months)
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
         result = await service.persist(
             payee=payee,
             months=months,
@@ -416,6 +418,7 @@ class TestFinanceExpensePersistService:
         service = ExpenseService(repository=expense_repository_mock)
         service.find_by = AsyncMock(side_effect=[None, created_expense])
         service.expense_month_service.persist_list = AsyncMock(return_value=months)
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
         result = await service.persist(
             payee=payee,
             months=months,
@@ -505,6 +508,7 @@ class TestFinanceExpenseUpdateService:
         service.find_one = AsyncMock(return_value=expense)
         service.cache_service.delete_domain = AsyncMock()
         expense_repository_mock.update.return_value = expense
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
         result = await service.update(
             param=str(expense.id), payload=payload, user_request="test_user"
         )
@@ -566,6 +570,7 @@ class TestFinanceExpenseUpdateService:
         service.find_one = AsyncMock(return_value=expense)
         service.cache_service.delete_domain = AsyncMock()
         expense_repository_mock.update.return_value = expense
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
         result = await service.update(
             param=str(expense.id), payload=payload, user_request="test_user"
         )
@@ -628,6 +633,7 @@ class TestFinanceExpenseUpdateService:
         service.find_by = AsyncMock(return_value=None)
         service.cache_service.delete_domain = AsyncMock()
         expense_repository_mock.update.return_value = expense
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
         result = await service.update(
             param=str(expense.id), payload=payload, user_request="test_user"
         )
@@ -656,7 +662,7 @@ class TestFinanceExpenseUpdateService:
         other_expense = expense
         other_expense.id = uuid4()
         service.find_one = AsyncMock(return_value=expense)
-        service.cache_service.delete_domain = AsyncMock()
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
         expense_repository_mock.update.return_value = expense
         result = await service.update(
             param=str(expense.id), payload=payload, user_request="test_user"
@@ -724,7 +730,7 @@ class TestFinanceExpenseUpdateService:
         other_expense = expense
         other_expense.id = uuid4()
         service.find_one = AsyncMock(return_value=expense)
-        service.cache_service.delete_domain = AsyncMock()
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
         expense_repository_mock.update.return_value = expense
         service.find_by = AsyncMock(return_value=parent)
         result = await service.update(
@@ -757,9 +763,10 @@ class TestFinanceExpenseUpdateService:
             expense_month_service=expense_month_service_mock,
         )
         service.find_one = AsyncMock(return_value=expense)
-        service.cache_service.delete_domain = AsyncMock()
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
         expense_month_service_mock.persist_list = AsyncMock(return_value=new_months)
         expense_repository_mock.update.return_value = expense
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
 
         result = await service.update(
             param=str(expense.id),
@@ -1133,6 +1140,7 @@ class TestFinanceExpensePersistList:
         service.category_service.find_by = AsyncMock(return_value=category)
         service.find_by = AsyncMock(side_effect=[None, saved_expenses[0]])
         service.expense_month_service.persist_list = AsyncMock(return_value=[])
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
 
         result = await service.persist_list(finance=finance, payload=payload)
         assert result == saved_expenses
@@ -1239,6 +1247,6 @@ class TestFinanceExpensePersistList:
         service.category_service.find_by = AsyncMock(side_effect=[category, category])
 
         service.find_by = AsyncMock(side_effect=[None, saved_parent_expense, None, saved_children_expense])
-
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
         result = await service.persist_list(finance=finance, payload=payload)
         assert result == [saved_parent_expense]

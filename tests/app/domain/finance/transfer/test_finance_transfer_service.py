@@ -148,6 +148,8 @@ class TestFinanceTransferCreateService:
             ]
         )
         service.repository.save.return_value = expected
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
+
         result = await service.create(finance=finance, payload=payload)
         assert result == expected
 
@@ -185,6 +187,7 @@ class TestFinanceTransfer_PesistService:
         service = TransferService(repository=transfer_repository_mock)
         service.find_by = AsyncMock(return_value=existing_transfer)
         transfer_repository_mock.update.return_value = existing_transfer
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
 
         result = await service._persist(
             finance=finance,
@@ -229,6 +232,7 @@ class TestFinanceTransfer_PesistService:
 
         service = TransferService(repository=transfer_repository_mock)
         service.find_by = AsyncMock(return_value=None)
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
 
         # Mock save to return expense as-is
         def save_side_effect(entity):

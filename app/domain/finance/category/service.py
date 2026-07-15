@@ -28,6 +28,7 @@ class CategoryService(BaseService[CategoryRepository, Category]):
         super().__init__(
             alias="Category",
             repository=repository,
+            parents_alias=["finance"],
             logger_params=LoggingParams(
                 logger=logger, service="CategoryService", operation="category"
             ),
@@ -70,7 +71,7 @@ class CategoryService(BaseService[CategoryRepository, Category]):
             else:
                 return category
         else:
-            return await self.repository.save(
+            saved_category = await self.repository.save(
                 entity=Category(
                     name=name,
                     name_code=name_code,
@@ -78,3 +79,5 @@ class CategoryService(BaseService[CategoryRepository, Category]):
                     description=description,
                 )
             )
+            await self.cache_service.delete_with_parent_cache(self.parents_alias)
+            return saved_category

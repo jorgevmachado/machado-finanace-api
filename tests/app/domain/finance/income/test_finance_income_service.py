@@ -58,14 +58,12 @@ def payload_months(value: float = 100.0):
         months.append(PayloadMonthPersistSchema(amount=value, reference_month=i))
     return months
 
-
 class TestFinanceIncomeFromSessionService:
     @staticmethod
     def test_from_session_builds_service(income_repository_mock: AsyncMock):
         service = IncomeService(repository=income_repository_mock)
         assert isinstance(service, IncomeService)
         assert service.repository is income_repository_mock
-
 
 class TestFinanceIncomeFindByService:
     @staticmethod
@@ -95,7 +93,6 @@ class TestFinanceIncomeFindByService:
         result = await service.find_by(id=uuid4(), without_throw=True)
 
         assert result is None
-
 
 class TestFinanceIncomeCreateService:
     @staticmethod
@@ -152,7 +149,7 @@ class TestFinanceIncomeCreateService:
             account_service=account_service_mock,
             income_month_service=income_month_service_mock,
         )
-
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
         result = await service.create(finance=finance, payload=payload)
 
         assert result is expected_income
@@ -188,7 +185,6 @@ class TestFinanceIncomeCreateService:
             await service.create(finance=finance, payload=payload)
 
         assert exc_info.value.status_code == HTTPStatus.BAD_REQUEST
-
 
 class TestFinanceIncomePersistService:
     @staticmethod
@@ -308,6 +304,7 @@ class TestFinanceIncomePersistService:
         income_repository_mock.update.return_value = existing_income
         service = IncomeService(repository=income_repository_mock)
         service.income_month_service.persist_list = AsyncMock(return_value=months)
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
 
         result = await service.persist(
             months=months,
@@ -321,6 +318,7 @@ class TestFinanceIncomePersistService:
         assert result == existing_income
         income_repository_mock.find_by.assert_awaited_once()
         income_repository_mock.update.assert_awaited_once()
+        service.cache_service.delete_with_parent_cache.assert_awaited_once()
 
     @staticmethod
     @pytest.mark.asyncio
@@ -352,6 +350,7 @@ class TestFinanceIncomePersistService:
         service = IncomeService(repository=income_repository_mock)
         service.find_by = AsyncMock(side_effect=[None, created_income])
         service.income_month_service.persist_list = AsyncMock(return_value=months)
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
 
         result = await service.persist(
             months=months,
@@ -364,7 +363,6 @@ class TestFinanceIncomePersistService:
         )
         assert result == created_income
         income_repository_mock.save.assert_awaited_once()
-
 
 class TestFinanceIncomePersistListService:
     @staticmethod
@@ -397,6 +395,7 @@ class TestFinanceIncomePersistListService:
         service = IncomeService(repository=income_repository_mock)
         service.find_by = AsyncMock(side_effect=[None, income, None, second_income])
         income_repository_mock.save.side_effect = [income, second_income]
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
         result = await service.persist_list(
             account=account,
             payloads=payload_incomes,
@@ -408,6 +407,7 @@ class TestFinanceIncomePersistListService:
         assert result[0] == income
         assert result[1] == second_income
         income_repository_mock.save.assert_awaited()
+        service.cache_service.delete_with_parent_cache.assert_awaited()
 
 class TestFinanceIncomeUpdateService:
     @staticmethod
@@ -483,7 +483,7 @@ class TestFinanceIncomeUpdateService:
         service = IncomeService(repository=income_repository_mock)
         service.find_one = AsyncMock(return_value=income)
         service.account_service.find_by = AsyncMock(return_value=account)
-        service.cache_service.delete_domain = AsyncMock()
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
         income_repository_mock.update.return_value = income_expected
 
         result = await service.update(
@@ -545,9 +545,9 @@ class TestFinanceIncomeUpdateService:
         income_expected = income
 
         service = IncomeService(repository=income_repository_mock)
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
         service.find_by = AsyncMock(return_value=None)
         service.find_one = AsyncMock(return_value=income)
-        service.cache_service.delete_domain = AsyncMock()
         income_repository_mock.update.return_value = income_expected
 
         result = await service.update(
@@ -558,7 +558,7 @@ class TestFinanceIncomeUpdateService:
         )
         assert result == income_expected
         income_repository_mock.update.assert_called_once()
-        service.cache_service.delete_domain.assert_called_once()
+        service.cache_service.delete_with_parent_cache.assert_called_once()
 
     @staticmethod
     @pytest.mark.asyncio
@@ -609,8 +609,8 @@ class TestFinanceIncomeUpdateService:
         income_expected = income
 
         service = IncomeService(repository=income_repository_mock)
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
         service.find_one = AsyncMock(return_value=income)
-        service.cache_service.delete_domain = AsyncMock()
         income_repository_mock.update.return_value = income_expected
 
         result = await service.update(
@@ -671,6 +671,7 @@ class TestFinanceIncomeUpdateService:
             repository=income_repository_mock,
             income_month_service=income_month_service_mock
         )
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
         service.find_one = AsyncMock(return_value=income)
         service.cache_service.delete_domain = AsyncMock()
         income_month_service_mock.persist_list = AsyncMock(return_value=new_months)
@@ -709,6 +710,7 @@ class TestFinanceIncomeUpdateService:
         income_expected = income
 
         service = IncomeService(repository=income_repository_mock)
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
         service.find_one = AsyncMock(return_value=income)
         service.account_service.find_by = AsyncMock(return_value=new_account)
         service.find_by = AsyncMock(return_value=None)
@@ -750,8 +752,8 @@ class TestFinanceIncomeUpdateService:
             repository=income_repository_mock,
             income_month_service=income_month_service_mock
         )
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
         service.find_one = AsyncMock(return_value=income)
-        service.cache_service.delete_domain = AsyncMock()
         income_month_service_mock.persist_list = AsyncMock(return_value=payload_months[:2])
         income_repository_mock.update.return_value = income_expected
 
@@ -792,8 +794,8 @@ class TestFinanceIncomeUpdateService:
             repository=income_repository_mock,
             income_month_service=income_month_service_mock
         )
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
         service.find_one = AsyncMock(return_value=income)
-        service.cache_service.delete_domain = AsyncMock()
         income_month_service_mock.persist_list = AsyncMock(return_value=payload_months[:2])
         income_repository_mock.update.return_value = income_expected
 
@@ -830,9 +832,9 @@ class TestFinanceIncomeUpdateService:
         income_expected = income
 
         service = IncomeService(repository=income_repository_mock)
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
         service.find_one = AsyncMock(return_value=income)
         service.find_by = AsyncMock(return_value=None)
-        service.cache_service.delete_domain = AsyncMock()
         income_repository_mock.update.return_value = income_expected
 
         result = await service.update(

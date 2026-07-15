@@ -26,11 +26,13 @@ class BaseService[
         logger_params: LoggingParams,
         schema_class: type[SchemaT],
         cache_prefix: str | None = None,
+        parents_alias: list[str] | None = None,
     ):
         prefix = cache_prefix or alias.replace(" ", "_").lower()
         self.alias = alias
         self.repository = repository
         self.cache_prefix = cache_prefix
+        self.parents_alias = parents_alias
         self.logger_params = logger_params
         self.cache_service = CacheService(
             alias=alias,
@@ -138,7 +140,7 @@ class BaseService[
     async def _invalidate_cache(
         self, identifier: str | None = None, finance_id: str | None = None
     ) -> None:
-        await self.cache_service.delete_domain()
+        await self.cache_service.delete_with_parent_cache(self.parents_alias)
         if identifier:
             cache_key = identifier
             if finance_id:
@@ -271,7 +273,9 @@ class BaseService[
         user_request: str | None = None,
     ) -> ModelT:
         try:
-            return await self.repository.update(entity=entity)
+            updated =  await self.repository.update(entity=entity)
+            await self.cache_service.delete_with_parent_cache(self.parents_alias)
+            return updated
         except Exception as exception:
             handle_service_exception(
                 exception,

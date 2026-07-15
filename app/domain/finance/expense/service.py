@@ -55,6 +55,7 @@ class ExpenseService(BaseService[ExpenseRepository, Expense]):
         super().__init__(
             alias="Expense",
             repository=repository,
+            parents_alias=["finance", "account", "allocation", "category"],
             logger_params=LoggingParams(
                 logger=logger,
                 service="ExpenseService",
@@ -163,7 +164,7 @@ class ExpenseService(BaseService[ExpenseRepository, Expense]):
 
         if not has_change:
             return entity
-        await self.cache_service.delete_domain()
+        await self.cache_service.delete_with_parent_cache(self.parents_alias)
         return await self.repository.update(entity=entity)
         
     async def create(
@@ -253,7 +254,9 @@ class ExpenseService(BaseService[ExpenseRepository, Expense]):
                     reference_year=year,
                     reference_day=reference_day,
                 )
-                return await self.repository.update(entity=expense)
+                updated = await self.repository.update(entity=expense)
+                await self.cache_service.delete_with_parent_cache(self.parents_alias)
+                return updated
 
         else:
             created_expense = await self.repository.save(
@@ -275,6 +278,7 @@ class ExpenseService(BaseService[ExpenseRepository, Expense]):
 
             saved_expense = await self.find_by(id=created_expense.id)
             saved_expense.months = saved_months
+            await self.cache_service.delete_with_parent_cache(self.parents_alias)
             return saved_expense
 
     async def upload(

@@ -123,6 +123,7 @@ class TestSecurityAndServiceAdditionalCoverage:
             ),
             schema_class=DummySchema,
         )
+        service._invalidate_cache = AsyncMock(return_value=None)
 
         updated = await service.update("1", DummyUpdateSchema(name="new-name"))
 

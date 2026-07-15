@@ -30,6 +30,7 @@ class AllocationService(BaseService[AllocationRepository, Allocation]):
         super().__init__(
             alias="Allocation",
             repository=repository,
+            parents_alias=["finance","account"],
             logger_params=LoggingParams(
                 logger=logger, service="AllocationService", operation="allocation"
             ),
@@ -84,8 +85,8 @@ class AllocationService(BaseService[AllocationRepository, Allocation]):
                 )
             else:
                 return allocation
-        else:
-            return await self.repository.save(
+        else:            
+            saved_allocation =  await self.repository.save(
                 entity=Allocation(
                     name=name,
                     name_code=name_code,
@@ -94,3 +95,5 @@ class AllocationService(BaseService[AllocationRepository, Allocation]):
                     description=description,
                 )
             )
+            await self.cache_service.delete_with_parent_cache(self.parents_alias)
+            return saved_allocation

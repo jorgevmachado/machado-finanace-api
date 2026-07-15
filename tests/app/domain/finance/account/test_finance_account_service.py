@@ -73,6 +73,7 @@ class TestAccountServiceCreate:
         account_repository_mock.save.return_value = expected
         service = AccountService(repository=account_repository_mock)
         service.find_by = AsyncMock(return_value=None)
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
 
         result = await service.create(finance=finance, payload=payload)
         assert result == expected
@@ -136,6 +137,9 @@ class TestAccountServicePersist:
                 account_service.repository, "save", new_callable=AsyncMock
             ) as mock_save:
                 mock_save.return_value = account
+                account_service.cache_service.delete_with_parent_cache = AsyncMock(
+                    return_value=None
+                )
                 result = await account_service.persist(
                     name="Test Account",
                     type=AccountTypeEnum.BANK,
@@ -171,6 +175,9 @@ class TestAccountServiceRecalculate:
                 account_service, "update_entity", new_callable=AsyncMock
             ) as mock_update:
                 mock_update.return_value = account_with_income
+                account_service.cache_service.delete_with_parent_cache = AsyncMock(
+                    return_value=None
+                )
                 result = await account_service.recalculate(
                     param="test-account-id", finance=finance
                 )

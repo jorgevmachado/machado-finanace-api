@@ -36,6 +36,7 @@ class IncomeService(BaseService[IncomeRepository, Income]):
         super().__init__(
             alias="Income",
             repository=repository,
+            parents_alias=["finance", "account"],
             logger_params=LoggingParams(
                 logger=logger, service="IncomeService", operation="income"
             ),
@@ -135,7 +136,7 @@ class IncomeService(BaseService[IncomeRepository, Income]):
 
         if not has_change:
             return entity
-        await self.cache_service.delete_domain()
+        await self.cache_service.delete_with_parent_cache(self.parents_alias)
         return await self.repository.update(entity=entity)
 
     async def persist(
@@ -173,7 +174,9 @@ class IncomeService(BaseService[IncomeRepository, Income]):
                     reference_year=year,
                     reference_day=reference_day,
                 )
-                return await self.repository.update(entity=income)
+                updated = await self.repository.update(entity=income)
+                await self.cache_service.delete_with_parent_cache(self.parents_alias)
+                return updated
         else:
             created_income = await self.repository.save(
                 entity=Income(
@@ -191,6 +194,7 @@ class IncomeService(BaseService[IncomeRepository, Income]):
             )
             updated_income = await self.find_by(id=created_income.id)
             updated_income.months = months
+            await self.cache_service.delete_with_parent_cache(self.parents_alias)
             return updated_income
 
     async def persist_list(

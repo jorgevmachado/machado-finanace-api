@@ -92,6 +92,7 @@ class TestFinanceAllocationPersistService:
         service = AllocationService(repository=allocation_repository_mock)
         service.find_by = AsyncMock(return_value=None)
         allocation_repository_mock.save.return_value = expected
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
 
         result = await service.persist(
             name="Test Allocation",
@@ -139,6 +140,7 @@ class TestFinanceAllocationCreateService:
         expected = SimpleNamespace(id=uuid4())
 
         service = AllocationService(repository=allocation_repository_mock)
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
         service.account_service.find_by = AsyncMock(return_value=account)
         service.find_by = AsyncMock(return_value=None)
         allocation_repository_mock.save.return_value = expected

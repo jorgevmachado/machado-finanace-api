@@ -73,6 +73,7 @@ class TestFinanceCategoryCreateService:
         service = CategoryService(repository=category_repository_mock)
         service.find_by = AsyncMock(return_value=None)
         category_repository_mock.save.return_value = expected
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
 
         result = await service.create(finance=finance, payload=payload)
         assert result == expected
@@ -132,6 +133,7 @@ class TestFinanceCategoryPersistService:
     ):
         expected = SimpleNamespace(id=uuid4())
         service = CategoryService(repository=category_repository_mock)
+        service.cache_service.delete_with_parent_cache = AsyncMock(return_value=None)
         service.find_by = AsyncMock(return_value=None)
         category_repository_mock.save.return_value = expected
         name = "Test Category"

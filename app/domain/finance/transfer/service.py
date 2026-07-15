@@ -33,6 +33,7 @@ class TransferService(BaseService[TransferRepository, Transfer]):
         super().__init__(
             alias="Transfer",
             repository=repository,
+            parents_alias=["finance"],
             logger_params=LoggingParams(
                 logger=logger,
                 service="TransferService",
@@ -117,10 +118,12 @@ class TransferService(BaseService[TransferRepository, Transfer]):
                 transfer.amount = payload.amount
                 transfer.description = payload.description
                 transfer.transfer_date = payload.transfer_date
-                return await self.repository.update(entity=transfer)
+                updated_transfer = await self.repository.update(entity=transfer)
+                await self.cache_service.delete_with_parent_cache(self.parents_alias)
+                return updated_transfer
 
         else:
-            return await self.repository.save(
+            saved_transfer = await self.repository.save(
                 entity=Transfer(
                     amount=payload.amount,
                     finance_id=finance.id,
@@ -130,3 +133,5 @@ class TransferService(BaseService[TransferRepository, Transfer]):
                     from_account_id=from_account.id,
                 )
             )
+            await self.cache_service.delete_with_parent_cache(self.parents_alias)
+            return saved_transfer
