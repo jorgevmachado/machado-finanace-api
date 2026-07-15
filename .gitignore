@@ -180,3 +180,4 @@ pyrightconfig.json
 database.db
 sonar-project.properties
 /htmlcov/
+/migrations/backup.dump

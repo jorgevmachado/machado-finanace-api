@@ -48,3 +48,9 @@ rollback-migration:
 
 migrate:
 	poetry run alembic upgrade head
+
+backup:
+	poetry run python scripts/backup_database.py
+
+restore-backup:
+	poetry run python scripts/restore_database.py
