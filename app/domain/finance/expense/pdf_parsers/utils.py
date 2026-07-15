@@ -4,17 +4,17 @@ from decimal import Decimal
 
 MONTHS = {
     "JAN": "01",
-    "FEB": "02",
+    "FEV": "02",
     "MAR": "03",
-    "APR": "04",
-    "MAY": "05",
+    "ABR": "04",
+    "MAI": "05",
     "JUN": "06",
     "JUL": "07",
-    "AUG": "08",
-    "SEP": "09",
-    "OCT": "10",
+    "AGO": "08",
+    "SET": "09",
+    "OUT": "10",
     "NOV": "11",
-    "DEC": "12",
+    "DEZ": "12",
 }
 
 def get_date_with_named_month(value: str) -> date | None:
