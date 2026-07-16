@@ -297,6 +297,7 @@ def build_parsed_pdf_expenses(year: int, month: int, expenses: list[dict]) -> li
             category=clean_category(expense["category"]),
             reference_month=reference_month,
             current_installment=expense["current_installment"],
+            all_installments_paid=False,
             total_of_installments=expense["total_of_installments"],
         )
         parsed_list.append(parsed)

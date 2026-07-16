@@ -327,15 +327,18 @@ class ExpenseService(BaseService[ExpenseRepository, Expense]):
             category_name = parsed_expense.category
             category = exist_expense.category if exist_expense else None
             category_schema = await self.upload_validate_category(finance, category, category_name)
-            uploaded_expenses_result.append(UploadedExpenseResultSchema(
-                date=parsed_expense.date,
-                payee=parsed_expense.payee,
-                amount=parsed_expense.amount,
-                category=category_schema,
-                reference_month=parsed_expense.reference_month,
-                current_installment=parsed_expense.current_installment,
-                total_of_installments=parsed_expense.total_of_installments
-            ))
+            uploaded_expenses_result.append(
+                UploadedExpenseResultSchema(
+                    date=parsed_expense.date,
+                    payee=parsed_expense.payee,
+                    amount=parsed_expense.amount,
+                    category=category_schema,
+                    reference_month=parsed_expense.reference_month,
+                    current_installment=parsed_expense.current_installment,
+                    all_installments_paid=parsed_expense.all_installments_paid,
+                    total_of_installments=parsed_expense.total_of_installments,
+                )
+            )
         return UploadedResultSchema(
             bank=parsed.bank,
             error=parsed.error,

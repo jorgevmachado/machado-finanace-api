@@ -9,8 +9,9 @@ class ParsedPDFExpenseSchema(BaseModel):
     payee: str
     amount: float
     category: str
-    reference_month: int
+    reference_month: int    
     current_installment: int
+    all_installments_paid: bool
     total_of_installments: int
 
 class ParsedPDFSchema(BaseModel):

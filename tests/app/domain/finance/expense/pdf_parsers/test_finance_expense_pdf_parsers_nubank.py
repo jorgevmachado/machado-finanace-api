@@ -7,7 +7,9 @@ from app.domain.finance.expense.pdf_parsers.nubank import (
     parse_nubank,
     _extract_transaction_year,
     build_parsed_pdf_expenses,
+    validate_parsed_prepaid_expenses,
 )
+from app.domain.finance.expense.pdf_parsers.schema import ParsedPDFExpenseSchema
 from app.models import utcnow
 
 
@@ -61,6 +63,7 @@ def test_parse_expenses_extracts_nubank_transactions() -> None:
         "payee": "Dl*Google Google",
         "total_of_installments": 1,
         "current_installment": 1,
+        "all_installments_paid": False,
         "amount": 9.99,
         "category": "OTHERS",
         "reference_month": 6,
@@ -70,6 +73,7 @@ def test_parse_expenses_extracts_nubank_transactions() -> None:
         "payee": "Pg *Cod3r Ensino e Con",
         "total_of_installments": 12,
         "current_installment": 1,
+        "all_installments_paid": False,
         "amount": 49.72,
         "category": "OTHERS",
         "reference_month": 6,
@@ -79,6 +83,7 @@ def test_parse_expenses_extracts_nubank_transactions() -> None:
         "payee": "Amazonmktplc*Casaaladi",
         "total_of_installments": 2,
         "current_installment": 1,
+        "all_installments_paid": False,
         "amount": 149.08,
         "category": "OTHERS",
         "reference_month": 7,
@@ -183,6 +188,7 @@ def test_build_parsed_pdf_expenses_with_default_parsed_date() -> None:
                 "amount": 10.0,
                 "category": "OTHERS",
                 "current_installment": 1,
+                "all_installments_paid": False,
                 "total_of_installments": 1,
             },
             {
@@ -191,6 +197,7 @@ def test_build_parsed_pdf_expenses_with_default_parsed_date() -> None:
                 "amount": 20.0,
                 "category": "OTHERS",
                 "current_installment": 1,
+                "all_installments_paid": False,
                 "total_of_installments": 1,
             }
         ]
@@ -199,3 +206,48 @@ def test_build_parsed_pdf_expenses_with_default_parsed_date() -> None:
     assert len(result) == 2
     assert result[0].date == fallback_date
     assert result[1].date == fallback_date
+
+
+def test_validate_parsed_prepaid_expenses_merges_prepaid_installments() -> None:
+    parsed_expenses = [
+        ParsedPDFExpenseSchema(
+            date=date(2026, 1, 4),
+            payee="Leroy Merlin",
+            amount=119.35,
+            category="OTHERS",
+            reference_month=1,
+            current_installment=4,
+            all_installments_paid=False,
+            total_of_installments=6,
+        ),
+        ParsedPDFExpenseSchema(
+            date=date(2026, 1, 8),
+            payee="Antecipada - Leroy Merlin",
+            amount=119.35,
+            category="OTHERS",
+            reference_month=1,
+            current_installment=6,
+            all_installments_paid=True,
+            total_of_installments=6,
+        ),
+        ParsedPDFExpenseSchema(
+            date=date(2026, 1, 8),
+            payee="Antecipada - Leroy Merlin",
+            amount=119.35,
+            category="OTHERS",
+            reference_month=1,
+            current_installment=5,
+            all_installments_paid=False,
+            total_of_installments=6,
+        ),
+    ]
+
+    result = validate_parsed_prepaid_expenses(parsed_expenses)
+
+    assert len(result) == 1
+    assert result[0].date == date(2026, 1, 4)
+    assert result[0].payee == "Leroy Merlin"
+    assert result[0].amount == 358.05
+    assert result[0].current_installment == 4
+    assert result[0].total_of_installments == 6
+    assert result[0].all_installments_paid is True

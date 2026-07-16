@@ -34,6 +34,7 @@ TRANSACTION_PATTERN = re.compile(
     r"(?P<payee>.*?)\s+R\$\s*(?P<amount>\d{1,3}(?:\.\d{3})*,\d{2})$"
 )
 INSTALLMENT_PATTERN = re.compile(r"\s*-\s*Parcela\s+(?P<current>\d+)/(?P<total>\d+)\s*$")
+PREPAID_PREFIX = "Antecipada - "
 
 
 def parse_header(lines: list[str]) -> dict:
@@ -130,10 +131,63 @@ def parse_expenses(lines: list[str]) -> list[dict]:
                 "amount": parse_amount(match.group("amount")),
                 "category": "OTHERS",
                 "reference_month": expense_date.month,
+                "all_installments_paid": False,
             }
         )
 
     return expenses
+
+def validate_parsed_prepaid_expenses(parsed_expenses: list[ParsedPDFExpenseSchema]) -> list[ParsedPDFExpenseSchema]:
+    parsed_list: list[ParsedPDFExpenseSchema] = []
+    indexed_expenses: dict[tuple[str, int, float], int] = {}
+
+    for expense in parsed_expenses:
+        payee = expense.payee.strip()
+        is_prepaid = payee.startswith(PREPAID_PREFIX)
+        normalized_payee = (
+            payee.removeprefix(PREPAID_PREFIX).strip() if is_prepaid else payee
+        )
+        expense_key = (
+            normalized_payee.casefold(),
+            expense.total_of_installments,
+            round(expense.amount, 2),
+        )
+
+        if is_prepaid and expense_key in indexed_expenses:
+            existing_index = indexed_expenses[expense_key]
+            existing_expense = parsed_list[existing_index]
+            total_of_installments = max(
+                existing_expense.total_of_installments,
+                expense.total_of_installments,
+            )
+            highest_current_installment = max(
+                existing_expense.current_installment,
+                expense.current_installment,
+            )
+            parsed_list[existing_index] = existing_expense.model_copy(
+                update={
+                    "amount": round(existing_expense.amount + expense.amount, 2),
+                    "total_of_installments": total_of_installments,
+                    "all_installments_paid": (
+                        existing_expense.all_installments_paid
+                        or expense.all_installments_paid
+                        or highest_current_installment >= total_of_installments
+                    ),
+                }
+            )
+            continue
+
+        normalized_expense = (
+            expense.model_copy(update={"payee": normalized_payee})
+            if normalized_payee != expense.payee
+            else expense
+        )
+        parsed_list.append(normalized_expense)
+        if expense_key not in indexed_expenses:
+            indexed_expenses[expense_key] = len(parsed_list) - 1
+
+    return parsed_list
+
 
 
 def build_parsed_pdf_expenses(
@@ -157,6 +211,7 @@ def build_parsed_pdf_expenses(
                 category=expense["category"],
                 reference_month=expense.get("reference_month", parsed_date.month),
                 current_installment=expense["current_installment"],
+                all_installments_paid=expense["all_installments_paid"],
                 total_of_installments=expense["total_of_installments"],
             )
         )
@@ -187,6 +242,7 @@ def parse_nubank(
         message = "Reference month is different from document"
 
     expenses = build_parsed_pdf_expenses(year, month, parsed_expenses)
+    expenses = validate_parsed_prepaid_expenses(expenses)
 
     if len(expenses) == 0:
         error = True

@@ -42,6 +42,7 @@ class UploadedExpenseResultSchema(BaseModel):
     reference_month: int
     current_installment: int
     total_of_installments: int
+    all_installments_paid: bool
 
 class UploadedResultSchema(BaseModel):
     bank: BankEnum
@@ -61,6 +62,7 @@ class UploadedResultSchema(BaseModel):
 class PayloadExpenseListPersist(BaseModel):
     parent: PayloadExpenseCreateSchema | None = None
     expenses: list[PayloadExpenseCreateSchema]
+    reference_month: int
 
 class ExpenseParentSchema(BaseModel):
     """Simplified expense schema for parent references, preventing infinite recursion."""

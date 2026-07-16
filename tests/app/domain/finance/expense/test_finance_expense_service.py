@@ -842,6 +842,7 @@ class TestFinanceExpenseUploadService:
                 reference_month=7,
                 current_installment=1,
                 total_of_installments=1,
+                all_installments_paid=False
             ),
             ParsedPDFExpenseSchema(
                 date=date(2026, 7, 2),
@@ -851,6 +852,7 @@ class TestFinanceExpenseUploadService:
                 reference_month=7,
                 current_installment=1,
                 total_of_installments=1,
+                all_installments_paid=False
             ),
         ]
         expense_with_category = SimpleNamespace(
@@ -1120,7 +1122,8 @@ class TestFinanceExpensePersistList:
         )
         
         payload = PayloadExpenseListPersist(
-            expenses=[expense_payload_create]
+            expenses=[expense_payload_create],
+            reference_month=1
         )
         
         saved_expenses = []
@@ -1233,7 +1236,7 @@ class TestFinanceExpensePersistList:
             allocation_id=expense_payload_create.allocation_id,
         )
 
-        payload = PayloadExpenseListPersist(parent=parent_expense_payload_create, expenses=[expense_payload_create])
+        payload = PayloadExpenseListPersist(parent=parent_expense_payload_create, expenses=[expense_payload_create], reference_month=1)
 
         
         expense_repository_mock.save.return_value = saved_parent_expense

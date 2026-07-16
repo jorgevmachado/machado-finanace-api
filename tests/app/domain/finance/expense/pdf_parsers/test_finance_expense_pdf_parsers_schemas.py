@@ -34,6 +34,7 @@ def test_parsed_pdf_expense_schema() -> None:
         reference_month=7,
         current_installment=1,
         total_of_installments=1,
+        all_installments_paid=False
     )
 
     assert expense.payee == "DOG DO RAFILDSBRASILIAB"
