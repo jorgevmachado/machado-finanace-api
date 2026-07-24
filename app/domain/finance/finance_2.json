@@ -1,0 +1,1025 @@
+[
+  {
+    "name": "Nubank",
+    "type": "BANK",
+    "reference_year": 2026,
+    "initial_balance": 0,
+    "allocations": [
+      {
+        "name": "Debito em Conta",
+        "type": "PERSONAL",
+        "description": "Debito em Conta",
+        "categories": [
+          {
+            "name": "L.U.V.E",
+            "type": "STUDIES",
+            "description": "Loja Universitária Verdade e Evolução (Nubank)",
+            "months": [
+              {
+                "amount": 0,
+                "reference_month": 1
+              },
+              {
+                "amount": 110.00,
+                "reference_month": 2
+              },
+              {
+                "amount": 220.00,
+                "reference_month": 3
+              },
+              {
+                "amount": 210.00,
+                "reference_month": 4
+              }
+            ]
+          },
+          {
+            "name": "Filosóficos",
+            "type": "STUDIES",
+            "description": "Capitulo Consciência Liberta (Nubank)",
+            "months": [
+              {
+                "amount": 140.00,
+                "reference_month": 1
+              },
+              {
+                "amount": 40.00,
+                "reference_month": 2
+              },
+              {
+                "amount": 40.00,
+                "reference_month": 3
+              },
+              {
+                "amount": 40.00,
+                "reference_month": 4
+              },
+              {
+                "amount": 40.00,
+                "reference_month": 5
+              },
+              {
+                "amount": 40.00,
+                "reference_month": 6
+              }
+            ]
+          },
+          {
+            "name": "M.C.B.D.A",
+            "type": "ENTERTAINMENT",
+            "description": "Moto Clube Bodes do Asfalto (Nubank)",
+            "months": [
+              {
+                "amount": 180.31,
+                "reference_month": 1
+              },
+              {
+                "amount": 180.31,
+                "reference_month": 2
+              },
+              {
+                "amount": 180.31,
+                "reference_month": 3
+              },
+              {
+                "amount": 180.31,
+                "reference_month": 4
+              },
+              {
+                "amount": 180.31,
+                "reference_month": 5
+              },
+              {
+                "amount": 180.31,
+                "reference_month": 6
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Cartão de Crédito",
+        "type": "PERSONAL",
+        "description": "Cartão de Crédito",
+        "categories": [
+          {
+            "name": "Fatura do Cartão de Crédito Nubank",
+            "type": "CREDIT_CARD",
+            "description": "Fatura do Cartão de Crédito Nubank",
+            "months": [
+              {
+                "amount": 200.00,
+                "reference_month": 1,
+                "expenses": [
+                  {
+                    "name": "Netflix",
+                    "type": "ENTERTAINMENT",
+                    "amount": 44.90,
+                    "description": "Taxa de Streaming",
+                    "recurrency": true
+                  },
+                  {
+                    "name": "HBO Max",
+                    "type": "ENTERTAINMENT",
+                    "amount": 22.45,
+                    "description": "Taxa de Streaming",
+                    "recurrency": true
+                  },
+                  {
+                    "name": "MeliMais",
+                    "type": "ENTERTAINMENT",
+                    "amount": 19.90,
+                    "description": "Taxa de Streaming (Disney Plus | Mercado Livre)",
+                    "recurrency": true
+                  },
+                  {
+                    "name": "Google Storage",
+                    "type": "ENTERTAINMENT",
+                    "amount": 9.90,
+                    "description": "Taxa de Serviço de Armazenamento",
+                    "recurrency": true
+                  },
+                  {
+                    "name": "Bolos do Flávio",
+                    "type": "FOOD",
+                    "amount": 50,
+                    "description": "Compra de bolo do Flavio",
+                    "recurrency": false
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "PIX",
+        "type": "PERSONAL",
+        "description": "PIX",
+        "categories": [
+          {
+            "name": "I.P.V.A",
+            "type": "GOVERNMENT_FEES",
+            "description": "Imposto sobre a Propriedade de Veículos Automotores.",
+            "months": [
+              {
+                "amount": 981.12,
+                "reference_month": 2
+              },
+              {
+                "amount": 119.23,
+                "reference_month": 4
+              }
+            ]
+          },
+          {
+            "name": "seguro Moto (Porto)",
+            "type": "TRANSPORT",
+            "description": "Seguro da moto Harley Davidson Road King",
+            "months": [
+              {
+                "amount": 542.46,
+                "reference_month": 1
+              },
+              {
+                "amount": 547.46,
+                "reference_month": 2
+              },
+              {
+                "amount": 548.31,
+                "reference_month": 3
+              },
+              {
+                "amount": 547.80,
+                "reference_month": 4
+              },
+              {
+                "amount": 54.28,
+                "reference_month": 5
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Residencial Monte Carlo",
+        "type": "HOUSE",
+        "description": "Despesas do Residencial Monte Carlo",
+        "categories": [
+          {
+            "name": "Garagem (Monte Carlo)",
+            "type": "TRANSPORT",
+            "description": "Garagem do Monte Carlo",
+            "months": [
+              {
+                "amount": 150.00,
+                "reference_month": 1
+              },
+              {
+                "amount": 150.00,
+                "reference_month": 2
+              }
+            ]
+          },
+          {
+            "name": "Condomínio (Ancora)",
+            "type": "UTILITY",
+            "description": "Condomínio do Monte Carlo",
+            "months": [
+              {
+                "amount": 780.24,
+                "reference_month": 1
+              },
+              {
+                "amount": 778.36,
+                "reference_month": 2
+              },
+              {
+                "amount": 788.38,
+                "reference_month": 3
+              },
+              {
+                "amount": 781.15,
+                "reference_month": 4
+              },
+              {
+                "amount": 782.67,
+                "reference_month": 5
+              },
+              {
+                "amount": 783.90,
+                "reference_month": 6
+              }
+            ]
+          },
+          {
+            "name": "Luz",
+            "type": "GOVERNMENT_FEES",
+            "description": "Luz do Monte Carlo",
+            "months": [
+              {
+                "amount": 130.00,
+                "reference_month": 1
+              },
+              {
+                "amount": 117.94,
+                "reference_month": 2
+              },
+              {
+                "amount": 145.26,
+                "reference_month": 3
+              },
+              {
+                "amount": 132.50,
+                "reference_month": 4
+              },
+              {
+                "amount": 142.19,
+                "reference_month": 5
+              },
+              {
+                "amount": 105.84,
+                "reference_month": 6
+              }
+            ]
+          },
+          {
+            "name": "I.P.T.U",
+            "type": "GOVERNMENT_FEES",
+            "description": "Imposto sobre a Propriedade Predial e Territorial Urbana",
+            "months": [
+              {
+                "amount": 225.59,
+                "reference_month": 5
+              },
+              {
+                "amount": 214.85,
+                "reference_month": 6
+              }
+            ]
+          },
+          {
+            "name": "Diarista",
+            "type": "UTILITY",
+            "description": "Serviços de Diarista",
+            "months": [
+              {
+                "amount": 300.00,
+                "reference_month": 6
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Itaú",
+    "type": "BANK",
+    "reference_year": 2026,
+    "initial_balance": 0,
+    "incomes": [
+      {
+        "source": "Salario (Itaú)",
+        "months": [
+          {
+            "amount": 7520.0,
+            "reference_month": 1
+          },
+          {
+            "amount": 7520.0,
+            "reference_month": 2
+          },
+          {
+            "amount": 7520.0,
+            "reference_month": 3
+          },
+          {
+            "amount": 7520.0,
+            "reference_month": 4
+          },
+          {
+            "amount": 7520.0,
+            "reference_month": 5
+          },
+          {
+            "amount": 7520.0,
+            "reference_month": 6
+          }
+        ]
+      }
+    ],
+    "transfer": [
+          {
+            "amount": 1700.00,
+            "to_account": "Conta Conjunta (Nubank)",
+            "from_account": "Itaú",
+            "reference_day": 7,
+            "reference_month": 1,
+            "contribution_name": "Parte Jorge"
+          },
+          {
+            "amount": 1000.00,
+            "to_account": "Conta Conjunta (Nubank)",
+            "from_account": "Itaú",
+            "reference_day": 6,
+            "reference_month": 2,
+            "contribution_name": "Parte Jorge"
+          },
+          {
+            "amount": 1500.00,
+            "to_account": "Conta Conjunta (Nubank)",
+            "from_account": "Itaú",
+            "reference_day": 9,
+            "reference_month": 3,
+            "contribution_name": "Parte Jorge"
+          },
+          {
+            "amount": 1500.00,
+            "to_account": "Conta Conjunta (Nubank)",
+            "from_account": "Itaú",
+            "reference_day": 10,
+            "reference_month": 4,
+            "contribution_name": "Parte Jorge"
+          },
+          {
+            "amount": 1500.00,
+            "to_account": "Conta Conjunta (Nubank)",
+            "from_account": "Itaú",
+            "reference_day": 8,
+            "reference_month": 5,
+            "contribution_name": "Parte Jorge"
+          },
+          {
+            "amount": 300.00,
+            "to_account": "Conta Conjunta (Nubank)",
+            "from_account": "Itaú",
+            "reference_day": 14,
+            "reference_month": 5,
+            "contribution_name": "Parte Jorge"
+          },
+          {
+            "amount": 85.09,
+            "to_account": "Conta Conjunta (Nubank)",
+            "from_account": "Itaú",
+            "reference_day": 14,
+            "reference_month": 5,
+            "contribution_name": "Parte Jorge"
+          },
+          {
+            "amount": 1500.00,
+            "to_account": "Conta Conjunta (Nubank)",
+            "from_account": "Itaú",
+            "reference_day": 5,
+            "reference_month": 5,
+            "contribution_name": "Parte Jorge"
+          },
+          {
+            "amount": 300.00,
+            "to_account": "Conta Conjunta (Nubank)",
+            "from_account": "Itaú",
+            "reference_day": 12,
+            "reference_month": 6,
+            "contribution_name": "Parte Jorge"
+          },
+          {
+            "amount": 450.00,
+            "to_account": "Conta Conjunta (Nubank)",
+            "from_account": "Itaú",
+            "reference_day": 16,
+            "reference_month": 6,
+            "contribution_name": "Parte Jorge"
+          }
+        ],
+    "allocations": [
+      {
+        "name": "Debito em Conta",
+        "type": "PERSONAL",
+        "description": "Debito em Conta",
+        "categories": [
+          {
+            "name": "Internet Claro",
+            "type": "UTILITY",
+            "description": "Internet (Itaú)",
+            "months": [
+              {
+                "amount": 551.18,
+                "reference_month": 1
+              },
+              {
+                "amount": 360.05,
+                "reference_month": 2
+              },
+              {
+                "amount": 319.81,
+                "reference_month": 3
+              },
+              {
+                "amount": 319.73,
+                "reference_month": 4
+              },
+              {
+                "amount": 354.6,
+                "reference_month": 5
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Cartão de Crédito",
+        "type": "PERSONAL",
+        "description": "Cartão de Crédito",
+        "categories": [
+          {
+            "name": "Fatura do Cartão de Crédito Itau",
+            "type": "CREDIT_CARD",
+            "description": "Fatura do Cartão de Crédito Itau",
+            "months": [
+              {
+                "amount": 200.00,
+                "reference_month": 1,
+                "expenses": [
+                  {
+                    "name": "Netflix",
+                    "type": "ENTERTAINMENT",
+                    "amount": 44.90,
+                    "description": "Taxa de Streaming",
+                    "recurrency": true
+                  },
+                  {
+                    "name": "HBO Max",
+                    "type": "ENTERTAINMENT",
+                    "amount": 22.45,
+                    "description": "Taxa de Streaming",
+                    "recurrency": true
+                  },
+                  {
+                    "name": "MeliMais",
+                    "type": "ENTERTAINMENT",
+                    "amount": 19.90,
+                    "description": "Taxa de Streaming (Disney Plus | Mercado Livre)",
+                    "recurrency": true
+                  },
+                  {
+                    "name": "Google Storage",
+                    "type": "ENTERTAINMENT",
+                    "amount": 9.90,
+                    "description": "Taxa de Serviço de Armazenamento",
+                    "recurrency": true
+                  },
+                  {
+                    "name": "Bolos do Flávio",
+                    "type": "FOOD",
+                    "amount": 50,
+                    "description": "Compra de bolo do Flavio",
+                    "recurrency": false
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Conta Conjunta (Nubank)",
+    "type": "BANK",
+    "initial_balance": 0,
+    "reference_year": 2026,
+    "incomes": [
+      {
+        "source": "Parte Hayane",
+        "contributor_name": "Hayane",
+        "months": [
+          {
+            "amount": 1700.00,
+            "reference_day": 2,
+            "reference_month": 1
+          },
+          {
+            "amount": 1000.00,
+            "reference_day": 6,
+            "reference_month": 2
+          },
+          {
+            "amount": 1200.00,
+            "reference_day": 5,
+            "reference_month": 3
+          },
+          {
+            "amount": 500.00,
+            "reference_day": 10,
+            "reference_month": 3
+          },
+          {
+            "amount": 600.00,
+            "reference_day": 14,
+            "reference_month": 4
+          },
+          {
+            "amount": 800.00,
+            "reference_day": 20,
+            "reference_month": 4
+          },
+          {
+            "amount": 1200.00,
+            "reference_day": 4,
+            "reference_month": 5
+          },
+          {
+            "amount": 300.00,
+            "reference_day": 8,
+            "reference_month": 5
+          },
+          {
+            "amount": 1700.00,
+            "reference_day": 10,
+            "reference_month": 6
+          }
+        ]
+      }
+    ],
+    "allocations": [
+      {
+        "name": "Residencial Ingrid",
+        "type": "HOUSE",
+        "description": "Despesas do Residencial Ingrid",
+        "categories": [
+          {
+            "name": "Internet Vivo",
+            "type": "UTILITY",
+            "description": "Internet",
+            "months": [
+              {
+                "amount": 162.00,
+                "reference_month": 1
+              },
+              {
+                "amount": 162.00,
+                "reference_month": 2
+              },
+              {
+                "amount": 162.00,
+                "reference_month": 3
+              },
+              {
+                "amount": 162.00,
+                "reference_month": 4
+              },
+              {
+                "amount": 162.00,
+                "reference_month": 5
+              },
+              {
+                "amount": 162.00,
+                "reference_month": 6
+              },
+              {
+                "amount": 162.00,
+                "reference_month": 7
+              },
+              {
+                "amount": 162.00,
+                "reference_month": 8
+              },
+              {
+                "amount": 162.00,
+                "reference_month": 9
+              },
+              {
+                "amount": 162.00,
+                "reference_month": 10
+              },
+              {
+                "amount": 162.00,
+                "reference_month": 11
+              },
+              {
+                "amount": 162.00,
+                "reference_month": 12
+              }
+            ]
+          },
+          {
+            "name": "Garagem (Residencial Ingrid)",
+            "type": "TRANSPORT",
+            "description": "Garagem do Residencial Ingrid",
+            "months": [
+              {
+                "amount": 170.00,
+                "reference_month": 1
+              },
+              {
+                "amount": 170.00,
+                "reference_month": 2
+              },
+              {
+                "amount": 170.00,
+                "reference_month": 3
+              },
+              {
+                "amount": 170.00,
+                "reference_month": 4
+              },
+              {
+                "amount": 170.00,
+                "reference_month": 5
+              },
+              {
+                "amount": 170.00,
+                "reference_month": 6
+              },
+              {
+                "amount": 170.00,
+                "reference_month": 7
+              },
+              {
+                "amount": 170.00,
+                "reference_month": 8
+              },
+              {
+                "amount": 170.00,
+                "reference_month": 9
+              },
+              {
+                "amount": 170.00,
+                "reference_month": 10
+              },
+              {
+                "amount": 170.00,
+                "reference_month": 11
+              },
+              {
+                "amount": 170.00,
+                "reference_month": 12
+              }
+            ]
+          },
+          {
+            "name": "Condomínio (Facilite)",
+            "type": "UTILITY",
+            "description": "Condomínio do Residencial Ingrid",
+            "months": [
+              {
+                "amount": 766.21,
+                "reference_month": 1
+              },
+              {
+                "amount": 666.21,
+                "reference_month": 2
+              },
+              {
+                "amount": 662.21,
+                "reference_month": 3
+              },
+              {
+                "amount": 866.21,
+                "reference_month": 4
+              },
+              {
+                "amount": 794.14,
+                "reference_month": 5
+              },
+              {
+                "amount": 784.14,
+                "reference_month": 6
+              }
+            ]
+          },
+          {
+            "name": "Aluguel",
+            "type": "UTILITY",
+            "description": "Aluguel do Residencial Ingrid",
+            "to_account": "Caixa",
+            "from_account": "Conta Conjunta (Nubank)",
+            "months": [
+              {
+                "amount": 1500.00,
+                "reference_month": 1
+              },
+              {
+                "amount": 1500.00,
+                "reference_month": 2
+              },
+              {
+                "amount": 1500.00,
+                "reference_month": 3
+              },
+              {
+                "amount": 1500.00,
+                "reference_month": 4
+              },
+              {
+                "amount": 1500.00,
+                "reference_month": 5
+              },
+              {
+                "amount": 1500.00,
+                "reference_month": 6
+              },
+              {
+                "amount": 1500.00,
+                "reference_month": 7
+              },
+              {
+                "amount": 1500.00,
+                "reference_month": 8
+              },
+              {
+                "amount": 1500.00,
+                "reference_month": 9
+              },
+              {
+                "amount": 1500.00,
+                "reference_month": 10
+              },
+              {
+                "amount": 1500.00,
+                "reference_month": 11
+              },
+              {
+                "amount": 1500.00,
+                "reference_month": 12
+              }
+            ]
+          },
+          {
+            "name": "Luz",
+            "type": "GOVERNMENT_FEES",
+            "description": "Luz do Residencial Ingrid",
+            "months": [
+              {
+                "amount": 348.97,
+                "reference_month": 1
+              },
+              {
+                "amount": 281.51,
+                "reference_month": 2
+              },
+              {
+                "amount": 355.24,
+                "reference_month": 3
+              },
+              {
+                "amount": 359.63,
+                "reference_month": 4
+              },
+              {
+                "amount": 406.75,
+                "reference_month": 5
+              },
+              {
+                "amount": 294.55,
+                "reference_month": 6
+              }
+            ]
+          },
+          {
+            "name": "I.P.T.U",
+            "type": "GOVERNMENT_FEES",
+            "description": "Imposto sobre a Propriedade Predial e Territorial Urbana",
+            "months": [
+              {
+                "amount": 172.60,
+                "reference_month": 5
+              },
+              {
+                "amount": 164.38,
+                "reference_month": 6
+              }
+            ]
+          },
+          {
+            "name": "Diarista",
+            "type": "UTILITY",
+            "description": "Serviços de Diarista",
+            "months": [
+              {
+                "amount": 400.00,
+                "reference_month": 3
+              },
+              {
+                "amount": 400.00,
+                "reference_month": 4
+              },
+              {
+                "amount": 400.00,
+                "reference_month": 5
+              },
+              {
+                "amount": 400.00,
+                "reference_month": 6
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Caixa",
+    "type": "BANK",
+    "initial_balance": 0,
+    "reference_year": 2026,
+    "incomes": [
+      {
+        "source": "Aposentadoria (Mãe)",
+        "months": [
+          {
+            "amount": 4744.35,
+            "reference_month": 1
+          },
+          {
+            "amount": 4744.35,
+            "reference_month": 2
+          },
+          {
+            "amount": 4744.35,
+            "reference_month": 3
+          },
+          {
+            "amount": 4744.35,
+            "reference_month": 4
+          },
+          {
+            "amount": 7116.00,
+            "reference_month": 5
+          },
+          {
+            "amount": 7116.53,
+            "reference_month": 6
+          }
+        ]
+      }
+    ],
+    "allocations": [
+      {
+        "name": "PIX",
+        "type": "PERSONAL",
+        "description": "PIX",
+        "categories": [
+          {
+            "name": "I.P.V.A",
+            "type": "GOVERNMENT_FEES",
+            "description": "Imposto sobre a Propriedade de Veículos Automotores.",
+            "months": [
+              {
+                "amount": 981.12,
+                "reference_month": 2
+              },
+              {
+                "amount": 119.23,
+                "reference_month": 4
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Cartão de Crédito",
+        "type": "PERSONAL",
+        "description": "Cartão de Crédito",
+        "categories": [
+          {
+            "name": "Fatura do Cartão de Crédito Nubank",
+            "type": "CREDIT_CARD",
+            "description": "Fatura do Cartão de Crédito Nubank",
+            "months": [
+              {
+                "amount": 200.00,
+                "reference_month": 1,
+                "expenses": [
+                  {
+                    "name": "Netflix",
+                    "type": "ENTERTAINMENT",
+                    "amount": 44.90,
+                    "description": "Taxa de Streaming",
+                    "recurrency": true
+                  },
+                  {
+                    "name": "HBO Max",
+                    "type": "ENTERTAINMENT",
+                    "amount": 22.45,
+                    "description": "Taxa de Streaming",
+                    "recurrency": true
+                  },
+                  {
+                    "name": "MeliMais",
+                    "type": "ENTERTAINMENT",
+                    "amount": 19.90,
+                    "description": "Taxa de Streaming (Disney Plus | Mercado Livre)",
+                    "recurrency": true
+                  },
+                  {
+                    "name": "Google Storage",
+                    "type": "ENTERTAINMENT",
+                    "amount": 9.90,
+                    "description": "Taxa de Serviço de Armazenamento",
+                    "recurrency": true
+                  },
+                  {
+                    "name": "Bolos do Flávio",
+                    "type": "FOOD",
+                    "amount": 50,
+                    "description": "Compra de bolo do Flavio",
+                    "recurrency": false
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Fatura do Cartão de Crédito Caixa",
+            "type": "CREDIT_CARD",
+            "description": "Fatura do Cartão de Crédito Caixa",
+            "months": [
+              {
+                "amount": 200.00,
+                "reference_month": 1,
+                "expenses": [
+                  {
+                    "name": "Netflix",
+                    "type": "ENTERTAINMENT",
+                    "amount": 44.90,
+                    "description": "Taxa de Streaming",
+                    "recurrency": true
+                  },
+                  {
+                    "name": "HBO Max",
+                    "type": "ENTERTAINMENT",
+                    "amount": 22.45,
+                    "description": "Taxa de Streaming",
+                    "recurrency": true
+                  },
+                  {
+                    "name": "MeliMais",
+                    "type": "ENTERTAINMENT",
+                    "amount": 19.90,
+                    "description": "Taxa de Streaming (Disney Plus | Mercado Livre)",
+                    "recurrency": true
+                  },
+                  {
+                    "name": "Google Storage",
+                    "type": "ENTERTAINMENT",
+                    "amount": 9.90,
+                    "description": "Taxa de Serviço de Armazenamento",
+                    "recurrency": true
+                  },
+                  {
+                    "name": "Bolos do Flávio",
+                    "type": "FOOD",
+                    "amount": 50,
+                    "description": "Compra de bolo do Flavio",
+                    "recurrency": false
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

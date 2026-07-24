@@ -1,0 +1,490 @@
+[
+  {
+    "name": "Nubank",
+    "type": "BANK",
+    "reference_year": 2026,
+    "initial_balance": 0,
+    "incomes": [
+      {
+        "source": "Salario",
+        "months": [
+          {
+            "amount": 7520.0,
+            "reference_month": 1
+          },
+          {
+            "amount": 7520.0,
+            "reference_month": 2
+          },
+          {
+            "amount": 7520.0,
+            "reference_month": 3
+          },
+          {
+            "amount": 7520.0,
+            "reference_month": 4
+          },
+          {
+            "amount": 7520.0,
+            "reference_month": 5
+          },
+          {
+            "amount": 7520.0,
+            "reference_month": 6
+          }
+        ],
+        "description": "Salario"
+      }
+    ],
+    "allocations": [
+      {
+        "name": "Debito em Conta",
+        "description": "Debito em Conta",
+        "categories": [
+          {
+            "name": "Studies",
+            "description": "Studies",
+            "expenses": [
+              {
+                "name": "L.U.V.E",
+                "description": "Loja Universitária Verdade e Evolução (Nubank)",
+                "months": [
+                  {
+                    "amount": 0,
+                    "reference_month": 1
+                  },
+                  {
+                    "amount": 110.00,
+                    "reference_month": 2
+                  },
+                  {
+                    "amount": 220.00,
+                    "reference_month": 3
+                  },
+                  {
+                    "amount": 210.00,
+                    "reference_month": 4
+                  }
+                ]
+              },
+              {
+                "name": "Filosóficos",
+                "description": "Capitulo Consciência Liberta (Nubank)",
+                "months": [
+                  {
+                    "amount": 140.00,
+                    "reference_month": 1
+                  },
+                  {
+                    "amount": 40.00,
+                    "reference_month": 2
+                  },
+                  {
+                    "amount": 40.00,
+                    "reference_month": 3
+                  },
+                  {
+                    "amount": 40.00,
+                    "reference_month": 4
+                  },
+                  {
+                    "amount": 40.00,
+                    "reference_month": 5
+                  },
+                  {
+                    "amount": 40.00,
+                    "reference_month": 6
+                  }
+                ]
+              },
+              {
+                "name": "M.C.B.D.A",
+                "description": "Moto Clube Bodes do Asfalto (Nubank)",
+                "months": [
+                  {
+                    "amount": 180.31,
+                    "reference_month": 1
+                  },
+                  {
+                    "amount": 180.31,
+                    "reference_month": 2
+                  },
+                  {
+                    "amount": 180.31,
+                    "reference_month": 3
+                  },
+                  {
+                    "amount": 180.31,
+                    "reference_month": 4
+                  },
+                  {
+                    "amount": 180.31,
+                    "reference_month": 5
+                  },
+                  {
+                    "amount": 180.31,
+                    "reference_month": 6
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "PIX",
+        "description": "PIX",
+        "categories": [
+          {
+            "name": "Government Fees",
+            "description": "Government Fees",
+            "expenses": [
+              {
+                "name": "I.P.V.A",
+                "description": "Imposto sobre a Propriedade de Veículos Automotores.",
+                "months": [
+                  {
+                    "amount": 981.12,
+                    "reference_month": 2
+                  },
+                  {
+                    "amount": 119.23,
+                    "reference_month": 4
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Transport",
+            "description": "Transport",
+            "expenses": [
+              {
+                "name": "seguro Moto (Porto)",
+                "description": "Seguro da moto Harley Davidson Road King",
+                "months": [
+                  {
+                    "amount": 542.46,
+                    "reference_month": 1
+                  },
+                  {
+                    "amount": 547.46,
+                    "reference_month": 2
+                  },
+                  {
+                    "amount": 548.31,
+                    "reference_month": 3
+                  },
+                  {
+                    "amount": 547.80,
+                    "reference_month": 4
+                  },
+                  {
+                    "amount": 54.28,
+                    "reference_month": 5
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Residencial Monte Carlo",
+        "description": "Despesas do Residencial Monte Carlo",
+        "categories": [
+          {
+            "name": "Transport",
+            "description": "Transport",
+            "expenses": [
+              {
+                "name": "Garagem (Monte Carlo)",
+                "description": "Garagem do Monte Carlo",
+                "months": [
+                  {
+                    "amount": 150.00,
+                    "reference_month": 1
+                  },
+                  {
+                    "amount": 150.00,
+                    "reference_month": 2
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Utility",
+            "description": "Utility",
+            "expenses": [
+              {
+                "name": "Condomínio (Ancora)",
+                "description": "Condomínio do Monte Carlo",
+                "months": [
+                  {
+                    "amount": 780.24,
+                    "reference_month": 1
+                  },
+                  {
+                    "amount": 778.36,
+                    "reference_month": 2
+                  },
+                  {
+                    "amount": 788.38,
+                    "reference_month": 3
+                  },
+                  {
+                    "amount": 781.15,
+                    "reference_month": 4
+                  },
+                  {
+                    "amount": 782.67,
+                    "reference_month": 5
+                  },
+                  {
+                    "amount": 783.90,
+                    "reference_month": 6
+                  }
+                ]
+              },
+              {
+                "name": "Diarista",
+                "description": "Serviços de Diarista",
+                "months": [
+                  {
+                    "amount": 300.00,
+                    "reference_month": 6
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Government Fees",
+            "description": "Government Fees",
+            "expenses": [
+              {
+                "name": "Luz",
+                "description": "Luz do Monte Carlo",
+                "months": [
+                  {
+                    "amount": 130.00,
+                    "reference_month": 1
+                  },
+                  {
+                    "amount": 117.94,
+                    "reference_month": 2
+                  },
+                  {
+                    "amount": 145.26,
+                    "reference_month": 3
+                  },
+                  {
+                    "amount": 132.50,
+                    "reference_month": 4
+                  },
+                  {
+                    "amount": 142.19,
+                    "reference_month": 5
+                  },
+                  {
+                    "amount": 105.84,
+                    "reference_month": 6
+                  }
+                ]
+              },
+              {
+                "name": "I.P.T.U",
+                "description": "Imposto sobre a Propriedade Predial e Territorial Urbana",
+                "months": [
+                  {
+                    "amount": 225.59,
+                    "reference_month": 5
+                  },
+                  {
+                    "amount": 214.85,
+                    "reference_month": 6
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Cartão de Crédito",
+        "description": "Cartão de Crédito",
+        "categories": [
+          {
+            "name": "Credit Card",
+            "description": "Credit Card",
+            "expenses": [
+              {
+                "name": "Fatura do Cartão de Crédito Nubank",
+                "description": "Fatura do Cartão de Crédito Nubank",
+                "categories": [
+                  {
+                    "name": "Entertainment",
+                    "description": "Entertainment",
+                    "expenses": [
+                      {
+                        "name": "Netflix",
+                        "description": "Taxa de Streaming",
+                        "months": [
+                          {
+                            "amount": 44.90,
+                            "reference_month": 1
+                          },
+                          {
+                            "amount": 44.90,
+                            "reference_month": 2
+                          },
+                          {
+                            "amount": 44.90,
+                            "reference_month": 3
+                          },
+                          {
+                            "amount": 44.90,
+                            "reference_month": 4
+                          },
+                          {
+                            "amount": 44.90,
+                            "reference_month": 5
+                          },
+                          {
+                            "amount": 44.90,
+                            "reference_month": 6
+                          }
+                        ]
+                      },
+                      {
+                        "name": "HBO Max",
+                        "description": "Taxa de Streaming",
+                        "months": [
+                          {
+                            "amount": 22.45,
+                            "reference_month": 1
+                          },
+                          {
+                            "amount": 22.45,
+                            "reference_month": 2
+                          },
+                          {
+                            "amount": 22.45,
+                            "reference_month": 3
+                          },
+                          {
+                            "amount": 22.45,
+                            "reference_month": 4
+                          },
+                          {
+                            "amount": 22.45,
+                            "reference_month": 5
+                          },
+                          {
+                            "amount": 22.45,
+                            "reference_month": 6
+                          }
+                        ]
+                      },
+                      {
+                        "name": "MeliMais",
+                        "description": "Taxa de Streaming (Disney Plus | Mercado Livre)",
+                        "months": [
+                          {
+                            "amount": 19.90,
+                            "reference_month": 1
+                          },
+                          {
+                            "amount": 19.90,
+                            "reference_month": 2
+                          },
+                          {
+                            "amount": 19.90,
+                            "reference_month": 3
+                          },
+                          {
+                            "amount": 19.90,
+                            "reference_month": 4
+                          },
+                          {
+                            "amount": 19.90,
+                            "reference_month": 5
+                          },
+                          {
+                            "amount": 19.90,
+                            "reference_month": 6
+                          },
+                          {
+                            "amount": 19.90,
+                            "reference_month": 7
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Services",
+                    "description": "Services",
+                    "expenses": [
+                      {
+                        "name": "Google Storage",
+                        "description": "Taxa de Serviço de Armazenamento",
+                        "months": [
+                          {
+                            "amount": 9.90,
+                            "reference_month": 1
+                          },
+                          {
+                            "amount": 9.90,
+                            "reference_month": 2
+                          },
+                          {
+                            "amount": 9.90,
+                            "reference_month": 3
+                          },
+                          {
+                            "amount": 9.90,
+                            "reference_month": 4
+                          },
+                          {
+                            "amount": 9.90,
+                            "reference_month": 5
+                          },
+                          {
+                            "amount": 9.90,
+                            "reference_month": 6
+                          },
+                          {
+                            "amount": 9.90,
+                            "reference_month": 7
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Food",
+                    "description": "Despesas com comida",
+                    "expenses": [
+                      {
+                        "name": "Bolos do Flávio",
+                        "description": "Compra de bolo do Flavio",
+                        "months": [
+                          {
+                            "amount": 50,
+                            "reference_month": 1
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

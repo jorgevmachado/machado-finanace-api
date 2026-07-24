@@ -13,11 +13,8 @@ from app.models import utcnow
 if TYPE_CHECKING:
     from app.models.user import User
     from app.models.account import Account
-    from app.models.allocation import Allocation
-    from app.models.income import Income
-    from app.models.allocation_contribution import AllocationContribution
     from app.models.category import Category
-    from app.models.transaction import Transaction
+    from app.models.transfer import Transfer
 
 
 @table_registry.mapped_as_dataclass
@@ -40,30 +37,6 @@ class Finance:
         back_populates="finance",
     )
 
-    allocations: Mapped[list["Allocation"]] = relationship(
-        lazy=default_lazy,
-        default_factory=list,
-        init=False,
-        repr=False,
-        back_populates="finance",
-    )
-
-    incomes: Mapped[list["Income"]] = relationship(
-        lazy=default_lazy,
-        default_factory=list,
-        init=False,
-        repr=False,
-        back_populates="finance",
-    )
-
-    allocation_contributions: Mapped[list["AllocationContribution"]] = relationship(
-        lazy=default_lazy,
-        default_factory=list,
-        init=False,
-        repr=False,
-        back_populates="finance",
-    )
-
     categories: Mapped[list["Category"]] = relationship(
         lazy=default_lazy,
         default_factory=list,
@@ -72,7 +45,7 @@ class Finance:
         back_populates="finance",
     )
 
-    transactions: Mapped[list["Transaction"]] = relationship(
+    transfers: Mapped[list["Transfer"]] = relationship(
         lazy=default_lazy,
         default_factory=list,
         init=False,

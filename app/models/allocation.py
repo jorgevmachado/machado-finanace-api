@@ -4,25 +4,25 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
-from sqlalchemy import DateTime, ForeignKey, String, Boolean, Enum as SAEnum, Text
+from sqlalchemy import DateTime, ForeignKey, String, Boolean, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import default_lazy, table_registry
-from app.models import utcnow, AllocationTypeEnum
+from app.models import utcnow
 
 if TYPE_CHECKING:
-    from app.models.finance import Finance
+    from app.models.account import Account
     from app.models.allocation_contribution import AllocationContribution
-    from app.models.transaction import Transaction
+    from app.models.expense import Expense
 
 
 @table_registry.mapped_as_dataclass
 class Allocation:
     __tablename__ = "allocations"
 
-    finance_id: Mapped[UUID] = mapped_column(ForeignKey("finances.id"), nullable=False)
+    account_id: Mapped[UUID] = mapped_column(ForeignKey("accounts.id"), nullable=False)
 
-    finance: Mapped["Finance"] = relationship(
+    account: Mapped["Account"] = relationship(
         init=False,
         lazy=default_lazy,
         back_populates="allocations",
@@ -34,12 +34,6 @@ class Allocation:
 
     description: Mapped[str] = mapped_column(Text, nullable=False)
 
-    type: Mapped[AllocationTypeEnum] = mapped_column(
-        SAEnum(AllocationTypeEnum, name="allocationtypeenum"),
-        nullable=False,
-        default=AllocationTypeEnum.OTHER,
-    )
-
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     allocation_contributions: Mapped[list["AllocationContribution"]] = relationship(
@@ -50,7 +44,7 @@ class Allocation:
         back_populates="allocation",
     )
 
-    transactions: Mapped[list["Transaction"]] = relationship(
+    expenses: Mapped[list["Expense"]] = relationship(
         lazy=default_lazy,
         default_factory=list,
         init=False,

@@ -26,11 +26,13 @@ class BaseService[
         logger_params: LoggingParams,
         schema_class: type[SchemaT],
         cache_prefix: str | None = None,
+        parents_alias: list[str] | None = None,
     ):
         prefix = cache_prefix or alias.replace(" ", "_").lower()
         self.alias = alias
         self.repository = repository
         self.cache_prefix = cache_prefix
+        self.parents_alias = parents_alias
         self.logger_params = logger_params
         self.cache_service = CacheService(
             alias=alias,
@@ -93,11 +95,16 @@ class BaseService[
         finance_id = kwargs.get("finance_id") if kwargs else None
         user_request = kwargs.get("user_request") if kwargs else None
         with_deleted = kwargs.get("with_deleted") if kwargs else False
+        reference_year = kwargs.get("reference_year") if kwargs else None
         finance_id = cast(str, finance_id) if finance_id else None
+        reference_year = cast(int, reference_year) if reference_year else None
         try:
-            find_by_filters: dict[str, str] = (
+            find_by_filters: dict[str, str | int] = (
                 {"finance_id": finance_id} if finance_id else {}
             )
+            if reference_year is not None:
+                find_by_filters["reference_year"] = reference_year
+
             if is_valid_uuid(param):
                 result = await self.repository.find_by(
                     id=param, with_deleted=with_deleted, **find_by_filters
@@ -133,7 +140,7 @@ class BaseService[
     async def _invalidate_cache(
         self, identifier: str | None = None, finance_id: str | None = None
     ) -> None:
-        await self.cache_service.delete_domain()
+        await self.cache_service.delete_with_parent_cache(self.parents_alias)
         if identifier:
             cache_key = identifier
             if finance_id:
@@ -147,9 +154,14 @@ class BaseService[
     ):
         cache_key = param
         finance_id = kwargs.get("finance_id") if kwargs else None
-        finance_id = cast(str, finance_id) if finance_id else None
+        finance_id = cast(str, finance_id) if finance_id else None        
         if finance_id:
             cache_key = f"{finance_id}:{param}"
+
+        reference_year = kwargs.get("reference_year") if kwargs else None
+        reference_year = cast(int, reference_year) if reference_year else None
+        if reference_year:
+            cache_key = f"{cache_key}:{reference_year}"
         key = self.cache_service.build_key_one(param=cache_key)
         clean_cache = kwargs.get("clean_cache") if kwargs else False
 
@@ -261,7 +273,9 @@ class BaseService[
         user_request: str | None = None,
     ) -> ModelT:
         try:
-            return await self.repository.update(entity=entity)
+            updated =  await self.repository.update(entity=entity)
+            await self.cache_service.delete_with_parent_cache(self.parents_alias)
+            return updated
         except Exception as exception:
             handle_service_exception(
                 exception,

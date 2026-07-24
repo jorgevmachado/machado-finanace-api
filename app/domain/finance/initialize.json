@@ -1,0 +1,84 @@
+{
+  "accounts": [
+    {
+      "name": "Nubank",
+      "type": "Bank",
+      "initial_balance": 0
+    },
+    {
+      "name": "Itaú",
+      "type": "Bank",
+      "initial_balance": 0
+    },
+    {
+      "name": "Caixa",
+      "type": "Bank",
+      "initial_balance": 0
+    }
+  ],
+  "categories": [
+    {
+      "name": "House",
+      "description": "Expenses related to housing, including rent, mortgage, utilities, and maintenance."
+    },
+    {
+      "name": "Transportation",
+      "description": "Costs associated with commuting, public transportation, fuel, and vehicle maintenance."
+    },
+    {
+      "name": "Food",
+      "description": "Expenses for groceries, dining out, and other food-related costs."
+    },
+    {
+      "name": "Entertainment",
+      "description": "Spending on leisure activities, hobbies, movies, concerts, and other forms of entertainment."
+    },
+    {
+      "name": "Healthcare",
+      "description": "Medical expenses, including insurance premiums, doctor visits, medications, and treatments."
+    },
+    {
+      "name": "Education",
+      "description": "Costs related to tuition, books, courses, and other educational expenses."
+    },
+    {
+      "name": "Savings & Investments",
+      "description": "Funds allocated for savings accounts, retirement plans, stocks, bonds, and other investment vehicles."
+    },
+    {
+      "name": "Public Taxes",
+      "description": "Mandatory payments to government authorities, including income tax, property tax, and other levies."
+    },
+    {
+      "name": "Services",
+      "description": "Payments for professional services, subscriptions, and other service-related expenses."
+    }
+  ],
+  "allocations": [
+    {
+      "name": "Residencial Ingrid",
+      "account": "Nubank",
+      "description": "Allocation for residential expenses related to Ingrid."
+    },
+    {
+      "name": "Residencial Monte Carlo",
+      "account": "Caixa",
+      "description": "Allocation for residential expenses related to Monte Carlo."
+    },
+    {
+      "name": "Mãe (Vera)",
+      "account": "Caixa",
+      "description": "Allocation for expenses related to Vera."
+    },
+    {
+      "name": "Pessoal (Nubank)",
+      "account": "Nubank",
+      "description": "Allocation for personal expenses related to Nubank."
+    },
+    {
+      "name": "Pessoal (Itaú)",
+      "account": "Itaú",
+      "description": "Allocation for personal expenses related to Itaú."
+    }
+  ]
+}

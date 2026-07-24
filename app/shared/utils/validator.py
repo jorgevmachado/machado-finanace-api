@@ -5,9 +5,9 @@ from fastapi import HTTPException
 from app.models import utcnow
 
 
-def validate_year(year: int) -> int:
+def validate_year(year: int | None = None) -> int:
     current_year = utcnow().year
-    if year > current_year:
+    if not year or year > current_year:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
             detail=f"Reference year {year} must be less than or equal to the current year {current_year}",

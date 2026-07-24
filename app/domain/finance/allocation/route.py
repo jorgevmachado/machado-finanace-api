@@ -16,7 +16,6 @@ from app.domain.finance.allocation.schema import (
     AllocationSchema,
     PayloadAllocationCreateSchema,
     PayloadAllocationUpdateSchema,
-    PayloadAllocationCreateListSchema,
 )
 from app.domain.finance.allocation.service import AllocationService
 from app.models import User
@@ -38,7 +37,6 @@ CurrentUser = Annotated[User, Depends(get_current_user)]
 def allocation_filter(
     page: int | None = None,
     name: str | None = None,
-    type: str | None = None,
     limit: int | None = 12,
     offset: int | None = None,
     is_active: bool | None = None,
@@ -48,7 +46,6 @@ def allocation_filter(
     return FilterPage.build(
         page=page,
         name=name,
-        type=type,
         limit=limit,
         offset=offset,
         is_active=is_active,
@@ -84,13 +81,12 @@ async def find_one(
     clean_cache: bool = False,
     with_deleted: bool = False,
 ):
-    finance = validate_finance(current_user.finance)
+    validate_finance(current_user.finance)
     return await service.find_one_cached(
         param=param,
         user_request=current_user.username,
         clean_cache=clean_cache,
         with_deleted=with_deleted,
-        finance_id=str(finance.id),
     )
 
 
@@ -99,7 +95,7 @@ async def create(
     service: Service, current_user: CurrentUser, payload: PayloadAllocationCreateSchema
 ):
     finance = validate_finance(current_user.finance)
-    return await service.persist(finance=finance, payload=payload)
+    return await service.create(finance=finance, payload=payload)
 
 
 @router.put("/{param}", response_model=AllocationSchema, status_code=HTTPStatus.CREATED)
@@ -121,17 +117,5 @@ async def delete(
     service: Service,
     current_user: CurrentUser,
 ):
-    finance = validate_finance(current_user.finance)
-    return await service.soft_delete(
-        param=param, user_request=current_user.username, finance_id=str(finance.id)
-    )
-
-
-@router.post("/list", response_model=list[AllocationSchema], status_code=HTTPStatus.OK)
-async def create_list(
-    service: Service,
-    current_user: CurrentUser,
-    payload: PayloadAllocationCreateListSchema,
-):
-    finance = validate_finance(current_user.finance)
-    return await service.create_list(finance=finance, payload=payload)
+    validate_finance(current_user.finance)
+    return await service.soft_delete(param=param, user_request=current_user.username)

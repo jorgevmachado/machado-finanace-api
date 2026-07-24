@@ -15,7 +15,7 @@ from sqlalchemy.orm import selectinload
 
 from app.core.database import get_session
 from app.core.settings import Settings
-from app.models import Finance
+from app.models import Finance, Account, Allocation, Expense
 
 from app.models.user import User
 
@@ -66,7 +66,12 @@ async def get_current_user(
     except (DecodeError, ExpiredSignatureError, ValueError):
         raise credentials_exception
 
-    query = select(User).options(selectinload(User.finance)).where(User.id == user_id)
+    query = select(User).options(
+        selectinload(User.finance)
+            .selectinload(Finance.accounts)
+            .selectinload(Account.allocations).
+            selectinload(Allocation.expenses).
+            selectinload(Expense.children)).where(User.id == user_id)
 
     user = await session.scalar(query)
 

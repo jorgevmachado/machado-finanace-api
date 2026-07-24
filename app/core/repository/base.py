@@ -337,7 +337,9 @@ class BaseRepository[ModelT]:
         with_deleted = raw_filters.get("with_deleted") if raw_filters else False
         valid_columns = set(self.model.__mapper__.columns.keys())
         filters = {
-            key: value
+            key: (
+                None if isinstance(value, str) and value.upper() == "FALSE" else value
+            )
             for key, value in raw_filters.items()
             if key in valid_columns and value is not None
         }

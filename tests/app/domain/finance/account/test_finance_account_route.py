@@ -7,21 +7,20 @@ import pytest
 
 from app.domain.finance.account.route import (
     create,
-    create_list,
     account_service,
     account_filter,
     list_all,
     find_one,
     update,
     delete,
-    refresh,
+    recalculate,
 )
 from app.domain.finance.account.schema import (
     PayloadAccountCreateSchema,
     PayloadAccountUpdateSchema,
 )
 from app.domain.finance.account.service import AccountService
-from app.models import AccountTypeEnum
+from app.models import AccountTypeEnum, utcnow
 from app.shared.schemas import FilterPage
 
 
@@ -38,6 +37,7 @@ def test_get_account_filter_builds_dynamic_filter():
         limit=12,
         is_active=True,
         clean_cache=True,
+        reference_year=2026,
     )
 
     assert page_filter.page == 1
@@ -46,6 +46,7 @@ def test_get_account_filter_builds_dynamic_filter():
     assert page_filter.limit == 12
     assert page_filter.is_active
     assert page_filter.clean_cache
+    assert page_filter.reference_year == 2026
 
 
 @pytest.mark.asyncio
@@ -62,7 +63,7 @@ async def test_finance_account_route_create() -> None:
         initial_balance=payload.initial_balance,
         current_balance=payload.initial_balance,
     )
-    service.persist.return_value = expected
+    service.create.return_value = expected
     current_user = SimpleNamespace(
         id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
     )
@@ -70,25 +71,7 @@ async def test_finance_account_route_create() -> None:
     result = await create(service=service, current_user=current_user, payload=payload)
 
     assert result is expected
-    service.persist.assert_awaited_once_with(
-        finance=current_user.finance, payload=payload
-    )
-
-
-@pytest.mark.asyncio
-async def test_finance_account_route_create_list() -> None:
-    service = AsyncMock()
-    payload = SimpleNamespace(accounts=[])
-    expected = [SimpleNamespace(id="account-id")]
-    service.create_list.return_value = expected
-    current_user = SimpleNamespace(
-        id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
-    )
-
-    result = await create_list(service=service, current_user=current_user, payload=payload)
-
-    assert result == expected
-    service.create_list.assert_awaited_once_with(
+    service.create.assert_awaited_once_with(
         finance=current_user.finance, payload=payload
     )
 
@@ -125,6 +108,7 @@ async def test_finance_account_route_list_all_paginate_and_filter() -> None:
 @pytest.mark.asyncio
 async def test_finance_account_route_find_one() -> None:
     service = AsyncMock()
+    current_datetime = utcnow()
     expected = SimpleNamespace(
         id="account-id",
         name="Test Account",
@@ -142,6 +126,7 @@ async def test_finance_account_route_find_one() -> None:
         param="account-id",
         current_user=current_user,
         service=service,
+        reference_year=current_datetime.year,
     )
 
     assert result is expected
@@ -151,6 +136,7 @@ async def test_finance_account_route_find_one() -> None:
         clean_cache=False,
         with_deleted=False,
         finance_id="finance-id",
+        reference_year=current_datetime.year,
     )
 
 
@@ -204,7 +190,7 @@ async def test_finance_account_route_delete() -> None:
 
 
 @pytest.mark.asyncio
-async def test_finance_account_route_refresh() -> None:
+async def test_finance_account_route_recalculate() -> None:
     service = AsyncMock()
     expected = SimpleNamespace(
         id="account-id",
@@ -214,17 +200,17 @@ async def test_finance_account_route_refresh() -> None:
         initial_balance=100.00,
         current_balance=650.00,
     )
-    service.refresh.return_value = expected
+    service.recalculate.return_value = expected
     current_user = SimpleNamespace(
         id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
     )
 
-    result = await refresh(
+    result = await recalculate(
         param="account-id", current_user=current_user, service=service
     )
 
     assert result is expected
-    service.refresh.assert_awaited_once_with(
+    service.recalculate.assert_awaited_once_with(
         param="account-id",
         finance=current_user.finance,
     )

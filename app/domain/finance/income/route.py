@@ -16,7 +16,6 @@ from app.domain.finance.income.schema import (
     IncomeSchema,
     PayloadIncomeCreateSchema,
     PayloadIncomeUpdateSchema,
-    PayloadIncomeCreateListSchema,
 )
 from app.domain.finance.income.service import IncomeService
 from app.models import User
@@ -87,14 +86,15 @@ async def find_one(
     current_user: CurrentUser,
     clean_cache: bool = False,
     with_deleted: bool = False,
+    reference_year: int | None = None
 ):
-    finance = validate_finance(current_user.finance)
+    validate_finance(current_user.finance)
     return await service.find_one_cached(
         param=param,
         user_request=current_user.username,
         clean_cache=clean_cache,
         with_deleted=with_deleted,
-        finance_id=str(finance.id),
+        reference_year=reference_year
     )
 
 
@@ -113,9 +113,12 @@ async def update(
     current_user: CurrentUser,
     payload: PayloadIncomeUpdateSchema,
 ):
-    validate_finance(current_user.finance)
+    finance = validate_finance(current_user.finance)
     return await service.update(
-        param=param, user_request=current_user.username, update_schema=payload
+        param=param,
+        payload=payload,
+        finance_id=str(finance.id),
+        user_request=current_user.username
     )
 
 
@@ -129,11 +132,3 @@ async def delete(
     return await service.soft_delete(
         param=param, user_request=current_user.username, finance_id=str(finance.id)
     )
-
-
-@router.post("/year", response_model=list[IncomeSchema], status_code=HTTPStatus.CREATED)
-async def create_list_by_year(
-    service: Service, current_user: CurrentUser, payload: PayloadIncomeCreateListSchema
-):
-    finance = validate_finance(current_user.finance)
-    return await service.create_list_by_year(finance=finance, payload=payload)

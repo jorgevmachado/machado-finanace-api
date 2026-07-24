@@ -18,7 +18,6 @@ from app.domain.finance.allocation_contribution.schema import (
     AllocationContributionSchema,
     PayloadAllocationContributionCreateSchema,
     PayloadAllocationContributionUpdateSchema,
-    PayloadAllocationContributionCreateListSchema,
 )
 from app.domain.finance.allocation_contribution.service import (
     AllocationContributionService,
@@ -46,7 +45,6 @@ def allocation_contribution_filter(
     source: str | None = None,
     limit: int | None = 12,
     offset: int | None = None,
-    account_id: str | None = None,
     clean_cache: bool = False,
     with_deleted: bool = False,
     allocation_id: str | None = None,
@@ -59,7 +57,6 @@ def allocation_contribution_filter(
         source=source,
         limit=limit,
         offset=offset,
-        account_id=account_id,
         clean_cache=clean_cache,
         with_deleted=with_deleted,
         allocation_id=allocation_id,
@@ -80,11 +77,9 @@ async def list_all(
     current_user: CurrentUser,
     page_filter: Annotated[FilterPage, Depends(allocation_contribution_filter)] = None,
 ):
-    finance = validate_finance(current_user.finance)
+    validate_finance(current_user.finance)
     return await service.list_all_cached(
-        page_filter=FilterPage.build(
-            page_filter=page_filter, finance_id=str(finance.id)
-        ),
+        page_filter=page_filter,
         user_request=current_user.username,
     )
 
@@ -98,14 +93,15 @@ async def find_one(
     current_user: CurrentUser,
     clean_cache: bool = False,
     with_deleted: bool = False,
+    reference_year: int | None = None
 ):
-    finance = validate_finance(current_user.finance)
+    validate_finance(current_user.finance)
     return await service.find_one_cached(
         param=param,
         user_request=current_user.username,
         clean_cache=clean_cache,
         with_deleted=with_deleted,
-        finance_id=str(finance.id),
+        reference_year=reference_year,
     )
 
 
@@ -117,8 +113,8 @@ async def create(
     current_user: CurrentUser,
     payload: PayloadAllocationContributionCreateSchema,
 ):
-    finance = validate_finance(current_user.finance)
-    return await service.create(finance=finance, payload=payload)
+    validate_finance(current_user.finance)
+    return await service.create(payload=payload)
 
 
 @router.put(
@@ -134,7 +130,9 @@ async def update(
 ):
     validate_finance(current_user.finance)
     return await service.update(
-        param=param, user_request=current_user.username, update_schema=payload
+        param=param,
+        payload=payload,
+        user_request=current_user.username,
     )
 
 
@@ -144,21 +142,5 @@ async def delete(
     service: Service,
     current_user: CurrentUser,
 ):
-    finance = validate_finance(current_user.finance)
-    return await service.soft_delete(
-        param=param, user_request=current_user.username, finance_id=str(finance.id)
-    )
-
-
-@router.post(
-    "/year",
-    response_model=list[AllocationContributionSchema],
-    status_code=HTTPStatus.CREATED,
-)
-async def create_list_by_year(
-    service: Service,
-    current_user: CurrentUser,
-    payload: PayloadAllocationContributionCreateListSchema,
-):
-    finance = validate_finance(current_user.finance)
-    return await service.create_list_by_year(finance=finance, payload=payload)
+    validate_finance(current_user.finance)
+    return await service.soft_delete(param=param, user_request=current_user.username)

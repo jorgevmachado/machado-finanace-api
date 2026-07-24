@@ -2,9 +2,10 @@ from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from datetime import datetime
 
-from app.domain.finance.allocation_contribution.schema import AllocationContributionSchema
+from app.domain.finance.allocation.schema import AllocationSchema
+
 from app.domain.finance.income.schema import IncomeSchema
-from app.domain.finance.transaction.schema import TransactionSchema
+from app.domain.finance.transfer.schema import TransferSchema
 from app.models import AccountTypeEnum
 
 
@@ -12,10 +13,7 @@ class PayloadAccountCreateSchema(BaseModel):
     name: str
     type: AccountTypeEnum
     initial_balance: float
-
-
-class PayloadAccountCreateListSchema(BaseModel):
-    accounts: list[PayloadAccountCreateSchema]
+    current_balance: float | None = None
 
 
 class PayloadAccountUpdateSchema(BaseModel):
@@ -32,13 +30,14 @@ class AccountSchema(BaseModel):
     id: UUID
     name: str
     type: AccountTypeEnum
-    incomes: list[IncomeSchema]    
+    incomes: list[IncomeSchema]
+    allocations: list[AllocationSchema]
     is_active: bool
     finance_id: UUID
-    transactions: list[TransactionSchema]    
     initial_balance: float
     current_balance: float
-    allocation_contributions: list[AllocationContributionSchema]
+    incoming_transfers: list[TransferSchema]
+    outgoing_transfers: list[TransferSchema]
     created_at: datetime
     updated_at: datetime | None = None
     deleted_at: datetime | None = None

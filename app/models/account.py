@@ -13,9 +13,9 @@ from app.models import utcnow, AccountTypeEnum
 
 if TYPE_CHECKING:
     from app.models.finance import Finance
+    from app.models.allocation import Allocation
     from app.models.income import Income
-    from app.models.allocation_contribution import AllocationContribution
-    from app.models.transaction import Transaction
+    from app.models.transfer import Transfer
 
 
 @table_registry.mapped_as_dataclass
@@ -28,6 +28,14 @@ class Account:
         init=False,
         lazy=default_lazy,
         back_populates="accounts",
+    )
+
+    allocations: Mapped[list["Allocation"]] = relationship(
+        lazy=default_lazy,
+        default_factory=list,
+        init=False,
+        repr=False,
+        back_populates="account",
     )
 
     name: Mapped[str] = mapped_column(String, nullable=False)
@@ -62,20 +70,22 @@ class Account:
         back_populates="account",
     )
 
-    allocation_contributions: Mapped[list["AllocationContribution"]] = relationship(
+    incoming_transfers: Mapped[list["Transfer"]] = relationship(
         lazy=default_lazy,
         default_factory=list,
         init=False,
         repr=False,
-        back_populates="account",
+        back_populates="to_account",
+        foreign_keys="Transfer.to_account_id",
     )
 
-    transactions: Mapped[list["Transaction"]] = relationship(
+    outgoing_transfers: Mapped[list["Transfer"]] = relationship(
         lazy=default_lazy,
         default_factory=list,
         init=False,
         repr=False,
-        back_populates="account",
+        back_populates="from_account",
+        foreign_keys="Transfer.from_account_id",
     )
 
     # Auto-generated / server-managed — excluded from __init__

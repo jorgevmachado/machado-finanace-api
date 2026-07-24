@@ -8,41 +8,43 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_session
 from app.core.security import get_current_user
-
-from app.domain.finance.repository import FinanceRepository
-from app.domain.finance.schema import FinanceSchema
-from app.domain.finance.service import FinanceService
-from app.models import User
+from app.core.security.security import validate_finance
 from app.domain.finance.account.route import router as account_router
 from app.domain.finance.allocation.route import router as allocation_route
-from app.domain.finance.income.route import router as income_route
 from app.domain.finance.allocation_contribution.route import (
     router as allocation_contribution_route,
 )
 from app.domain.finance.category.route import router as category_route
-from app.domain.finance.transaction.route import router as transaction_route
+from app.domain.finance.expense.route import router as expense_route
+from app.domain.finance.income.route import router as income_route
+from app.domain.finance.persist_schema import PayloadPersistSchema
+from app.domain.finance.repository import FinanceRepository
+from app.domain.finance.schema import FinanceSchema, FinancePersistResultSchema
+from app.domain.finance.service import FinanceService
+from app.domain.finance.transfer.route import router as transfer_route
+from app.models import User
 
 router = APIRouter()
 
-router.include_router(account_router, prefix="/account", tags=["FinanceAccount"])
+router.include_router(account_router, prefix="/accounts", tags=["FinanceAccount"])
 
 router.include_router(
-    allocation_route, prefix="/allocation", tags=["FinanceAllocation"]
+    allocation_route, prefix="/allocations", tags=["FinanceAllocation"]
 )
 
-router.include_router(income_route, prefix="/income", tags=["FinanceIncome"])
+router.include_router(income_route, prefix="/incomes", tags=["FinanceIncome"])
 
 router.include_router(
     allocation_contribution_route,
-    prefix="/allocation-contribution",
+    prefix="/allocation-contributions",
     tags=["FinanceAllocationContribution"],
 )
 
-router.include_router(category_route, prefix="/category", tags=["FinanceCategory"])
+router.include_router(category_route, prefix="/categories", tags=["FinanceCategory"])
 
-router.include_router(
-    transaction_route, prefix="/transaction", tags=["FinanceTransaction"]
-)
+router.include_router(expense_route, prefix="/expenses", tags=["FinanceExpense"])
+
+router.include_router(transfer_route, prefix="/transfers", tags=["TransferExpense"])
 
 Session = Annotated[AsyncSession, Depends(get_session)]
 
@@ -55,9 +57,18 @@ Service = Annotated[FinanceService, Depends(finance_service)]
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
-@router.get("", response_model=FinanceSchema, status_code=HTTPStatus.OK)
-async def find_by_user(service: Service, current_user: CurrentUser):
-    return await service.find_by_user(current_user=current_user)
+@router.post(
+    "",
+    response_model=FinancePersistResultSchema,
+    status_code=HTTPStatus.CREATED,
+)
+async def persist(
+    service: Service,
+    current_user: CurrentUser,
+    payloads: list[PayloadPersistSchema],
+):
+    finance = validate_finance(current_user.finance)
+    return await service.persist(finance=finance, payloads=payloads)
 
 
 @router.post(

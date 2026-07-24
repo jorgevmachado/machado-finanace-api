@@ -8,14 +8,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import LoggingParams
 from app.core.service import BaseService
+from app.domain.finance.account.service import AccountService
 from app.domain.finance.allocation.repository import AllocationRepository
 from app.domain.finance.allocation.schema import (
     PayloadAllocationCreateSchema,
     AllocationSchema,
-    PayloadAllocationCreateListSchema,
 )
 
-from app.models import Allocation, Finance
+from app.models import Allocation, Finance, Account
 from app.shared.utils.string import to_snake_case
 
 logger = logging.getLogger(__name__)
@@ -25,72 +25,75 @@ class AllocationService(BaseService[AllocationRepository, Allocation]):
     def __init__(
         self,
         repository: AllocationRepository,
+        account_service: AccountService | None = None,
     ) -> None:
         super().__init__(
             alias="Allocation",
             repository=repository,
+            parents_alias=["finance","account"],
             logger_params=LoggingParams(
                 logger=logger, service="AllocationService", operation="allocation"
             ),
             schema_class=AllocationSchema,
             cache_prefix="allocation",
         )
+        session = repository.session
+        self.account_service = account_service or AccountService.from_session(session)
 
     @classmethod
     def from_session(cls, session: AsyncSession):
         return cls(AllocationRepository(session))
 
-    async def create_list(
-        self, finance: Finance, payload: PayloadAllocationCreateListSchema
-    ) -> list[Allocation]:
-        payload_allocations = payload.allocations if payload.allocations else []
-
-        if len(payload_allocations) == 0:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail="Allocation list cannot be empty",
-            )
-
-        allocations: list[Allocation] = []
-
-        if payload_allocations and len(payload_allocations) > 0:
-            for item in payload_allocations:
-                category = await self.persist(
-                    finance=finance,
-                    payload=item,
-                    with_throw=False,
-                )
-                allocations.append(category)
-
-        return allocations
-
-    async def persist(
+    async def create(
         self,
         finance: Finance,
         payload: PayloadAllocationCreateSchema,
+    ) -> Allocation:
+
+        account = await self.account_service.find_by(
+            id=payload.account_id, finance_id=finance.id, without_throw=True
+        )
+
+        if not account:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail=f"Account with this id {payload.account_id} does not exist",
+            )
+
+        return await self.persist(
+            name=payload.name, account=account, description=payload.description
+        )
+
+    async def persist(
+        self,
+        name: str,
+        account: Account,
+        description: str,
         with_throw: bool = True,
     ) -> Allocation:
 
+        name_code = to_snake_case(name)
+
         allocation = await self.find_by(
-            finance_id=finance.id, name=payload.name, without_throw=True
+            name_code=name_code, account_id=account.id, without_throw=True
         )
         if allocation:
             if with_throw:
                 raise HTTPException(
                     status_code=HTTPStatus.BAD_REQUEST,
-                    detail="Allocation with this name already exists",
+                    detail=f"Allocation with this name {name} already exists",
                 )
             else:
                 return allocation
-        else:
-            name_code = to_snake_case(payload.name)
-            return await self.repository.save(
+        else:            
+            saved_allocation =  await self.repository.save(
                 entity=Allocation(
-                    finance_id=finance.id,
-                    name=payload.name,
+                    name=name,
                     name_code=name_code,
-                    type=payload.type,
                     is_active=True,
-                    description=payload.description,
+                    account_id=account.id,
+                    description=description,
                 )
             )
+            await self.cache_service.delete_with_parent_cache(self.parents_alias)
+            return saved_allocation

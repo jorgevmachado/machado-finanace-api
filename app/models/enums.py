@@ -12,20 +12,10 @@ class RoleEnum(str, Enum):
 
 
 class AccountTypeEnum(str, Enum):
-    PIX = "PIX"
     BANK = "BANK"
     CASH = "CASH"
     OTHER = "OTHER"
     INVESTMENT = "INVESTMENT"
-    CREDIT_CARD = "CREDIT_CARD"
-    ACCOUNT_DEBIT = "ACCOUNT_DEBIT"
-
-
-class AllocationTypeEnum(str, Enum):
-    OTHER = "OTHER"
-    HOUSE = "HOUSE"
-    FAMILY = "FAMILY"
-    PERSONAL = "PERSONAL"
 
 
 class CategoryTypeEnum(str, Enum):
@@ -36,17 +26,17 @@ class CategoryTypeEnum(str, Enum):
     HEALTH = "HEALTH"
     PERSONAL = "PERSONAL"
     TRANSPORT = "TRANSPORT"
-    ENTERTAINMENT = ("ENTERTAINMENT",)
+    CREDIT_CARD = "CREDIT_CARD"
+    ENTERTAINMENT = "ENTERTAINMENT"
     GOVERNMENT_FEES = "GOVERNMENT_FEES"
 
 
-class TransactionTypeEnum(str, Enum):
-    INCOME = "INCOME"
-    EXPENSE = "EXPENSE"
-    TRANSFER = "TRANSFER"
-
-
-class TransactionStatusEnum(str, Enum):
+class MonthStatusEnum(str, Enum):
     PAID = "PAID"
     PENDING = "PENDING"
     CANCELLED = "CANCELLED"
+
+class BankEnum(str, Enum):
+    ITAU = "ITAU"
+    CAIXA = "CAIXA"
+    NUBANK = "NUBANK"

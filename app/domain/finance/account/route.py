@@ -16,7 +16,6 @@ from app.domain.finance.account.schema import (
     AccountSchema,
     PayloadAccountCreateSchema,
     PayloadAccountUpdateSchema,
-    PayloadAccountCreateListSchema,
 )
 from app.domain.finance.account.service import AccountService
 from app.models import User
@@ -44,6 +43,7 @@ def account_filter(
     is_active: bool | None = None,
     clean_cache: bool = False,
     with_deleted: bool = False,
+    reference_year: int | None = None,
 ) -> FilterPage:
     return FilterPage.build(
         page=page,
@@ -54,6 +54,7 @@ def account_filter(
         is_active=is_active,
         clean_cache=clean_cache,
         with_deleted=with_deleted,
+        reference_year=reference_year,
     )
 
 
@@ -83,6 +84,7 @@ async def find_one(
     current_user: CurrentUser,
     clean_cache: bool = False,
     with_deleted: bool = False,
+    reference_year: int | None = None
 ):
     finance = validate_finance(current_user.finance)
     return await service.find_one_cached(
@@ -91,6 +93,7 @@ async def find_one(
         clean_cache=clean_cache,
         with_deleted=with_deleted,
         finance_id=str(finance.id),
+        reference_year=reference_year,
     )
 
 
@@ -99,7 +102,7 @@ async def create(
     service: Service, current_user: CurrentUser, payload: PayloadAccountCreateSchema
 ):
     finance = validate_finance(current_user.finance)
-    return await service.persist(finance=finance, payload=payload)
+    return await service.create(finance=finance, payload=payload)
 
 
 @router.put("/{param}", response_model=AccountSchema, status_code=HTTPStatus.CREATED)
@@ -127,18 +130,13 @@ async def delete(
     )
 
 
-@router.post("/list", response_model=list[AccountSchema], status_code=HTTPStatus.OK)
-async def create_list(
-    service: Service, current_user: CurrentUser, payload: PayloadAccountCreateListSchema
-):
-    finance = validate_finance(current_user.finance)
-    return await service.create_list(finance=finance, payload=payload)
-
-@router.get("/{param}/refresh", response_model=AccountSchema, status_code=HTTPStatus.OK)
-async def refresh(
+@router.get(
+    "/{param}/recalculate", response_model=AccountSchema, status_code=HTTPStatus.OK
+)
+async def recalculate(
     param: str,
     service: Service,
     current_user: CurrentUser,
 ):
     finance = validate_finance(current_user.finance)
-    return await service.refresh(param=param, finance=finance)
+    return await service.recalculate(param=param, finance=finance)

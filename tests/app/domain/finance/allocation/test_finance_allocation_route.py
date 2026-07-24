@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
+from uuid import uuid4
 
 import pytest
 
 from app.domain.finance.allocation.route import (
     create,
-    create_list,
     allocation_service,
     allocation_filter,
     list_all,
@@ -20,7 +20,6 @@ from app.domain.finance.allocation.schema import (
     PayloadAllocationUpdateSchema,
 )
 from app.domain.finance.allocation.service import AllocationService
-from app.models import AllocationTypeEnum
 from app.shared.schemas import FilterPage
 
 
@@ -33,7 +32,6 @@ def test_allocation_builds_dynamic_filter():
     page_filter = allocation_filter(
         page=1,
         name="home",
-        type=AllocationTypeEnum.OTHER,
         limit=12,
         is_active=True,
         clean_cache=True,
@@ -42,7 +40,6 @@ def test_allocation_builds_dynamic_filter():
 
     assert page_filter.page == 1
     assert page_filter.name == "home"
-    assert page_filter.type == "OTHER"
     assert page_filter.limit == 12
     assert page_filter.is_active
     assert page_filter.clean_cache
@@ -51,20 +48,20 @@ def test_allocation_builds_dynamic_filter():
 @pytest.mark.asyncio
 async def test_finance_allocation_route_create() -> None:
     service = AsyncMock()
+    account_id = uuid4()
     payload = PayloadAllocationCreateSchema(
         name="Test Allocation",
-        type=AllocationTypeEnum.OTHER,
+        account_id=account_id,
         description="Some Description",
     )
     expected = SimpleNamespace(
         id="allocation-id",
         name=payload.name,
         name_code="test_allocation",
-        type=payload.type,
         is_active=True,
         description=payload.description,
     )
-    service.persist.return_value = expected
+    service.create.return_value = expected
     current_user = SimpleNamespace(
         id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
     )
@@ -72,25 +69,7 @@ async def test_finance_allocation_route_create() -> None:
     result = await create(service=service, current_user=current_user, payload=payload)
 
     assert result is expected
-    service.persist.assert_awaited_once_with(
-        finance=current_user.finance, payload=payload
-    )
-
-
-@pytest.mark.asyncio
-async def test_finance_allocation_route_create_list() -> None:
-    service = AsyncMock()
-    payload = SimpleNamespace(allocations=[])
-    expected = [SimpleNamespace(id="allocation-id")]
-    service.create_list.return_value = expected
-    current_user = SimpleNamespace(
-        id="user-id", username="Finance User", finance=SimpleNamespace(id="finance-id")
-    )
-
-    result = await create_list(service=service, current_user=current_user, payload=payload)
-
-    assert result == expected
-    service.create_list.assert_awaited_once_with(
+    service.create.assert_awaited_once_with(
         finance=current_user.finance, payload=payload
     )
 
@@ -127,10 +106,11 @@ async def test_finance_allocation_route_list_all_paginate_and_filter() -> None:
 @pytest.mark.asyncio
 async def test_finance_allocation_route_find_one() -> None:
     service = AsyncMock()
+    account_id = uuid4()
     expected = SimpleNamespace(
         id="allocation-id",
         name="Test Allocation",
-        type=AllocationTypeEnum.OTHER,
+        account_id=account_id,
         is_active=True,
         description="Some Description",
     )
@@ -151,17 +131,17 @@ async def test_finance_allocation_route_find_one() -> None:
         user_request="Finance User",
         clean_cache=False,
         with_deleted=False,
-        finance_id="finance-id",
     )
 
 
 @pytest.mark.asyncio
 async def test_finance_allocation_route_update() -> None:
     service = AsyncMock()
+    account_id = uuid4()
     expected = SimpleNamespace(
         id="allocation-id",
         name="Test Allocation",
-        type=AllocationTypeEnum.OTHER,
+        account_id=account_id,
         is_active=True,
         description="Some Description",
     )
@@ -200,7 +180,5 @@ async def test_finance_allocation_route_delete() -> None:
 
     assert result is expected
     service.soft_delete.assert_awaited_once_with(
-        param="allocation-id",
-        user_request="Finance User",
-        finance_id="finance-id",
+        param="allocation-id", user_request="Finance User"
     )
